@@ -1,8 +1,8 @@
-use crate::dom::core::{Nil, XcDataType};
+use xcdt::{Nil, XcDataType};
 
 use super::{html_element::CoreHtmlElementBase, Paragraph};
 
-crate::declare_xcdt!(CoreParagraph, ParagraphProps, CoreHtmlElementBase);
+xcdt::declare_xcdt!(CoreParagraph, ParagraphProps, CoreHtmlElementBase);
 
 pub struct ParagraphProps {}
 

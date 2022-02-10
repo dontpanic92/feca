@@ -1,8 +1,7 @@
 use crate::dom::Node;
+use xcdt::{Nil, XcDataType, XcObjectBase};
 
-use super::{Nil, XcDataType, XcObjectBase};
-
-crate::declare_xcdt!(CoreNode, NodeProps, XcObjectBase);
+xcdt::declare_xcdt!(CoreNode, NodeProps, XcObjectBase);
 
 pub struct NodeProps {
     node_type: i32,

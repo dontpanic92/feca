@@ -1,8 +1,8 @@
+use super::node::CoreNodeBase;
 use crate::dom::Element;
+use xcdt::{Nil, XcDataType};
 
-use super::{node::CoreNodeBase, Nil, XcDataType};
-
-crate::declare_xcdt!(CoreElement, ElementProps, CoreNodeBase);
+xcdt::declare_xcdt!(CoreElement, ElementProps, CoreNodeBase);
 
 pub struct ElementProps {
     id: String,

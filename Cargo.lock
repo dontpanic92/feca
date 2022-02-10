@@ -259,6 +259,7 @@ dependencies = [
  "tl",
  "winapi",
  "winit",
+ "xcdt",
 ]
 
 [[package]]
@@ -1143,6 +1144,10 @@ dependencies = [
  "libc",
  "pkg-config",
 ]
+
+[[package]]
+name = "xcdt"
+version = "0.1.0"
 
 [[package]]
 name = "xcursor"

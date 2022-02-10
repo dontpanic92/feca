@@ -1,8 +1,8 @@
-use crate::dom::core::{Nil, element::CoreElementBase, XcDataType};
-
 use super::HtmlElement;
+use crate::dom::core::element::CoreElementBase;
+use xcdt::{Nil, XcDataType};
 
-crate::declare_xcdt!(CoreHtmlElement, HtmlElementProps, CoreElementBase);
+xcdt::declare_xcdt!(CoreHtmlElement, HtmlElementProps, CoreElementBase);
 
 pub struct HtmlElementProps {
     title: String,
@@ -14,9 +14,8 @@ impl<T: XcDataType> HtmlElement for CoreHtmlElementBase<T> {
     }
 }
 
-
-impl<T: XcDataType> CoreHtmlElementBase<T> {
+/*impl<T: XcDataType> CoreHtmlElementBase<T> {
     pub fn test(&self) {
         println!("{}", 2);
     }
-}
+}*/

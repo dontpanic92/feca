@@ -1,0 +1,20 @@
+[package]
+name = "daydream"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+tl = "0.6.0"
+winit = "0.26.1"
+pango = "0.15"
+raw-window-handle = "0.4.2"
+paste = "1.0"
+
+[dependencies.cairo-rs]
+version = "0.15"
+features = ["win32-surface"]
+
+[target.'cfg(windows)'.dependencies]
+winapi = { version = "0.3", features = ["winuser"] }

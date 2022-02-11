@@ -9,7 +9,7 @@ pub struct TextProps {}
 
 impl<T: XcDataType> Text for CoreTextBase<T> {
     fn split_text(&self, offset: usize) -> Box<dyn Text> {
-        let s = self.as_CoreCharacterDataBase().text().clone();
+        let s = self.ext().ext().text().clone();
         todo!();
     }
 }

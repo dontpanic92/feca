@@ -38,11 +38,11 @@ macro_rules! declare_xcdt {
 
             pub type [<$ty_name Base>]<T> = $base_ty <[<Xc $ty_name>]<T>>;
 
-            impl<T: XcDataType> [<$ty_name Base>]<T> {
+            /*impl<T: XcDataType> [<$ty_name Base>]<T> {
                 pub fn [<as_ $ty_name Base>](&self) -> &[<Xc $ty_name>]<T> {
                     self. [<as_ $base_ty>] ().ext()
                 }
-            }
+            }*/
 
             pub type $ty_name = $base_ty<[<Xc $ty_name>]<Nil>>;
 

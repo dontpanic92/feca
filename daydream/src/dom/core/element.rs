@@ -15,7 +15,7 @@ impl ElementProps {
 }
 impl<T: XcDataType> Element for CoreElementBase<T> {
     fn id(&self) -> String {
-        self.as_CoreElementBase().properties().id.clone()
+        self.ext().ext().properties().id.clone()
     }
 }
 

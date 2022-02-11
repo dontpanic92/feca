@@ -10,7 +10,7 @@ pub struct HtmlElementProps {
 
 impl<T: XcDataType> HtmlElement for CoreHtmlElementBase<T> {
     fn title(&self) -> String {
-        self.as_CoreHtmlElementBase().properties.title.clone()
+        self.ext().ext().ext().properties.title.clone()
     }
 }
 

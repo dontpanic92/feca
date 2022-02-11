@@ -14,9 +14,9 @@ impl<T: XcDataType> XcCoreCharacterData<T> {
     }
 }
 
-/*
+
 impl<T: XcDataType> CharacterData for CoreCharacterDataBase<T> {
     fn text(&self) -> String {
-        self.as_CoreCharacterDataBase().properties.text.clone()
+        self.ext().ext().properties().text.clone()
     }
-}*/
+}

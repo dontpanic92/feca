@@ -14,5 +14,5 @@ pub fn test() {
 }
 
 fn call<T: XcDataType>(e: &CoreNodeBase<T>) {
-    e.as_CoreNodeBase().test();
+    e.ext().test();
 }

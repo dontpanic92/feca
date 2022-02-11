@@ -20,3 +20,7 @@ impl<T: XcDataType> XcCoreNode<T> {
         println!("{}", 1);
     }
 }
+
+pub trait CoreNodeBaseCast {
+
+}

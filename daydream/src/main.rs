@@ -1,3 +1,5 @@
+#![feature(generic_associated_types)]
+
 use page::Page;
 use winit::{
     event::{Event, WindowEvent},
@@ -5,10 +7,10 @@ use winit::{
     window::WindowBuilder,
 };
 
-use crate::{rendering::cairo::CairoRenderer};
+use crate::rendering::cairo::CairoRenderer;
 mod dom;
-mod rendering;
 mod page;
+mod rendering;
 mod test;
 
 fn main() {

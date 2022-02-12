@@ -1,8 +1,13 @@
 use super::HtmlElement;
-use crate::dom::core::element::CoreElementBase;
-use xcdt::{Nil, XcDataType};
+use crate::dom::core::element::{CoreElement, CoreElementBase};
+use xcdt::XcDataType;
 
-xcdt::declare_xcdt!(CoreHtmlElement, HtmlElementProps, CoreElementBase);
+xcdt::declare_xcdt!(
+    CoreHtmlElement,
+    HtmlElementProps,
+    CoreElement,
+    CoreElementBase
+);
 
 pub struct HtmlElementProps {
     title: String,

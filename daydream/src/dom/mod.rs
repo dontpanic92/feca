@@ -1,16 +1,16 @@
 pub mod core;
 pub mod html;
 
-pub(crate) trait Node {}
+pub trait Node {}
 
-pub(crate) trait Element: Node {
+pub trait Element: Node {
     fn id(&self) -> String;
 }
 
-pub(crate) trait CharacterData: Node {
+pub trait CharacterData: Node {
     fn text(&self) -> String;
 }
 
-pub(crate) trait Text: CharacterData {
+pub trait Text: CharacterData {
     fn split_text(&self, offset: usize) -> Box<dyn Text>;
 }

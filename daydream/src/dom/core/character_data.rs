@@ -1,8 +1,13 @@
-use super::node::CoreNodeBase;
+use super::node::{CoreNode, CoreNodeBase};
 use crate::dom::CharacterData;
-use xcdt::{Nil, XcDataType};
+use xcdt::XcDataType;
 
-xcdt::declare_xcdt!(CoreCharacterData, CharacterDataProps, CoreNodeBase);
+xcdt::declare_xcdt!(
+    CoreCharacterData,
+    CharacterDataProps,
+    CoreNode,
+    CoreNodeBase
+);
 
 pub struct CharacterDataProps {
     text: String,
@@ -13,7 +18,6 @@ impl<T: XcDataType> XcCoreCharacterData<T> {
         self.properties.text.as_str()
     }
 }
-
 
 impl<T: XcDataType> CharacterData for CoreCharacterDataBase<T> {
     fn text(&self) -> String {

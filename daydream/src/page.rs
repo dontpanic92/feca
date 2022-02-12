@@ -1,4 +1,4 @@
-use crate::{rendering::cairo::CairoRenderer, dom::html::HtmlDom};
+use crate::{dom::html::HtmlDom, rendering::cairo::CairoRenderer};
 
 pub(crate) struct Page {
     dom: HtmlDom,
@@ -11,11 +11,7 @@ impl Page {
         Self { dom }
     }
 
-    pub fn layout(&mut self) {
+    pub fn layout(&mut self) {}
 
-    }
-
-    pub fn paint(&self, renderer: &CairoRenderer) {
-
-    }
+    pub fn paint(&self, renderer: &CairoRenderer) {}
 }

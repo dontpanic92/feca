@@ -1,12 +1,21 @@
-use xcdt::{Nil, XcDataType};
+use super::{
+    html_element::{CoreHtmlElement, CoreHtmlElementBase},
+    Paragraph,
+};
+use xcdt::XcDataType;
 
-use super::{html_element::CoreHtmlElementBase, Paragraph};
-
-xcdt::declare_xcdt!(CoreParagraph, ParagraphProps, CoreHtmlElementBase);
+xcdt::declare_xcdt!(
+    CoreParagraph,
+    ParagraphProps,
+    CoreHtmlElement,
+    CoreHtmlElementBase
+);
 
 pub struct ParagraphProps {}
 
 impl<T: XcDataType> Paragraph for CoreParagraphBase<T> {}
+
+// pub fn new_core_paragraph(children: Vec<Box<dyn Node>>) -> CoreParagraph {}
 
 /*impl XcParagraph {
     pub fn new(children: Box<dyn Node>) -> Self {

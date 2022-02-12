@@ -1,4 +1,4 @@
-use cairo::{Context, Win32Surface, FontFace};
+use cairo::{Context, FontFace, Win32Surface};
 use raw_window_handle::{HasRawWindowHandle, Win32Handle};
 use winapi::shared::windef::HWND;
 
@@ -29,7 +29,9 @@ impl CairoRenderer {
             .rectangle(0., 0., self.canvas_width, self.canvas_height);
         self.context.fill().unwrap();
 
-        let face = FontFace::toy_create("Sans", cairo::FontSlant::Normal, cairo::FontWeight::Normal).unwrap();
+        let face =
+            FontFace::toy_create("宋体", cairo::FontSlant::Normal, cairo::FontWeight::Normal)
+                .unwrap();
         self.context.set_font_face(&face);
         self.context.set_font_size(80.);
         self.context.move_to(0., 100.);

@@ -1,9 +1,14 @@
 use crate::dom::Text;
 
-use super::character_data::CoreCharacterDataBase;
-use xcdt::{Nil, XcDataType};
+use super::character_data::{CoreCharacterData, CoreCharacterDataBase};
+use xcdt::XcDataType;
 
-xcdt::declare_xcdt!(CoreText, TextProps, CoreCharacterDataBase);
+xcdt::declare_xcdt!(
+    CoreText,
+    TextProps,
+    CoreCharacterData,
+    CoreCharacterDataBase
+);
 
 pub struct TextProps {}
 

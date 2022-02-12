@@ -9,7 +9,6 @@ pub(crate) trait HtmlElement: Element {
 
 pub(crate) trait Paragraph: HtmlElement {}
 
-
 pub(crate) struct HtmlDom {
     root: Option<Box<dyn Node>>,
 }

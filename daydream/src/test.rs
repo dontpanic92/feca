@@ -6,7 +6,7 @@ use xcdt::{Nil, XcDataType, XcObject};
 
 pub fn test() {
     let obj = XcObject::new(XcCoreNode::new(
-        NodeProps::new(1),
+        NodeProps::new(1, vec![]),
         XcCoreElement::new(ElementProps::new("a".to_string()), Nil {}),
     ));
 

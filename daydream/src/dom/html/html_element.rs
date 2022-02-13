@@ -11,18 +11,18 @@ xcdt::declare_xcdt!(
 );
 
 pub struct HtmlElementProps {
-    title: String,
+    title: Option<String>,
 }
 
 impl HtmlElementProps {
-    pub fn new(title: String) -> Self {
+    pub fn new(title: Option<String>) -> Self {
         Self { title }
     }
 }
 
 impl<T: XcDataType> HtmlElement for CoreHtmlElementBase<T> {
-    fn title(&self) -> String {
-        self.ext().ext().ext().properties.title.clone()
+    fn title(&self) -> Option<&str> {
+        self.ext().ext().ext().properties.title.as_deref()
     }
 }
 

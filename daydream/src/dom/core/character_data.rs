@@ -14,14 +14,14 @@ pub struct CharacterDataProps {
     text: String,
 }
 
-impl<T: XcDataType> XcCoreCharacterData<T> {
-    pub fn text(&self) -> &str {
-        self.properties.text.as_str()
+impl CharacterDataProps {
+    pub fn new(text: String) -> Self {
+        Self { text }
     }
 }
 
 impl<T: XcDataType> CharacterData for CoreCharacterDataBase<T> {
-    fn text(&self) -> String {
-        self.ext().ext().properties().text.clone()
+    fn text(&self) -> &str {
+        self.ext().ext().properties().text.as_str()
     }
 }

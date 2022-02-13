@@ -1,14 +1,14 @@
 pub mod core;
 pub mod html;
 
-pub trait Node {}
+pub trait Node: std::fmt::Debug {}
 
 pub trait Element: Node {
-    fn id(&self) -> String;
+    fn id(&self) -> Option<&str>;
 }
 
 pub trait CharacterData: Node {
-    fn text(&self) -> String;
+    fn text(&self) -> &str;
 }
 
 pub trait Text: CharacterData {

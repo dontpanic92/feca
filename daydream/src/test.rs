@@ -8,7 +8,7 @@ use crate::dom::core::{
 pub fn test() {
     let obj = CoreElement::builder()
         .with(NodeProps::new(1, vec![]))
-        .with(ElementProps::new("a".to_string()))
+        .with(ElementProps::new(None))
         .build();
 
     call(&obj);

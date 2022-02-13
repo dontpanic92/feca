@@ -25,8 +25,8 @@ pub fn new_core_paragraph(children: Vec<Box<dyn Node>>) -> Box<CoreParagraph> {
     Box::new(
         CoreParagraph::builder()
             .with(NodeProps::new(2, children))
-            .with(ElementProps::new("b".to_string()))
-            .with(HtmlElementProps::new("".to_string()))
+            .with(ElementProps::new(None))
+            .with(HtmlElementProps::new(None))
             .with(ParagraphProps {})
             .build(),
     )

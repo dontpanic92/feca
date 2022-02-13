@@ -1,5 +1,6 @@
 use crate::{dom::html::HtmlDom, rendering::cairo::CairoRenderer};
 
+#[derive(Debug)]
 pub(crate) struct Page {
     dom: HtmlDom,
 }

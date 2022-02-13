@@ -89,6 +89,13 @@ macro_rules! declare_xcdt {
                 }
             }
 
+            impl<T: xcdt::XcDataType + std::fmt::Debug> std::fmt::Debug for [<Xc $ty_name>]<T> {
+                fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> Result<(), std::fmt::Error> { 
+                    let name = stringify!([<Xc $ty_name>]);
+                    write!(f, "{} {{{:?}}}", name, self.ext)
+                }
+            }
+
             // pub type $ty_name = <[<Xc $ty_name>]< [<_ $ty_name _nil>]::Nil> as xcdt::XcDataType>::CompleteType;
             pub type $ty_name = [<$ty_name Base>]<[<_ $ty_name _nil>]::Nil>;
             pub type [<$ty_name Base>]<T> = $base_ty2<[<Xc $ty_name>]<T>>;
@@ -162,6 +169,12 @@ pub struct XcObjectConstructor<T: XcDataType> {
 impl<T: XcDataType<PreviousDataType = XcObject<T>>> XcObjectConstructor<T> {
     pub fn with(self) -> T::ConstructorType {
         T::get_constructor(XcObjectBuilder::<T> { _pd: PhantomData })
+    }
+}
+
+impl<T: XcDataType> std::fmt::Debug for XcObject<T> {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "XcObject")
     }
 }
 

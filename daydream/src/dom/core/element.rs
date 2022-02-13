@@ -6,16 +6,16 @@ use crate::dom::Element;
 xcdt::declare_xcdt!(CoreElement, ElementProps, CoreNode, CoreNodeBase);
 
 pub struct ElementProps {
-    id: String,
+    id: Option<String>,
 }
 
 impl ElementProps {
-    pub fn new(id: String) -> Self {
+    pub fn new(id: Option<String>) -> Self {
         Self { id }
     }
 }
 impl<T: XcDataType> Element for CoreElementBase<T> {
-    fn id(&self) -> String {
-        self.ext().ext().properties().id.clone()
+    fn id(&self) -> Option<&str> {
+        self.ext().ext().properties().id.as_deref()
     }
 }

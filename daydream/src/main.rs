@@ -19,6 +19,9 @@ fn main() {
     let event_loop = EventLoop::new();
     let window = WindowBuilder::new().build(&event_loop).unwrap();
     let page = Page::new_from_html_string(input);
+
+    println!("{:?}", &page);
+
     let mut renderer = CairoRenderer::new_from_winit(&window);
 
     event_loop.run(move |event, _, control_flow| {

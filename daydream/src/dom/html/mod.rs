@@ -1,14 +1,16 @@
-use super::{Element, Node};
+use super::{core::text, Element, Node};
 
+mod body;
 mod html_element;
 mod paragraph;
 
 pub(crate) trait HtmlElement: Element {
-    fn title(&self) -> String;
+    fn title(&self) -> Option<&str>;
 }
 
 pub(crate) trait Paragraph: HtmlElement {}
 
+#[derive(Debug)]
 pub(crate) struct HtmlDom {
     root: Option<Box<dyn Node>>,
 }
@@ -36,11 +38,12 @@ impl HtmlDom {
                     .collect();
 
                 match t.name().as_utf8_str().to_lowercase().as_str() {
+                    "body" => Some(body::new_core_body(children)),
                     "p" => Some(paragraph::new_core_paragraph(children)),
                     _ => None,
                 }
             }
-            tl::Node::Raw(b) => None, //Some(text::Text::new(b.as_utf8_str().to_string()).to_node()),
+            tl::Node::Raw(b) => Some(text::new_core_text(b.as_utf8_str().to_string())),
             tl::Node::Comment(b) => None?,
         }
     }

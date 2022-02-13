@@ -5,6 +5,7 @@ use std::marker::PhantomData;
 pub trait XcDataType {
     type XcObjectType<T: XcDataType>;
     type PropertiesType;
+    type NilType: XcDataType;
     type PreviousDataType: XcDataType;
     type CompleteType;
     type ExtensibleDataType<T: XcDataType>;
@@ -62,10 +63,24 @@ macro_rules! declare_xcdt {
 
             impl<T: xcdt::XcDataType> xcdt::XcDataType for [<Xc $ty_name>]<T> {
                 type XcObjectType<U: xcdt::XcDataType> = [<Xc $ty_name>]<U>;
+                type NilType = T::NilType;
                 type PropertiesType = $prop_type;
-                type PreviousDataType = <$test_ty as xcdt::XcDataType>::ExtensibleDataType<[<Xc $ty_name>]<T>>;
-                type CompleteType = <<$test_ty as xcdt::XcDataType>::ExtensibleDataType <[<Xc $ty_name>]<T>> as xcdt::XcDataType>::CompleteType;
-                type ExtensibleDataType<U: xcdt::XcDataType> = <<$test_ty as xcdt::XcDataType>::ExtensibleDataType <[<Xc $ty_name>]<T>> as xcdt::XcDataType>::ExtensibleDataType<[<Xc $ty_name>]<U>>;
+                type PreviousDataType = <<
+                    <$test_ty as xcdt::XcDataType>
+                        ::NilType as xcdt::XcDataType>
+                            ::PreviousDataType as xcdt::XcDataType>
+                                ::XcObjectType<[<Xc $ty_name>]<T>>;
+
+                type CompleteType = <<
+                    <Self as xcdt::XcDataType>
+                        ::PreviousDataType as xcdt::XcDataType>
+                            ::ExtensibleDataType <[<Xc $ty_name>]<T>> as xcdt::XcDataType>
+                                ::CompleteType;
+
+                type ExtensibleDataType<U: xcdt::XcDataType> = <
+                    <Self as xcdt::XcDataType>
+                        ::PreviousDataType as xcdt::XcDataType>
+                            ::ExtensibleDataType<[<Xc $ty_name>]<U>>;
                 type BuilderType = [<Xc $ty_name Builder>]<T>;
                 type ConstructorType = [<$ty_name Constructor>]<T>;
 
@@ -74,30 +89,32 @@ macro_rules! declare_xcdt {
                 }
             }
 
-            pub type $ty_name = <[<Xc $ty_name>]< [<_ $ty_name _nil>]::Nil> as xcdt::XcDataType>::CompleteType;
+            // pub type $ty_name = <[<Xc $ty_name>]< [<_ $ty_name _nil>]::Nil> as xcdt::XcDataType>::CompleteType;
+            pub type $ty_name = [<$ty_name Base>]<[<_ $ty_name _nil>]::Nil>;
             pub type [<$ty_name Base>]<T> = $base_ty2<[<Xc $ty_name>]<T>>;
 
-            mod [<_ $ty_name _nil>] {
+            pub mod [<_ $ty_name _nil>] {
                 pub struct Nil;
 
                 impl xcdt::XcDataType for Nil {
                     type XcObjectType<U: xcdt::XcDataType> = Nil;
-                    type PropertiesType = Nil;
+                    type NilType = Nil;
+                    type PropertiesType = ();
                     type PreviousDataType = super::[<Xc $ty_name>]<Nil>;
                     type CompleteType = <super::[<Xc $ty_name>]<Nil> as xcdt::XcDataType>::CompleteType;
-                    type ExtensibleDataType<U: xcdt::XcDataType> = Nil;
-                    type BuilderType = NilConstructor;
-                    type ConstructorType = NilConstructor;
+                    type ExtensibleDataType<U: xcdt::XcDataType> = ();
+                    type BuilderType = ();
+                    type ConstructorType = CompleteObjectBuiler;
 
                     fn get_constructor(base_builder: <<Self as xcdt::XcDataType>::PreviousDataType as xcdt::XcDataType>::BuilderType) -> Self::ConstructorType {
                         Self::ConstructorType { base_builder }
                     }
                 }
 
-                pub struct NilConstructor {
+                pub struct CompleteObjectBuiler {
                     base_builder: super::[<Xc $ty_name Builder>]<Nil>,
                 }
-                impl NilConstructor {
+                impl CompleteObjectBuiler {
                     pub fn build(self) -> <Nil as xcdt::XcDataType>::CompleteType {
                         self.base_builder.build(Nil{})
                     }
@@ -107,37 +124,24 @@ macro_rules! declare_xcdt {
     };
 }
 
-pub type XcObjectBase<T> = XcObject<T>;
-pub type Object = XcObject<Nil>;
-
-pub struct Nil;
-impl XcDataType for Nil {
-    type XcObjectType<U: XcDataType> = Nil;
-    type PropertiesType = Nil;
-    type PreviousDataType = XcObject<Nil>;
-    type CompleteType = <XcObject<Nil> as XcDataType>::CompleteType;
-    type ExtensibleDataType<U: XcDataType> = Nil;
-    type BuilderType = Nil;
-    type ConstructorType = Nil;
-
-    fn get_constructor(
-        _: <<Self as XcDataType>::PreviousDataType as XcDataType>::BuilderType,
-    ) -> Self::ConstructorType {
-        Nil
-    }
-}
+pub type ObjectBase<T> = XcObject<T>;
+pub type Object = XcObject<nil::Nil>;
 
 pub struct XcObject<T: XcDataType> {
     ext: T,
 }
 
-impl<T: XcDataType> XcObject<T> {
+impl<T: XcDataType<PreviousDataType = XcObject<T>>> XcObject<T> {
     pub fn new(ext: T) -> Self {
         Self { ext }
     }
 
     pub fn ext(&self) -> &T {
         &self.ext
+    }
+
+    pub fn builder() -> T::ConstructorType {
+        XcObjectConstructor::<T> { _pd: PhantomData }.with()
     }
 }
 
@@ -165,6 +169,7 @@ impl<T: XcDataType> XcDataType for XcObject<T> {
     type XcObjectType<U: XcDataType> = XcObject<U>;
     type PropertiesType = ();
     type PreviousDataType = XcObject<T>;
+    type NilType = T::NilType;
     type CompleteType = XcObject<T>;
     type ExtensibleDataType<U: XcDataType> = XcObject<U>;
     type BuilderType = XcObjectBuilder<T>;
@@ -174,5 +179,27 @@ impl<T: XcDataType> XcDataType for XcObject<T> {
         _: <<Self as XcDataType>::PreviousDataType as XcDataType>::BuilderType,
     ) -> Self::ConstructorType {
         XcObjectConstructor::<T> { _pd: PhantomData }
+    }
+}
+
+mod nil {
+    use crate::{XcDataType, XcObject};
+
+    pub struct Nil;
+    impl XcDataType for Nil {
+        type XcObjectType<U: XcDataType> = Nil;
+        type PropertiesType = ();
+        type PreviousDataType = XcObject<Nil>;
+        type NilType = Nil;
+        type CompleteType = XcObject<Nil>;
+        type ExtensibleDataType<U: XcDataType> = Nil;
+        type BuilderType = Nil;
+        type ConstructorType = Nil;
+
+        fn get_constructor(
+            _: <<Self as XcDataType>::PreviousDataType as XcDataType>::BuilderType,
+        ) -> Self::ConstructorType {
+            Nil
+        }
     }
 }

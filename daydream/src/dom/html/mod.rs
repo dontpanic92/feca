@@ -36,7 +36,7 @@ impl HtmlDom {
                     .collect();
 
                 match t.name().as_utf8_str().to_lowercase().as_str() {
-                    // "p" => Some(paragraph::Paragraph::new(children).to_node()),
+                    "p" => Some(paragraph::new_core_paragraph(children)),
                     _ => None,
                 }
             }

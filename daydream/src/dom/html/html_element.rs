@@ -1,6 +1,7 @@
+use xcdt::XcDataType;
+
 use super::HtmlElement;
 use crate::dom::core::element::{CoreElement, CoreElementBase};
-use xcdt::XcDataType;
 
 xcdt::declare_xcdt!(
     CoreHtmlElement,
@@ -11,6 +12,12 @@ xcdt::declare_xcdt!(
 
 pub struct HtmlElementProps {
     title: String,
+}
+
+impl HtmlElementProps {
+    pub fn new(title: String) -> Self {
+        Self { title }
+    }
 }
 
 impl<T: XcDataType> HtmlElement for CoreHtmlElementBase<T> {

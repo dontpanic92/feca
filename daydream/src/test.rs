@@ -1,14 +1,15 @@
+use xcdt::XcDataType;
+
 use crate::dom::core::{
-    element::{ElementProps, XcCoreElement},
-    node::{CoreNodeBase, NodeProps, XcCoreNode},
+    element::{CoreElement, ElementProps},
+    node::{CoreNodeBase, NodeProps},
 };
-use xcdt::{Nil, XcDataType, XcObject};
 
 pub fn test() {
-    let obj = XcObject::new(XcCoreNode::new(
-        NodeProps::new(1, vec![]),
-        XcCoreElement::new(ElementProps::new("a".to_string()), Nil {}),
-    ));
+    let obj = CoreElement::builder()
+        .with(NodeProps::new(1, vec![]))
+        .with(ElementProps::new("a".to_string()))
+        .build();
 
     call(&obj);
 }

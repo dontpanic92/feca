@@ -1,8 +1,14 @@
+use xcdt::XcDataType;
+
+use crate::dom::{
+    core::{element::ElementProps, node::NodeProps},
+    Node,
+};
+
 use super::{
-    html_element::{CoreHtmlElement, CoreHtmlElementBase},
+    html_element::{CoreHtmlElement, CoreHtmlElementBase, HtmlElementProps},
     Paragraph,
 };
-use xcdt::XcDataType;
 
 xcdt::declare_xcdt!(
     CoreParagraph,
@@ -15,7 +21,16 @@ pub struct ParagraphProps {}
 
 impl<T: XcDataType> Paragraph for CoreParagraphBase<T> {}
 
-// pub fn new_core_paragraph(children: Vec<Box<dyn Node>>) -> CoreParagraph {}
+pub fn new_core_paragraph(children: Vec<Box<dyn Node>>) -> Box<CoreParagraph> {
+    Box::new(
+        CoreParagraph::builder()
+            .with(NodeProps::new(2, children))
+            .with(ElementProps::new("b".to_string()))
+            .with(HtmlElementProps::new("".to_string()))
+            .with(ParagraphProps {})
+            .build(),
+    )
+}
 
 /*impl XcParagraph {
     pub fn new(children: Box<dyn Node>) -> Self {

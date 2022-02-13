@@ -1,6 +1,7 @@
+use xcdt::XcDataType;
+
 use super::node::{CoreNode, CoreNodeBase};
 use crate::dom::Element;
-use xcdt::XcDataType;
 
 xcdt::declare_xcdt!(CoreElement, ElementProps, CoreNode, CoreNodeBase);
 

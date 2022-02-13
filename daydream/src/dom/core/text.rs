@@ -1,7 +1,8 @@
+use xcdt::XcDataType;
+
 use crate::dom::Text;
 
 use super::character_data::{CoreCharacterData, CoreCharacterDataBase};
-use xcdt::XcDataType;
 
 xcdt::declare_xcdt!(
     CoreText,

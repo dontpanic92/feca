@@ -1,8 +1,8 @@
 use super::{core::text, Element, Node};
 
-mod body;
-mod html_element;
-mod paragraph;
+pub mod body;
+pub mod html_element;
+pub mod paragraph;
 
 pub(crate) trait HtmlElement: Element {
     fn title(&self) -> Option<&str>;
@@ -10,7 +10,6 @@ pub(crate) trait HtmlElement: Element {
 
 pub(crate) trait Paragraph: HtmlElement {}
 
-#[derive(Debug)]
 pub(crate) struct HtmlDom {
     root: Option<Box<dyn Node>>,
 }

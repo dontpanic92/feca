@@ -8,7 +8,9 @@ use winit::{
 };
 
 use crate::rendering::cairo::CairoRenderer;
+mod common;
 mod dom;
+mod layout;
 mod page;
 mod rendering;
 mod test;
@@ -19,8 +21,6 @@ fn main() {
     let event_loop = EventLoop::new();
     let window = WindowBuilder::new().build(&event_loop).unwrap();
     let page = Page::new_from_html_string(input);
-
-    println!("{:?}", &page);
 
     let mut renderer = CairoRenderer::new_from_winit(&window);
 

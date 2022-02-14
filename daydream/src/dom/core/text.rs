@@ -1,6 +1,11 @@
+use std::cell::Cell;
+
 use xcdt::XcDataType;
 
-use crate::dom::{CharacterData, Text};
+use crate::{
+    common::Rectangle,
+    dom::{CharacterData, Text},
+};
 
 use super::{
     character_data::{CharacterDataProps, CoreCharacterData, CoreCharacterDataBase},
@@ -14,10 +19,15 @@ xcdt::declare_xcdt!(
     CoreCharacterDataBase
 );
 
-pub struct TextProps {}
+pub struct TextProps {
+    layout: Cell<Option<pango::Layout>>,
+}
+
 impl TextProps {
     pub fn new() -> Self {
-        Self {}
+        Self {
+            layout: Cell::new(None),
+        }
     }
 }
 

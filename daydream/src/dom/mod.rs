@@ -1,7 +1,13 @@
+use crate::common::Rectangle;
+
 pub mod core;
 pub mod html;
 
-pub trait Node: std::fmt::Debug {}
+pub trait Node {
+    fn children(&self) -> &[Box<dyn Node>];
+
+    // fn layout(&self, pango_context: &pango::Context, boundary: Rectangle) -> Rectangle;
+}
 
 pub trait Element: Node {
     fn id(&self) -> Option<&str>;

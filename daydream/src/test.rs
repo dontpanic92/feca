@@ -1,19 +1,7 @@
-use xcdt::XcDataType;
-
-use crate::dom::core::{
-    element::{CoreElement, ElementProps},
-    node::{CoreNodeBase, NodeProps},
-};
+use crate::{dom::html::paragraph::{ImplTestViaCoreParagraph, new_core_paragraph}, layout::Test};
 
 pub fn test() {
-    let obj = CoreElement::builder()
-        .with(NodeProps::new(1, vec![]))
-        .with(ElementProps::new(None))
-        .build();
-
-    call(&obj);
-}
-
-fn call<T: XcDataType>(e: &CoreNodeBase<T>) {
-    e.ext().test();
+    let p = new_core_paragraph(vec![]);
+    let q = p as Box<dyn ImplTestViaCoreParagraph>;
+    q.test();
 }

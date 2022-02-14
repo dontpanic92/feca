@@ -1,15 +1,12 @@
 use std::cell::Cell;
 
-use xcdt::XcDataType;
-
-use crate::{
-    common::Rectangle,
-    dom::{CharacterData, Text},
-};
+use crate::{common::Rectangle, dom::Text, layout::text::TextLayout};
 
 use super::{
-    character_data::{CharacterDataProps, CoreCharacterData, CoreCharacterDataBase},
-    node::NodeProps,
+    character_data::{
+        CharacterDataImpl, CharacterDataProps, CoreCharacterData, CoreCharacterDataBase,
+    },
+    node::{LayoutImpl, NodeImpl, NodeProps, RenderImpl},
 };
 
 xcdt::declare_xcdt!(
@@ -20,21 +17,50 @@ xcdt::declare_xcdt!(
 );
 
 pub struct TextProps {
-    layout: Cell<Option<pango::Layout>>,
+    layout: TextLayout,
 }
 
 impl TextProps {
     pub fn new() -> Self {
         Self {
-            layout: Cell::new(None),
+            layout: TextLayout::new(),
         }
     }
 }
 
-impl<T: XcDataType> Text for CoreTextBase<T> {
+pub(crate) trait TextImpl: IsCoreText {
     fn split_text(&self, offset: usize) -> Box<dyn Text> {
-        let s = self.text().clone();
         todo!();
+    }
+}
+
+impl NodeImpl for CoreText {}
+impl CharacterDataImpl for CoreText {}
+impl TextImpl for CoreText {}
+
+impl LayoutImpl for CoreText {
+    fn layout(
+        &self,
+        pango_context: &pango::Context,
+        content_boundary: crate::common::Rectangle,
+    ) -> crate::common::Rectangle {
+        let rect = self
+            .props()
+            .layout
+            .layout(pango_context, content_boundary, self.text());
+        rect
+    }
+}
+
+impl RenderImpl for CoreText {
+    fn paint(&self, renderer: &crate::rendering::cairo::CairoRenderer) {
+        self.props().layout.render(renderer.context());
+    }
+}
+
+impl<T: TextImpl> Text for T {
+    fn split_text(&self, offset: usize) -> Box<dyn Text> {
+        TextImpl::split_text(self, offset)
     }
 }
 

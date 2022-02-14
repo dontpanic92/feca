@@ -1,6 +1,6 @@
 use crate::{common::Rectangle, dom::Node};
 
-use super::Layout;
+use super::Layoutable;
 
 pub struct FlowLayout;
 
@@ -8,20 +8,17 @@ impl FlowLayout {
     pub fn new() -> Self {
         Self {}
     }
-}
 
-impl Layout for FlowLayout {
-    fn layout(
-        &self,
+    pub fn layout(
         pango_context: &pango::Context,
         content_boundary: Rectangle,
-        children: &[Box<dyn Node>],
+        children: &[&dyn Layoutable],
     ) -> Rectangle {
         let mut next_boundary = content_boundary;
-        /*for child in children {
+        for child in children {
             let boundary = child.layout(pango_context, next_boundary);
             next_boundary.top = boundary.top + boundary.height;
-        }*/
+        }
 
         Rectangle {
             top: content_boundary.top,

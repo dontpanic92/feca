@@ -1,14 +1,9 @@
-use xcdt::XcDataType;
-
-use crate::{
-    dom::{
-        core::{
-            element::ElementProps,
-            node::{CoreNode, NodeProps},
-        },
-        Node,
+use crate::dom::{
+    core::{
+        element::ElementProps,
+        node::{LayoutImpl, NodeImpl, NodeProps, RenderImpl},
     },
-    layout::{flow::FlowLayout, Test},
+    Node,
 };
 
 use super::{
@@ -31,33 +26,14 @@ impl ParagraphProps {
     }
 }
 
-impl<T: XcDataType> Paragraph for CoreParagraphBase<T> {}
+pub(crate) trait ParagraphImpl: IsCoreParagraph {}
 
-/*
-pub trait Test2 {
-    fn test(&self);
-}
+impl NodeImpl for CoreParagraph {}
+impl LayoutImpl for CoreParagraph {}
+impl RenderImpl for CoreParagraph {}
+impl ParagraphImpl for CoreParagraph {}
 
-impl Test for dyn Test2 {
-    fn test(&self) {
-        <Self as Test2>::test(self)
-    }
-}
-
-impl Test2 for CoreParagraph {
-    fn test(&self) {
-        println!("in paragraph test");
-    }
-}*/
-
-// impl<T: XcDataType> ReuseTestImpl for CoreParagraphBase<T> {}
-
-pub trait ImplTestViaCoreParagraph {}
-impl<T: ImplTestViaCoreParagraph> Test for T {
-    fn test(&self) {
-        println!("in paragraph test");
-    }
-}
+impl<T: ParagraphImpl> Paragraph for T {}
 
 pub fn new_core_paragraph(children: Vec<Box<dyn Node>>) -> Box<CoreParagraph> {
     Box::new(

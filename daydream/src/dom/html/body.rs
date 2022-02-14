@@ -1,8 +1,14 @@
-use xcdt::XcDataType;
+use intertrait::castable_to;
 
-use crate::dom::{
-    core::{element::ElementProps, node::NodeProps},
-    Node,
+use crate::{
+    dom::{
+        core::{
+            element::ElementProps,
+            node::{LayoutImpl, NodeImpl, NodeProps, RenderImpl},
+        },
+        Node,
+    },
+    layout::Layoutable,
 };
 
 use super::html_element::{CoreHtmlElement, CoreHtmlElementBase, HtmlElementProps};
@@ -16,6 +22,15 @@ impl BodyProps {
         Self
     }
 }
+
+pub(crate) trait BodyImpl: IsCoreBody {}
+
+impl NodeImpl for CoreBody {}
+impl LayoutImpl for CoreBody {}
+impl RenderImpl for CoreBody {}
+impl BodyImpl for CoreBody {}
+
+castable_to!(CoreBody => Node, Layoutable);
 
 pub fn new_core_body(children: Vec<Box<dyn Node>>) -> Box<CoreBody> {
     Box::new(

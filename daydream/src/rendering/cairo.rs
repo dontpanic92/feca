@@ -2,7 +2,7 @@ use cairo::{Context, FontFace, Win32Surface};
 use raw_window_handle::{HasRawWindowHandle, Win32Handle};
 use winapi::shared::windef::HWND;
 
-pub(crate) struct CairoRenderer {
+pub struct CairoRenderer {
     _surface: Win32Surface,
     context: Context,
     canvas_width: f64,
@@ -29,15 +29,31 @@ impl CairoRenderer {
             .rectangle(0., 0., self.canvas_width, self.canvas_height);
         self.context.fill().unwrap();
 
+        /*
         let face =
             FontFace::toy_create("宋体", cairo::FontSlant::Normal, cairo::FontWeight::Normal)
                 .unwrap();
         self.context.set_font_face(&face);
         self.context.set_font_size(80.);
+        */
+        let layout = pangocairo::create_layout(&self.context).unwrap();
+        layout.set_text("text");
+        let desc = pango::FontDescription::from_string("Sans Bold 27");
+        layout.set_font_description(Some(&desc));
+        println!("{:?}", layout.size());
+
         self.context.move_to(0., 100.);
         self.context.set_source_rgb(0., 0., 0.);
-        self.context.show_text("test").unwrap();
+
+        pangocairo::update_layout(&self.context, &layout);
+        pangocairo::show_layout(&self.context, &layout);
+
+        // self.context.show_text("test").unwrap();
         // self.context.paint().unwrap();
+    }
+
+    pub fn context(&self) -> &Context {
+        &self.context
     }
 
     fn create_surface_from_winit(window: &winit::window::Window) -> Win32Surface {

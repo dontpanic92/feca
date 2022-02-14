@@ -1,7 +1,12 @@
-use xcdt::XcDataType;
+use crate::dom::{
+    core::{
+        element::{CoreElement, CoreElementBase, ElementProps},
+        node::{LayoutImpl, NodeImpl, NodeProps, RenderImpl},
+    },
+    Node,
+};
 
 use super::HtmlElement;
-use crate::dom::core::element::{CoreElement, CoreElementBase};
 
 xcdt::declare_xcdt!(
     CoreHtmlElement,
@@ -20,14 +25,25 @@ impl HtmlElementProps {
     }
 }
 
-impl<T: XcDataType> HtmlElement for CoreHtmlElementBase<T> {
+pub(crate) trait HtmlElementImpl: IsCoreHtmlElement {}
+
+impl NodeImpl for CoreHtmlElement {}
+impl LayoutImpl for CoreHtmlElement {}
+impl RenderImpl for CoreHtmlElement {}
+impl HtmlElementImpl for CoreHtmlElement {}
+
+impl<T: HtmlElementImpl> HtmlElement for T {
     fn title(&self) -> Option<&str> {
-        self.ext().ext().ext().properties.title.as_deref()
+        todo!()
     }
 }
 
-/*impl<T: XcDataType> CoreHtmlElementBase<T> {
-    pub fn test(&self) {
-        println!("{}", 2);
-    }
-}*/
+pub fn new_core_html_element(children: Vec<Box<dyn Node>>) -> Box<CoreHtmlElement> {
+    Box::new(
+        CoreHtmlElement::builder()
+            .with(NodeProps::new(2, children))
+            .with(ElementProps::new(None))
+            .with(HtmlElementProps::new(None))
+            .build(),
+    )
+}

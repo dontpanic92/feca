@@ -22,32 +22,35 @@ macro_rules! declare_xcdt {
     ($ty_name: ident, $prop_type: ty, $test_ty: ty, $base_ty2: ty) => {
         paste::paste! {
             pub struct [<Xc $ty_name>]<T: xcdt::XcDataType> {
-                properties: $prop_type,
+                props: $prop_type,
                 ext: T,
             }
 
             impl<T: xcdt::XcDataType> [<Xc $ty_name>]<T> {
-                pub fn new(properties: $prop_type, ext: T) -> Self {
-                    Self { properties, ext }
+                pub fn new(props: $prop_type, ext: T) -> Self {
+                    Self { props, ext }
                 }
+
 
                 pub fn ext(&self) -> &T {
                     &self.ext
                 }
 
-                pub fn properties(&self) -> &$prop_type {
-                    &self.properties
+                pub fn get_xc_object(object: &[<$ty_name Base>]<T>) -> &[<Xc $ty_name>]<T>{
+                    <<<$test_ty as xcdt::XcDataType>
+                        ::NilType as xcdt::XcDataType>::PreviousDataType as xcdt::XcDataType>
+                            ::XcObjectType::<[<Xc $ty_name>]<T>>::get_xc_object(object).ext()
                 }
             }
 
             pub struct [<Xc $ty_name Builder>]<T: xcdt::XcDataType>{
                 base_builder: <<[<Xc $ty_name>]<T> as xcdt::XcDataType>::PreviousDataType as xcdt::XcDataType>::BuilderType,
-                properties: $prop_type,
+                props: $prop_type,
             }
 
             impl<T: xcdt::XcDataType> [<Xc $ty_name Builder>]<T> {
                 pub fn build(self, ext: T) -> <[<Xc $ty_name>]<T> as xcdt::XcDataType>::CompleteType {
-                    self.base_builder.build([<Xc $ty_name>] { properties: self.properties, ext })
+                    self.base_builder.build([<Xc $ty_name>] { props: self.props, ext })
                 }
             }
 
@@ -56,8 +59,8 @@ macro_rules! declare_xcdt {
             }
 
             impl<T: xcdt::XcDataType<PreviousDataType = [<Xc $ty_name>]<T>>> [<$ty_name Constructor>]<T> {
-                pub fn with(self, properties: $prop_type) -> T::ConstructorType {
-                    T::get_constructor( [<Xc $ty_name Builder>]::<T> { base_builder: self.base_builder, properties })
+                pub fn with(self, props: $prop_type) -> T::ConstructorType {
+                    T::get_constructor( [<Xc $ty_name Builder>]::<T> { base_builder: self.base_builder, props })
                 }
             }
 
@@ -89,10 +92,13 @@ macro_rules! declare_xcdt {
                 }
             }
 
-            impl<T: xcdt::XcDataType + std::fmt::Debug> std::fmt::Debug for [<Xc $ty_name>]<T> {
-                fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> Result<(), std::fmt::Error> { 
-                    let name = stringify!([<Xc $ty_name>]);
-                    write!(f, "{} {{{:?}}}", name, self.ext)
+            pub trait [<Is $ty_name>] {
+                fn props(&self) -> &$prop_type;
+            }
+
+            impl<T: xcdt::XcDataType> [<Is $ty_name>] for [<$ty_name Base>]<T> {
+                fn props(&self) -> &$prop_type {
+                    &<[<Xc $ty_name>]<T>>::get_xc_object(self).props
                 }
             }
 
@@ -149,6 +155,10 @@ impl<T: XcDataType<PreviousDataType = XcObject<T>>> XcObject<T> {
 
     pub fn builder() -> T::ConstructorType {
         XcObjectConstructor::<T> { _pd: PhantomData }.with()
+    }
+
+    pub fn get_xc_object(object: &ObjectBase<T>) -> &XcObject<T> {
+        object
     }
 }
 

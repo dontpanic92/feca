@@ -1,4 +1,4 @@
-use super::node::{CoreNode, CoreNodeBase, LayoutImpl, NodeImpl};
+use super::node::{CoreNode, CoreNodeBase, NodeImpl};
 use crate::dom::CharacterData;
 
 xcdt::declare_xcdt!(
@@ -26,12 +26,11 @@ impl CharacterDataProps {
 
 pub(crate) trait CharacterDataImpl: IsCoreCharacterData {
     fn text(&self) -> &str {
-        IsCoreCharacterData::props(self).text()
+        self.CharacterDataProps().text()
     }
 }
 
 impl NodeImpl for CoreCharacterData {}
-impl LayoutImpl for CoreCharacterData {}
 impl CharacterDataImpl for CoreCharacterData {}
 
 impl<T: CharacterDataImpl> CharacterData for T {

@@ -1,7 +1,7 @@
 use crate::dom::{
     core::{
         element::{CoreElement, CoreElementBase, ElementProps},
-        node::{LayoutImpl, NodeImpl, NodeProps, RenderImpl},
+        node::{NodeImpl, NodeProps},
     },
     Node,
 };
@@ -28,8 +28,6 @@ impl HtmlElementProps {
 pub(crate) trait HtmlElementImpl: IsCoreHtmlElement {}
 
 impl NodeImpl for CoreHtmlElement {}
-impl LayoutImpl for CoreHtmlElement {}
-impl RenderImpl for CoreHtmlElement {}
 impl HtmlElementImpl for CoreHtmlElement {}
 
 impl<T: HtmlElementImpl> HtmlElement for T {

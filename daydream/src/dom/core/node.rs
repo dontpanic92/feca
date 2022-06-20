@@ -4,7 +4,7 @@ use crate::{
     rendering::Renderable,
 };
 use intertrait::castable_to;
-use xcdt::{Object, ObjectBase};
+use xcdt::{Object, ObjectBase, XcDataType};
 
 xcdt::declare_xcdt!(CoreNode, NodeProps, Object, ObjectBase);
 
@@ -28,11 +28,11 @@ impl NodeProps {
 
 pub(crate) trait NodeImpl: IsCoreNode {
     fn children(&self) -> &[Box<dyn Node>] {
-        self.props().children.as_ref()
+        self.NodeProps().children.as_ref()
     }
 }
 
-impl<T: 'static + NodeImpl + Layoutable + Renderable> Node for T {
+impl<T: NodeImpl + Layoutable + Renderable> Node for T {
     fn children(&self) -> &[Box<dyn Node>] {
         NodeImpl::children(self)
     }
@@ -46,14 +46,14 @@ impl<T: 'static + NodeImpl + Layoutable + Renderable> Node for T {
     }
 }
 
-pub(crate) trait LayoutImpl: IsCoreNode {
-    fn layout(
+impl<T: 'static + XcDataType> Layoutable for CoreNodeBase<T> {
+    default fn layout(
         &self,
         pango_context: &pango::Context,
         content_boundary: crate::common::Rectangle,
     ) -> crate::common::Rectangle {
         let children: Vec<&dyn Layoutable> = self
-            .props()
+            .NodeProps()
             .children()
             .iter()
             //.map(|c| CastRef::cast::<dyn Layoutable>(c))
@@ -66,42 +66,19 @@ pub(crate) trait LayoutImpl: IsCoreNode {
     }
 }
 
-impl<T: 'static + LayoutImpl> Layoutable for T {
-    fn layout(
-        &self,
-        pango_context: &pango::Context,
-        content_boundary: crate::common::Rectangle,
-    ) -> crate::common::Rectangle {
-        LayoutImpl::layout(self, pango_context, content_boundary)
+impl<T: 'static + XcDataType> Renderable for CoreNodeBase<T> {
+    default fn paint(&self, renderer: &crate::rendering::cairo::CairoRenderer) {
+        paint_children(self.NodeProps().children(), renderer)
     }
 }
 
-pub(crate) trait RenderImpl: IsCoreNode {
-    fn paint(&self, renderer: &crate::rendering::cairo::CairoRenderer) {
-        <dyn RenderImpl>::paint_children(self.props().children(), renderer)
-    }
-}
-
-impl dyn RenderImpl {
-    fn paint_children(
-        children: &[Box<dyn Node>],
-        renderer: &crate::rendering::cairo::CairoRenderer,
-    ) {
-        children
-            .iter()
-            .map(|c| c.as_renderable())
-            .for_each(|c| c.paint(renderer))
-    }
-}
-
-impl<T: 'static + RenderImpl> Renderable for T {
-    fn paint(&self, renderer: &crate::rendering::cairo::CairoRenderer) {
-        RenderImpl::paint(self, renderer)
-    }
+fn paint_children(children: &[Box<dyn Node>], renderer: &crate::rendering::cairo::CairoRenderer) {
+    children
+        .iter()
+        .map(|c| c.as_renderable())
+        .for_each(|c| c.paint(renderer))
 }
 
 impl NodeImpl for CoreNode {}
-impl LayoutImpl for CoreNode {}
-impl RenderImpl for CoreNode {}
 
 castable_to!(CoreNode => Node, Layoutable);

@@ -1,4 +1,5 @@
 #![feature(generic_associated_types)]
+#![feature(min_specialization)]
 
 use page::Page;
 use winit::{

@@ -1,12 +1,21 @@
 use std::cell::Cell;
 
-use crate::{common::Rectangle, dom::Text, layout::text::TextLayout};
+use xcdt::XcDataType;
+
+use crate::{
+    common::Rectangle,
+    dom::Text,
+    layout::{text::TextLayout, Layoutable},
+    rendering::Renderable,
+};
 
 use super::{
     character_data::{
         CharacterDataImpl, CharacterDataProps, CoreCharacterData, CoreCharacterDataBase,
+        IsCoreCharacterData,
     },
-    node::{LayoutImpl, NodeImpl, NodeProps, RenderImpl},
+    element::IsCoreElement,
+    node::{NodeImpl, NodeProps},
 };
 
 xcdt::declare_xcdt!(
@@ -28,7 +37,32 @@ impl TextProps {
     }
 }
 
-pub(crate) trait TextImpl: IsCoreText {
+pub(crate) trait TextImpl: IsCoreText {}
+pub(crate) trait TextLayoutableImpl: IsCoreText {}
+pub(crate) trait TextRenderableImpl: IsCoreText {}
+
+impl<T: 'static + XcDataType> Renderable for CoreTextBase<T> {
+    fn paint(&self, renderer: &crate::rendering::cairo::CairoRenderer) {
+        self.TextProps().layout.render(renderer.context());
+    }
+}
+
+impl<T: 'static + XcDataType> Layoutable for CoreTextBase<T> {
+    fn layout(
+        &self,
+        pango_context: &pango::Context,
+        content_boundary: crate::common::Rectangle,
+    ) -> crate::common::Rectangle {
+        let text = self.CharacterDataProps().text();
+        let rect = self
+            .TextProps()
+            .layout
+            .layout(pango_context, content_boundary, text);
+        rect
+    }
+}
+
+impl<T: TextImpl> Text for T {
     fn split_text(&self, offset: usize) -> Box<dyn Text> {
         todo!();
     }
@@ -37,32 +71,8 @@ pub(crate) trait TextImpl: IsCoreText {
 impl NodeImpl for CoreText {}
 impl CharacterDataImpl for CoreText {}
 impl TextImpl for CoreText {}
-
-impl LayoutImpl for CoreText {
-    fn layout(
-        &self,
-        pango_context: &pango::Context,
-        content_boundary: crate::common::Rectangle,
-    ) -> crate::common::Rectangle {
-        let rect = self
-            .props()
-            .layout
-            .layout(pango_context, content_boundary, self.text());
-        rect
-    }
-}
-
-impl RenderImpl for CoreText {
-    fn paint(&self, renderer: &crate::rendering::cairo::CairoRenderer) {
-        self.props().layout.render(renderer.context());
-    }
-}
-
-impl<T: TextImpl> Text for T {
-    fn split_text(&self, offset: usize) -> Box<dyn Text> {
-        TextImpl::split_text(self, offset)
-    }
-}
+impl TextLayoutableImpl for CoreText {}
+impl TextRenderableImpl for CoreText {}
 
 pub fn new_core_text(text: String) -> Box<CoreText> {
     Box::new(

@@ -4,7 +4,7 @@ use crate::{
     dom::{
         core::{
             element::ElementProps,
-            node::{LayoutImpl, NodeImpl, NodeProps, RenderImpl},
+            node::{NodeImpl, NodeProps},
         },
         Node,
     },
@@ -26,8 +26,6 @@ impl BodyProps {
 pub(crate) trait BodyImpl: IsCoreBody {}
 
 impl NodeImpl for CoreBody {}
-impl LayoutImpl for CoreBody {}
-impl RenderImpl for CoreBody {}
 impl BodyImpl for CoreBody {}
 
 castable_to!(CoreBody => Node, Layoutable);

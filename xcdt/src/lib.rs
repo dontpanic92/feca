@@ -92,12 +92,13 @@ macro_rules! declare_xcdt {
                 }
             }
 
+            #[allow(non_snake_case)]
             pub trait [<Is $ty_name>] {
-                fn props(&self) -> &$prop_type;
+                fn $prop_type(&self) -> &$prop_type;
             }
 
             impl<T: xcdt::XcDataType> [<Is $ty_name>] for [<$ty_name Base>]<T> {
-                fn props(&self) -> &$prop_type {
+                fn $prop_type(&self) -> &$prop_type {
                     &<[<Xc $ty_name>]<T>>::get_xc_object(self).props
                 }
             }

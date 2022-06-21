@@ -1,7 +1,7 @@
 use crate::dom::{
     core::{
-        element::{CoreElement, ElementImpl, ElementProps},
-        node::{CoreNode, NodeImpl, NodeProps},
+        element::{CoreElement, ElementProps},
+        node::{CoreNode, NodeProps},
     },
     Node,
 };
@@ -12,7 +12,7 @@ pub fn test() {
         .with(NodeProps::new(1, vec![]))
         .with(ElementProps::new(None))
         .build();
-    let c = (&n as &dyn NodeImpl).children();
+    // let c = (&n as &dyn NodeImpl).children();
     // let c2 = e.children();
 
     let x = Box::new(e);

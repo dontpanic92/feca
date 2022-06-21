@@ -1,4 +1,6 @@
-use super::node::{CoreNode, CoreNodeBase, IsCoreNode, NodeImpl};
+use xcdt::XcDataType;
+
+use super::node::{CoreNode, CoreNodeBase};
 use crate::dom::Element;
 
 xcdt::declare_xcdt!(CoreElement, ElementProps, CoreNode, CoreNodeBase);
@@ -13,13 +15,8 @@ impl ElementProps {
     }
 }
 
-pub(crate) trait ElementImpl: IsCoreElement {}
-
-impl<T: ElementImpl> Element for T {
+impl<T: 'static + XcDataType> Element for CoreElementBase<T> {
     fn id(&self) -> Option<&str> {
         self.ElementProps().id.as_deref()
     }
 }
-
-impl NodeImpl for CoreElement {}
-impl ElementImpl for CoreElement {}

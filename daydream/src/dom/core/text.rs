@@ -11,11 +11,11 @@ use crate::{
 
 use super::{
     character_data::{
-        CharacterDataImpl, CharacterDataProps, CoreCharacterData, CoreCharacterDataBase,
+        CharacterDataProps, CoreCharacterData, CoreCharacterDataBase,
         IsCoreCharacterData,
     },
     element::IsCoreElement,
-    node::{NodeImpl, NodeProps},
+    node::NodeProps,
 };
 
 xcdt::declare_xcdt!(
@@ -68,8 +68,6 @@ impl<T: TextImpl> Text for T {
     }
 }
 
-impl NodeImpl for CoreText {}
-impl CharacterDataImpl for CoreText {}
 impl TextImpl for CoreText {}
 impl TextLayoutableImpl for CoreText {}
 impl TextRenderableImpl for CoreText {}

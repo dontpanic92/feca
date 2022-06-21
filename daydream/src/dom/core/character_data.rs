@@ -1,4 +1,6 @@
-use super::node::{CoreNode, CoreNodeBase, NodeImpl};
+use xcdt::XcDataType;
+
+use super::node::{CoreNode, CoreNodeBase};
 use crate::dom::CharacterData;
 
 xcdt::declare_xcdt!(
@@ -24,17 +26,9 @@ impl CharacterDataProps {
     }
 }
 
-pub(crate) trait CharacterDataImpl: IsCoreCharacterData {
+
+impl<T: 'static + XcDataType> CharacterData for CoreCharacterDataBase<T> {
     fn text(&self) -> &str {
         self.CharacterDataProps().text()
-    }
-}
-
-impl NodeImpl for CoreCharacterData {}
-impl CharacterDataImpl for CoreCharacterData {}
-
-impl<T: CharacterDataImpl> CharacterData for T {
-    fn text(&self) -> &str {
-        CharacterDataImpl::text(self)
     }
 }

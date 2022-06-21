@@ -1,7 +1,9 @@
+use xcdt::XcDataType;
+
 use crate::dom::{
     core::{
         element::{CoreElement, CoreElementBase, ElementProps},
-        node::{NodeImpl, NodeProps},
+        node::NodeProps,
     },
     Node,
 };
@@ -25,12 +27,7 @@ impl HtmlElementProps {
     }
 }
 
-pub(crate) trait HtmlElementImpl: IsCoreHtmlElement {}
-
-impl NodeImpl for CoreHtmlElement {}
-impl HtmlElementImpl for CoreHtmlElement {}
-
-impl<T: HtmlElementImpl> HtmlElement for T {
+impl<T: 'static + XcDataType> HtmlElement for CoreHtmlElementBase<T> {
     fn title(&self) -> Option<&str> {
         todo!()
     }

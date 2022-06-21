@@ -1,11 +1,9 @@
 use intertrait::castable_to;
+use xcdt::XcDataType;
 
 use crate::{
     dom::{
-        core::{
-            element::ElementProps,
-            node::{NodeImpl, NodeProps},
-        },
+        core::{element::ElementProps, node::NodeProps},
         Node,
     },
     layout::Layoutable,
@@ -23,10 +21,15 @@ impl BodyProps {
     }
 }
 
-pub(crate) trait BodyImpl: IsCoreBody {}
-
-impl NodeImpl for CoreBody {}
-impl BodyImpl for CoreBody {}
+impl<T: 'static + XcDataType> Layoutable for CoreBodyBase<T> {
+    fn layout(
+        &self,
+        pango_context: &pango::Context,
+        content_boundary: crate::common::Rectangle,
+    ) -> crate::common::Rectangle {
+        todo!()
+    }
+}
 
 castable_to!(CoreBody => Node, Layoutable);
 

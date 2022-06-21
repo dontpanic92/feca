@@ -26,15 +26,9 @@ impl NodeProps {
     }
 }
 
-pub(crate) trait NodeImpl: IsCoreNode {
+impl<T: 'static + XcDataType> Node for CoreNodeBase<T> {
     fn children(&self) -> &[Box<dyn Node>] {
         self.NodeProps().children.as_ref()
-    }
-}
-
-impl<T: NodeImpl + Layoutable + Renderable> Node for T {
-    fn children(&self) -> &[Box<dyn Node>] {
-        NodeImpl::children(self)
     }
 
     fn as_layoutable(&self) -> &dyn Layoutable {
@@ -78,7 +72,5 @@ fn paint_children(children: &[Box<dyn Node>], renderer: &crate::rendering::cairo
         .map(|c| c.as_renderable())
         .for_each(|c| c.paint(renderer))
 }
-
-impl NodeImpl for CoreNode {}
 
 castable_to!(CoreNode => Node, Layoutable);

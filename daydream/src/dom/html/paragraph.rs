@@ -1,8 +1,5 @@
 use crate::dom::{
-    core::{
-        element::ElementProps,
-        node::{NodeImpl, NodeProps},
-    },
+    core::{element::ElementProps, node::NodeProps},
     Node,
 };
 
@@ -28,7 +25,6 @@ impl ParagraphProps {
 
 pub(crate) trait ParagraphImpl: IsCoreParagraph {}
 
-impl NodeImpl for CoreParagraph {}
 impl ParagraphImpl for CoreParagraph {}
 
 impl<T: ParagraphImpl> Paragraph for T {}

@@ -37,10 +37,6 @@ impl TextProps {
     }
 }
 
-pub(crate) trait TextImpl: IsCoreText {}
-pub(crate) trait TextLayoutableImpl: IsCoreText {}
-pub(crate) trait TextRenderableImpl: IsCoreText {}
-
 impl<T: 'static + XcDataType> Renderable for CoreTextBase<T> {
     fn paint(&self, renderer: &crate::rendering::cairo::CairoRenderer) {
         self.TextProps().layout.render(renderer.context());
@@ -61,16 +57,6 @@ impl<T: 'static + XcDataType> Layoutable for CoreTextBase<T> {
         rect
     }
 }
-
-impl<T: TextImpl> Text for T {
-    fn split_text(&self, offset: usize) -> Box<dyn Text> {
-        todo!();
-    }
-}
-
-impl TextImpl for CoreText {}
-impl TextLayoutableImpl for CoreText {}
-impl TextRenderableImpl for CoreText {}
 
 pub fn new_core_text(text: String) -> Box<CoreText> {
     Box::new(

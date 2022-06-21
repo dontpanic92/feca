@@ -23,12 +23,6 @@ impl ParagraphProps {
     }
 }
 
-pub(crate) trait ParagraphImpl: IsCoreParagraph {}
-
-impl ParagraphImpl for CoreParagraph {}
-
-impl<T: ParagraphImpl> Paragraph for T {}
-
 pub fn new_core_paragraph(children: Vec<Box<dyn Node>>) -> Box<CoreParagraph> {
     Box::new(
         CoreParagraph::builder()

@@ -21,16 +21,6 @@ impl BodyProps {
     }
 }
 
-impl<T: 'static + XcDataType> Layoutable for CoreBodyBase<T> {
-    fn layout(
-        &self,
-        pango_context: &pango::Context,
-        content_boundary: crate::common::Rectangle,
-    ) -> crate::common::Rectangle {
-        todo!()
-    }
-}
-
 castable_to!(CoreBody => Node, Layoutable);
 
 pub fn new_core_body(children: Vec<Box<dyn Node>>) -> Box<CoreBody> {

@@ -3,7 +3,7 @@ use xcdt::XcDataType;
 use crate::dom::{
     core::{
         element::{CoreElement, CoreElementBase, ElementProps},
-        node::NodeProps,
+        node::{NodeProps, NodeType},
     },
     Node,
 };
@@ -36,7 +36,7 @@ impl<T: 'static + XcDataType> HtmlElement for CoreHtmlElementBase<T> {
 pub fn new_core_html_element(children: Vec<Box<dyn Node>>) -> Box<CoreHtmlElement> {
     Box::new(
         CoreHtmlElement::builder()
-            .with(NodeProps::new(2, children))
+            .with(NodeProps::new(NodeType::ElementNode, children))
             .with(ElementProps::new(None))
             .with(HtmlElementProps::new(None))
             .build(),

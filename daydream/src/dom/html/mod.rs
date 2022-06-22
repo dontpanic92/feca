@@ -1,6 +1,7 @@
 use super::{core::text, Node};
 
 pub mod body;
+pub mod html;
 pub mod html_element;
 pub mod paragraph;
 

@@ -1,5 +1,5 @@
 use crate::dom::{
-    core::{element::ElementProps, node::NodeProps},
+    core::{element::ElementProps, node::{NodeProps, NodeType}},
     Node,
 };
 
@@ -26,7 +26,7 @@ impl ParagraphProps {
 pub fn new_core_paragraph(children: Vec<Box<dyn Node>>) -> Box<CoreParagraph> {
     Box::new(
         CoreParagraph::builder()
-            .with(NodeProps::new(2, children))
+            .with(NodeProps::new(NodeType::ElementNode, children))
             .with(ElementProps::new(None))
             .with(HtmlElementProps::new(None))
             .with(ParagraphProps::new())

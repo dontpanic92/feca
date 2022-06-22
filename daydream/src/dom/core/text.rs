@@ -15,7 +15,7 @@ use super::{
         IsCoreCharacterData,
     },
     element::IsCoreElement,
-    node::NodeProps,
+    node::{NodeProps, NodeType},
 };
 
 xcdt::declare_xcdt!(
@@ -61,7 +61,7 @@ impl<T: 'static + XcDataType> Layoutable for CoreTextBase<T> {
 pub fn new_core_text(text: String) -> Box<CoreText> {
     Box::new(
         CoreText::builder()
-            .with(NodeProps::new(1, vec![]))
+            .with(NodeProps::new(NodeType::TextNode, vec![]))
             .with(CharacterDataProps::new(text))
             .with(TextProps::new())
             .build(),

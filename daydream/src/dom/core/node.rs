@@ -8,13 +8,28 @@ use xcdt::{Object, ObjectBase, XcDataType};
 
 xcdt::declare_xcdt!(CoreNode, NodeProps, Object, ObjectBase);
 
+pub enum NodeType {
+    ElementNode = 1,
+    AttributeNode = 2,
+    TextNode = 3,
+    CDataSectionNode = 4,
+    EntityReferenceNode = 5, // Legacy
+    EntityNode = 6, // Legacy
+    ProcessingInstructionNode = 7,
+    CommentNode = 8,
+    DocumentNode = 9,
+    DocumentTypeNode = 10,
+    DocumentFragmentNode = 11,
+    NotationNode = 12, // Legacy
+}
+
 pub struct NodeProps {
-    node_type: i32,
+    node_type: NodeType,
     children: Vec<Box<dyn Node>>,
 }
 
 impl NodeProps {
-    pub fn new(node_type: i32, children: Vec<Box<dyn Node>>) -> Self {
+    pub fn new(node_type: NodeType, children: Vec<Box<dyn Node>>) -> Self {
         Self {
             node_type,
             children,

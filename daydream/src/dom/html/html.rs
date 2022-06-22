@@ -11,25 +11,23 @@ use crate::{
 
 use super::html_element::{CoreHtmlElement, CoreHtmlElementBase, HtmlElementProps};
 
-xcdt::declare_xcdt!(CoreBody, BodyProps, CoreHtmlElement, CoreHtmlElementBase);
+xcdt::declare_xcdt!(CoreHtml, HtmlProps, CoreHtmlElement, CoreHtmlElementBase);
 
-pub struct BodyProps;
+pub struct HtmlProps;
 
-impl BodyProps {
+impl HtmlProps {
     pub fn new() -> Self {
         Self
     }
 }
 
-castable_to!(CoreBody => Node, Layoutable);
-
-pub fn new_core_body(children: Vec<Box<dyn Node>>) -> Box<CoreBody> {
+pub fn new_core_html(children: Vec<Box<dyn Node>>) -> Box<CoreHtml> {
     Box::new(
-        CoreBody::builder()
+        CoreHtml::builder()
             .with(NodeProps::new(NodeType::ElementNode, children))
             .with(ElementProps::new(None))
             .with(HtmlElementProps::new(None))
-            .with(BodyProps::new())
+            .with(HtmlProps::new())
             .build(),
     )
 }

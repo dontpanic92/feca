@@ -1,15 +1,15 @@
 use crate::dom::{
     core::{
         element::{CoreElement, ElementProps},
-        node::{CoreNode, NodeProps},
+        node::{CoreNode, NodeProps, NodeType},
     },
     Node,
 };
 
 pub fn test() {
-    let n: CoreNode = CoreNode::builder().with(NodeProps::new(1, vec![])).build();
+    let n: CoreNode = CoreNode::builder().with(NodeProps::new(NodeType::ElementNode, vec![])).build();
     let e: CoreElement = CoreElement::builder()
-        .with(NodeProps::new(1, vec![]))
+        .with(NodeProps::new(NodeType::ElementNode, vec![]))
         .with(ElementProps::new(None))
         .build();
     // let c = (&n as &dyn NodeImpl).children();

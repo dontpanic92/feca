@@ -11,19 +11,13 @@ use crate::{
 
 use super::{
     character_data::{
-        CharacterDataProps, CoreCharacterData, CoreCharacterDataBase,
-        IsCoreCharacterData,
+        CharacterDataProps, CoreCharacterData, CoreCharacterDataBase, IsCoreCharacterData,
     },
     element::IsCoreElement,
     node::{NodeProps, NodeType},
 };
 
-xcdt::declare_xcdt!(
-    CoreText,
-    TextProps,
-    CoreCharacterData,
-    CoreCharacterDataBase
-);
+xcdt::declare_xcdt!(CoreText, TextProps, CoreCharacterData);
 
 pub struct TextProps {
     layout: TextLayout,

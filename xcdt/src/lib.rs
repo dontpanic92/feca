@@ -19,7 +19,7 @@ pub trait XcDataType {
 
 #[macro_export]
 macro_rules! declare_xcdt {
-    ($ty_name: ident, $prop_type: ty, $test_ty: ty, $base_ty2: ty) => {
+    ($ty_name: ident, $prop_type: ty, $base_complete_ty: ty) => {
         paste::paste! {
             pub struct [<Xc $ty_name>]<T: xcdt::XcDataType> {
                 props: $prop_type,
@@ -37,7 +37,7 @@ macro_rules! declare_xcdt {
                 }
 
                 pub fn get_xc_object(object: &[<$ty_name Base>]<T>) -> &[<Xc $ty_name>]<T>{
-                    <<<$test_ty as xcdt::XcDataType>
+                    <<<$base_complete_ty as xcdt::XcDataType>
                         ::NilType as xcdt::XcDataType>::BaseObjectType as xcdt::XcDataType>
                             ::XcObjectType::<[<Xc $ty_name>]<T>>::get_xc_object(object).ext()
                 }
@@ -69,21 +69,24 @@ macro_rules! declare_xcdt {
                 type NilType = T::NilType;
                 type PropertiesType = $prop_type;
                 type BaseObjectType = <<
-                    <$test_ty as xcdt::XcDataType>
+                    <$base_complete_ty as xcdt::XcDataType>
                         ::NilType as xcdt::XcDataType>
                             ::BaseObjectType as xcdt::XcDataType>
                                 ::XcObjectType<[<Xc $ty_name>]<T>>;
 
-                type CompleteType = <<
-                    <Self as xcdt::XcDataType>
-                        ::BaseObjectType as xcdt::XcDataType>
-                            ::ExtensibleDataType <[<Xc $ty_name>]<T>> as xcdt::XcDataType>
-                                ::CompleteType;
+                // type CompleteType = <<
+                //     <Self as xcdt::XcDataType>
+                //         ::BaseObjectType as xcdt::XcDataType>
+                //             ::ExtensibleDataType <[<Xc $ty_name>]<T>> as xcdt::XcDataType>
+                //                 ::CompleteType;
 
-                type ExtensibleDataType<U: xcdt::XcDataType> = <
-                    <Self as xcdt::XcDataType>
-                        ::BaseObjectType as xcdt::XcDataType>
-                            ::ExtensibleDataType<[<Xc $ty_name>]<U>>;
+                type CompleteType = <Self as xcdt::XcDataType>::ExtensibleDataType<T>;
+
+                type ExtensibleDataType<U: xcdt::XcDataType> = <<
+                    <$base_complete_ty as xcdt::XcDataType>
+                        ::NilType as xcdt::XcDataType>
+                            ::BaseObjectType as xcdt::XcDataType>
+                                ::ExtensibleDataType<[<Xc $ty_name>]<U>>;
                 type BuilderType = [<Xc $ty_name Builder>]<T>;
                 type ConstructorType = [<$ty_name Constructor>]<T>;
 
@@ -103,9 +106,9 @@ macro_rules! declare_xcdt {
                 }
             }
 
-            // pub type $ty_name = <[<Xc $ty_name>]< [<_ $ty_name _nil>]::Nil> as xcdt::XcDataType>::CompleteType;
-            pub type $ty_name = [<$ty_name Base>]<[<_ $ty_name _nil>]::Nil>;
-            pub type [<$ty_name Base>]<T> = $base_ty2<[<Xc $ty_name>]<T>>;
+            pub type $ty_name = <[<Xc $ty_name>]<[<_ $ty_name _nil>]::Nil> as xcdt::XcDataType>::CompleteType;
+            // pub type $ty_name = [<$ty_name Base>]<[<_ $ty_name _nil>]::Nil>;
+            pub type [<$ty_name Base>]<T> = <[<Xc $ty_name>]<[<_ $ty_name _nil>]::Nil> as xcdt::XcDataType>::ExtensibleDataType<T>;
 
             pub mod [<_ $ty_name _nil>] {
                 pub struct Nil;

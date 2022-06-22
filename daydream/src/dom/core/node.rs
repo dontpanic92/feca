@@ -6,7 +6,7 @@ use crate::{
 use intertrait::castable_to;
 use xcdt::{Object, ObjectBase, XcDataType};
 
-xcdt::declare_xcdt!(CoreNode, NodeProps, Object, ObjectBase);
+xcdt::declare_xcdt!(CoreNode, NodeProps, Object);
 
 pub enum NodeType {
     ElementNode = 1,
@@ -41,7 +41,9 @@ impl NodeProps {
     }
 }
 
-impl<T: 'static + XcDataType> Node for CoreNodeBase<T> {
+/*
+pub(crate) trait Test{}
+impl<T: 'static + XcDataType + Test> Node for CoreNodeBase<T> {
     fn children(&self) -> &[Box<dyn Node>] {
         self.NodeProps().children.as_ref()
     }
@@ -79,7 +81,7 @@ impl<T: 'static + XcDataType> Renderable for CoreNodeBase<T> {
     default fn paint(&self, renderer: &crate::rendering::cairo::CairoRenderer) {
         paint_children(self.NodeProps().children(), renderer)
     }
-}
+}*/
 
 fn paint_children(children: &[Box<dyn Node>], renderer: &crate::rendering::cairo::CairoRenderer) {
     children
@@ -88,4 +90,4 @@ fn paint_children(children: &[Box<dyn Node>], renderer: &crate::rendering::cairo
         .for_each(|c| c.paint(renderer))
 }
 
-castable_to!(CoreNode => Node, Layoutable);
+// castable_to!(CoreNode => Node, Layoutable);

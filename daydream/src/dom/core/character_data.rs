@@ -6,8 +6,7 @@ use crate::dom::CharacterData;
 xcdt::declare_xcdt!(
     CoreCharacterData,
     CharacterDataProps,
-    CoreNode,
-    CoreNodeBase
+    CoreNode
 );
 
 pub struct CharacterDataProps {

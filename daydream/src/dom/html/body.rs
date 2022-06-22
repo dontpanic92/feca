@@ -11,7 +11,7 @@ use crate::{
 
 use super::html_element::{CoreHtmlElement, CoreHtmlElementBase, HtmlElementProps};
 
-xcdt::declare_xcdt!(CoreBody, BodyProps, CoreHtmlElement, CoreHtmlElementBase);
+xcdt::declare_xcdt!(CoreBody, BodyProps, CoreHtmlElement);
 
 pub struct BodyProps;
 

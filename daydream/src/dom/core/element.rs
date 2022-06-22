@@ -3,7 +3,7 @@ use xcdt::XcDataType;
 use super::node::{CoreNode, CoreNodeBase};
 use crate::dom::Element;
 
-xcdt::declare_xcdt!(CoreElement, ElementProps, CoreNode, CoreNodeBase);
+xcdt::declare_xcdt!(CoreElement, ElementProps, CoreNode);
 
 pub struct ElementProps {
     id: Option<String>,

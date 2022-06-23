@@ -26,7 +26,6 @@ impl CharacterDataProps {
     }
 }
 
-
 impl<T: 'static + XcDataType> CharacterData for CoreCharacterDataBase<T> {
     fn text(&self) -> &str {
         self.CharacterDataProps().text()

@@ -1,20 +1,15 @@
-use std::cell::Cell;
-
 use xcdt::XcDataType;
 
 use crate::{
-    common::Rectangle,
-    dom::Text,
     layout::{text::TextLayout, Layoutable},
     rendering::Renderable,
+    style::StyleContext,
 };
 
 use super::{
     character_data::{
-        CharacterDataProps, CoreCharacterData, CoreCharacterDataBase,
-        IsCoreCharacterData,
+        CharacterDataProps, CoreCharacterData, CoreCharacterDataBase, IsCoreCharacterData,
     },
-    element::IsCoreElement,
     node::{NodeProps, NodeType},
 };
 
@@ -38,8 +33,12 @@ impl TextProps {
 }
 
 impl<T: 'static + XcDataType> Renderable for CoreTextBase<T> {
-    fn paint(&self, renderer: &crate::rendering::cairo::CairoRenderer) {
-        self.TextProps().layout.render(renderer.context());
+    fn paint(
+        &self,
+        renderer: &crate::rendering::cairo::CairoRenderer,
+        style_context: &StyleContext,
+    ) {
+        renderer.render_text(&self.TextProps().layout, style_context)
     }
 }
 
@@ -47,13 +46,14 @@ impl<T: 'static + XcDataType> Layoutable for CoreTextBase<T> {
     fn layout(
         &self,
         pango_context: &pango::Context,
+        style_context: &StyleContext,
         content_boundary: crate::common::Rectangle,
     ) -> crate::common::Rectangle {
         let text = self.CharacterDataProps().text();
-        let rect = self
-            .TextProps()
-            .layout
-            .layout(pango_context, content_boundary, text);
+        let rect =
+            self.TextProps()
+                .layout
+                .layout(pango_context, style_context, content_boundary, text);
         rect
     }
 }

@@ -44,8 +44,8 @@ impl HtmlDom {
                 match t.name().as_utf8_str().to_lowercase().as_str() {
                     "body" => Some(body::new_core_body(children)),
                     "p" => Some(paragraph::new_core_paragraph(children)),
-                    "i" => Some(html_element::new_core_html_element(children)),
-                    "a" => Some(html_element::new_core_html_element(children)),
+                    "i" => Some(html_element::new_i_element(children)),
+                    "a" => Some(html_element::new_a_element(children)),
                     _ => None,
                 }
             }

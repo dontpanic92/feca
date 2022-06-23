@@ -14,10 +14,12 @@ mod dom;
 mod layout;
 mod page;
 mod rendering;
-mod test;
+mod style;
+// mod test;
 
 fn main() {
-    test::test();
+    // test::test();
+
     let input = r#"<body>
         <p>关关雎鸠，在河之洲。窈窕淑女，君子好逑。</p>
         <p>参差荇菜，左右流之。窈窕淑女，寤寐求之。</p>

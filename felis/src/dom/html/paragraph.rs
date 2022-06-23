@@ -1,12 +1,15 @@
-use crate::dom::{
-    core::{element::ElementProps, node::{NodeProps, NodeType}},
-    Node,
+use crate::{
+    dom::{
+        core::{
+            element::ElementProps,
+            node::{NodeProps, NodeType},
+        },
+        Node,
+    },
+    style::Style,
 };
 
-use super::{
-    html_element::{CoreHtmlElement, CoreHtmlElementBase, HtmlElementProps},
-    Paragraph,
-};
+use super::html_element::{CoreHtmlElement, CoreHtmlElementBase, HtmlElementProps};
 
 xcdt::declare_xcdt!(
     CoreParagraph,
@@ -28,7 +31,7 @@ pub fn new_core_paragraph(children: Vec<Box<dyn Node>>) -> Box<CoreParagraph> {
         CoreParagraph::builder()
             .with(NodeProps::new(NodeType::ElementNode, children))
             .with(ElementProps::new(None))
-            .with(HtmlElementProps::new(None))
+            .with(HtmlElementProps::new(None, Style::default()))
             .with(ParagraphProps::new())
             .build(),
     )

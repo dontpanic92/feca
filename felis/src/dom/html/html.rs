@@ -3,10 +3,14 @@ use xcdt::XcDataType;
 
 use crate::{
     dom::{
-        core::{element::ElementProps, node::{NodeProps, NodeType}},
+        core::{
+            element::ElementProps,
+            node::{NodeProps, NodeType},
+        },
         Node,
     },
     layout::Layoutable,
+    style::Style,
 };
 
 use super::html_element::{CoreHtmlElement, CoreHtmlElementBase, HtmlElementProps};
@@ -26,7 +30,7 @@ pub fn new_core_html(children: Vec<Box<dyn Node>>) -> Box<CoreHtml> {
         CoreHtml::builder()
             .with(NodeProps::new(NodeType::ElementNode, children))
             .with(ElementProps::new(None))
-            .with(HtmlElementProps::new(None))
+            .with(HtmlElementProps::new(None, Style::default()))
             .with(HtmlProps::new())
             .build(),
     )

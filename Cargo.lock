@@ -249,23 +249,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "daydream"
-version = "0.1.0"
-dependencies = [
- "cairo-rs",
- "intertrait",
- "linkme",
- "pango",
- "pangocairo",
- "paste",
- "raw-window-handle",
- "tl",
- "winapi",
- "winit",
- "xcdt",
-]
-
-[[package]]
 name = "dispatch"
 version = "0.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -285,6 +268,23 @@ name = "downcast-rs"
 version = "1.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "9ea835d29036a4087793836fa931b08837ad5e957da9e23886b29586fb9b6650"
+
+[[package]]
+name = "felis"
+version = "0.1.0"
+dependencies = [
+ "cairo-rs",
+ "intertrait",
+ "linkme",
+ "pango",
+ "pangocairo",
+ "paste",
+ "raw-window-handle",
+ "tl",
+ "winapi",
+ "winit",
+ "xcdt",
+]
 
 [[package]]
 name = "fnv"

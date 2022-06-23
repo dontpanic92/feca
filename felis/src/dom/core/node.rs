@@ -1,7 +1,9 @@
 use crate::{
+    common::Rectangle,
     dom::Node,
     layout::{flow::FlowLayout, Layoutable},
     rendering::Renderable,
+    style::StyleContext,
 };
 use intertrait::castable_to;
 use xcdt::{Object, ObjectBase, XcDataType};
@@ -14,7 +16,7 @@ pub enum NodeType {
     TextNode = 3,
     CDataSectionNode = 4,
     EntityReferenceNode = 5, // Legacy
-    EntityNode = 6, // Legacy
+    EntityNode = 6,          // Legacy
     ProcessingInstructionNode = 7,
     CommentNode = 8,
     DocumentNode = 9,
@@ -59,33 +61,48 @@ impl<T: 'static + XcDataType> Layoutable for CoreNodeBase<T> {
     default fn layout(
         &self,
         pango_context: &pango::Context,
+        style_context: &StyleContext,
         content_boundary: crate::common::Rectangle,
     ) -> crate::common::Rectangle {
-        let children: Vec<&dyn Layoutable> = self
-            .NodeProps()
-            .children()
-            .iter()
-            //.map(|c| CastRef::cast::<dyn Layoutable>(c))
-            .map(|c| c.as_layoutable())
-            //.filter(|c| c.is_some())
-            //.map(|c| c.unwrap())
-            .collect();
-
-        FlowLayout::layout(pango_context, content_boundary, &children)
+        layout_children(
+            &self.NodeProps().children,
+            pango_context,
+            style_context,
+            content_boundary,
+        )
     }
 }
 
 impl<T: 'static + XcDataType> Renderable for CoreNodeBase<T> {
-    default fn paint(&self, renderer: &crate::rendering::cairo::CairoRenderer) {
-        paint_children(self.NodeProps().children(), renderer)
+    default fn paint(
+        &self,
+        renderer: &crate::rendering::cairo::CairoRenderer,
+        style_context: &StyleContext,
+    ) {
+        paint_children(&self.NodeProps().children, renderer, style_context)
     }
 }
 
-fn paint_children(children: &[Box<dyn Node>], renderer: &crate::rendering::cairo::CairoRenderer) {
+pub fn layout_children(
+    children: &[Box<dyn Node>],
+    pango_context: &pango::Context,
+    style_context: &StyleContext,
+    content_boundary: crate::common::Rectangle,
+) -> Rectangle {
+    let children: Vec<&dyn Layoutable> = children.iter().map(|c| c.as_layoutable()).collect();
+
+    FlowLayout::layout(pango_context, style_context, content_boundary, &children)
+}
+
+pub fn paint_children(
+    children: &[Box<dyn Node>],
+    renderer: &crate::rendering::cairo::CairoRenderer,
+    style_context: &StyleContext,
+) {
     children
         .iter()
         .map(|c| c.as_renderable())
-        .for_each(|c| c.paint(renderer))
+        .for_each(|c| c.paint(renderer, style_context))
 }
 
 castable_to!(CoreNode => Node, Layoutable);

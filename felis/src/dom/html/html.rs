@@ -1,6 +1,3 @@
-use intertrait::castable_to;
-use xcdt::XcDataType;
-
 use crate::{
     dom::{
         core::{
@@ -10,7 +7,7 @@ use crate::{
         Node,
     },
     layout::Layoutable,
-    style::Style,
+    style::{Display, Style},
 };
 
 use super::html_element::{CoreHtmlElement, CoreHtmlElementBase, HtmlElementProps};
@@ -30,7 +27,13 @@ pub fn new_core_html(children: Vec<Box<dyn Node>>) -> Box<CoreHtml> {
         CoreHtml::builder()
             .with(NodeProps::new(NodeType::ElementNode, children))
             .with(ElementProps::new(None))
-            .with(HtmlElementProps::new(None, Style::default()))
+            .with(HtmlElementProps::new(
+                None,
+                Style {
+                    display: Display::Block,
+                    ..Style::default()
+                },
+            ))
             .with(HtmlProps::new())
             .build(),
     )

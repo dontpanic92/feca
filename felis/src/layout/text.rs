@@ -1,10 +1,10 @@
 use std::cell::{Ref, RefCell};
 
-use pango::{ffi::PANGO_WEIGHT_BOLD, Layout};
+use pango::Layout;
 
 use crate::{
     common::Rectangle,
-    style::{FontStyle, StyleContext, TextDecorationLine},
+    style::{FontStyle, Style, TextDecorationLine},
 };
 
 pub struct TextLayout {
@@ -23,7 +23,7 @@ impl TextLayout {
     pub fn layout(
         &self,
         pango_context: &pango::Context,
-        style_context: &StyleContext,
+        style_computed: &Style,
         content_boundary: Rectangle,
         text: &str,
     ) -> Rectangle {
@@ -37,14 +37,14 @@ impl TextLayout {
 
         let layout = layout_borrow.as_mut().unwrap();
 
-        let desc_str = style_context
+        let desc_str = style_computed
             .font_family
             .as_deref()
             .or(Some("Sans Serif"))
             .unwrap();
 
         let mut desc = pango::FontDescription::from_string(desc_str);
-        if let Some(font_style) = style_context.font_style.as_ref() {
+        if let Some(font_style) = style_computed.font_style.as_ref() {
             match font_style {
                 &FontStyle::Normal => desc.set_style(pango::Style::Normal),
                 &FontStyle::Italic => desc.set_style(pango::Style::Italic),
@@ -52,12 +52,12 @@ impl TextLayout {
             }
         }
 
-        if let Some(size) = style_context.font_size.as_ref() {
+        if let Some(size) = style_computed.font_size.as_ref() {
             let size_i = Self::css_size_to_int(size).or(Some(12)).unwrap() * pango::SCALE;
             desc.set_size(size_i);
         }
 
-        if let Some(weight) = style_context.font_weight.as_ref() {
+        if let Some(weight) = style_computed.font_weight.as_ref() {
             let pango_weight = Self::css_weight_to_pango(weight).unwrap();
             desc.set_weight(pango_weight);
         }
@@ -67,7 +67,7 @@ impl TextLayout {
         layout.set_width(content_boundary.width * pango::SCALE);
         layout.set_font_description(Some(&desc));
 
-        if let Some(text_decoration_line) = style_context.text_decoration_line.as_ref() {
+        if let Some(text_decoration_line) = style_computed.text_decoration_line.as_ref() {
             if text_decoration_line == &TextDecorationLine::Underline {
                 let attrs = pango::AttrList::new();
                 attrs.insert(pango::AttrInt::new_underline(pango::Underline::SingleLine));

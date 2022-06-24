@@ -11,7 +11,7 @@ use crate::{
     },
     layout::Layoutable,
     rendering::Renderable,
-    style::{FontStyle, Style, StyleContext, TextDecorationLine},
+    style::{Display, FontStyle, Style, TextDecorationLine},
 };
 
 use super::HtmlElement;
@@ -41,13 +41,9 @@ impl<T: 'static + XcDataType> HtmlElement for CoreHtmlElementBase<T> {
 }
 
 impl<T: 'static + XcDataType> Renderable for CoreHtmlElementBase<T> {
-    fn paint(
-        &self,
-        renderer: &crate::rendering::cairo::CairoRenderer,
-        style_context: &StyleContext,
-    ) {
-        let style_context = StyleContext::merge(style_context, &self.HtmlElementProps().style);
-        paint_children(self.NodeProps().children(), renderer, &style_context)
+    fn paint(&self, renderer: &crate::rendering::cairo::CairoRenderer, style_computed: &Style) {
+        let style = Style::merge(&self.HtmlElementProps().style, style_computed);
+        paint_children(self.NodeProps().children(), renderer, &style)
     }
 }
 
@@ -55,16 +51,20 @@ impl<T: 'static + XcDataType> Layoutable for CoreHtmlElementBase<T> {
     fn layout(
         &self,
         pango_context: &pango::Context,
-        style_context: &StyleContext,
+        style_computed: &Style,
         content_boundary: crate::common::Rectangle,
     ) -> crate::common::Rectangle {
-        let style_context = StyleContext::merge(style_context, &self.HtmlElementProps().style);
+        let style_computed = Style::merge(&self.HtmlElementProps().style, style_computed);
         layout_children(
             self.NodeProps().children(),
             pango_context,
-            &style_context,
+            &style_computed,
             content_boundary,
         )
+    }
+
+    fn display(&self) -> Display {
+        self.HtmlElementProps().style.display
     }
 }
 
@@ -83,6 +83,7 @@ pub fn new_i_element(children: Vec<Box<dyn Node>>) -> Box<CoreHtmlElement> {
         children,
         Style {
             font_style: Some(FontStyle::Italic),
+            display: Display::Inline,
             ..Style::default()
         },
     )
@@ -94,6 +95,7 @@ pub fn new_a_element(children: Vec<Box<dyn Node>>) -> Box<CoreHtmlElement> {
         Style {
             text_color: Some(Color::BLUE),
             text_decoration_line: Some(TextDecorationLine::Underline),
+            display: Display::Inline,
             ..Style::default()
         },
     )
@@ -114,6 +116,15 @@ new_element!(
     Style {
         font_size: Some("20px".to_string()),
         font_weight: Some("700".to_string()),
+        ..Style::default()
+    }
+);
+
+new_element!(
+    b,
+    Style {
+        font_weight: Some("700".to_string()),
+        display: Display::Inline,
         ..Style::default()
     }
 );

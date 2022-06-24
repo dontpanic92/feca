@@ -8,6 +8,7 @@ pub struct Style {
     pub font_size: Option<String>,
     pub font_weight: Option<String>,
     pub text_decoration_line: Option<TextDecorationLine>,
+    pub display: Display,
 }
 
 impl Style {
@@ -21,8 +22,47 @@ impl Style {
             ..Default::default()
         }
     }
+
+    pub fn merge(child: &Style, parent: &Style) -> Self {
+        let mut ret = Style::default();
+
+        macro_rules! merge_style {
+            ($prop: ident) => {
+                ret.$prop = child.$prop.clone().or_else(|| parent.$prop.clone())
+            };
+        }
+
+        macro_rules! merge_style_inherit {
+            ($prop: ident, $prop_ty: ty) => {
+                ret.$prop = child.$prop.clone().map(|p| match p {
+                    None | Some(<$prop_ty>::Inherit) => parent.$prop.clone(),
+                    _ => p,
+                })
+            };
+        }
+
+        macro_rules! merge_style_inherit2 {
+            ($prop: ident, $prop_ty: ty) => {
+                ret.$prop = match child.$prop {
+                    <$prop_ty>::Inherit => parent.$prop.clone(),
+                    _ => child.$prop.clone(),
+                }
+            };
+        }
+
+        merge_style!(text_color);
+        merge_style!(font_family);
+        merge_style!(font_style);
+        merge_style!(font_size);
+        merge_style!(font_weight);
+        merge_style!(text_decoration_line);
+        merge_style_inherit2!(display, Display);
+
+        ret
+    }
 }
 
+/*
 macro_rules! style_context_declare {
     ($car:ident: $car_ty: ty $(, $cdr:ident: $cdr_ty: ty)* $(,)*) => {
 
@@ -58,6 +98,7 @@ style_context_declare!(
     font_weight: String,
     text_decoration_line: TextDecorationLine,
 );
+*/
 
 #[derive(Clone, Copy, PartialEq, Debug)]
 pub enum FontStyle {
@@ -71,4 +112,20 @@ pub enum TextDecorationLine {
     Overline,
     LineThrough,
     Underline,
+}
+
+#[derive(Copy, Clone, PartialEq, Debug)]
+pub enum Display {
+    Block,
+    Inline,
+    Inherit,
+
+    // Internal use
+    FelisText,
+}
+
+impl Default for Display {
+    fn default() -> Self {
+        Self::Inherit
+    }
 }

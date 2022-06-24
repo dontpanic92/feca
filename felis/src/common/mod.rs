@@ -67,4 +67,37 @@ impl Rectangle {
             width,
         }
     }
+
+    pub fn new_ltrb(left: i32, top: i32, right: i32, bottom: i32) -> Self {
+        Self {
+            top,
+            left,
+            height: bottom - top,
+            width: right - left,
+        }
+    }
+
+    pub fn top(&self) -> i32 {
+        self.top
+    }
+
+    pub fn left(&self) -> i32 {
+        self.left
+    }
+
+    pub fn right(&self) -> i32 {
+        self.left + self.width
+    }
+
+    pub fn bottom(&self) -> i32 {
+        self.top + self.height
+    }
+
+    pub fn height(&self) -> i32 {
+        self.height
+    }
+
+    pub fn width(&self) -> i32 {
+        self.width
+    }
 }

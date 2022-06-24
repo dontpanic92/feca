@@ -1,9 +1,4 @@
-use crate::{
-    common::Rectangle,
-    dom::html::HtmlDom,
-    rendering::cairo::CairoRenderer,
-    style::{Style, StyleContext},
-};
+use crate::{common::Rectangle, dom::html::HtmlDom, rendering::cairo::CairoRenderer, style::Style};
 
 pub(crate) struct Page {
     dom: HtmlDom,
@@ -24,11 +19,10 @@ impl Page {
     }
 
     pub fn layout(&mut self) {
-        let style_context = StyleContext::from_style(&self.style);
         let root = self.dom.root().unwrap();
         root.as_layoutable().layout(
             &self.pango_context,
-            &style_context,
+            &self.style,
             Rectangle {
                 top: 8,
                 left: 8,
@@ -39,8 +33,7 @@ impl Page {
     }
 
     pub fn paint(&self, renderer: &CairoRenderer) {
-        let style_context = StyleContext::from_style(&self.style);
         let root = self.dom.root().unwrap();
-        root.as_renderable().paint(renderer, &style_context);
+        root.as_renderable().paint(renderer, &self.style);
     }
 }

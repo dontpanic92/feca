@@ -3,7 +3,7 @@ use xcdt::XcDataType;
 use crate::{
     layout::{text::TextLayout, Layoutable},
     rendering::Renderable,
-    style::StyleContext,
+    style::{Display, Style},
 };
 
 use super::{
@@ -33,12 +33,8 @@ impl TextProps {
 }
 
 impl<T: 'static + XcDataType> Renderable for CoreTextBase<T> {
-    fn paint(
-        &self,
-        renderer: &crate::rendering::cairo::CairoRenderer,
-        style_context: &StyleContext,
-    ) {
-        renderer.render_text(&self.TextProps().layout, style_context)
+    fn paint(&self, renderer: &crate::rendering::cairo::CairoRenderer, style_computed: &Style) {
+        renderer.render_text(&self.TextProps().layout, style_computed)
     }
 }
 
@@ -46,15 +42,19 @@ impl<T: 'static + XcDataType> Layoutable for CoreTextBase<T> {
     fn layout(
         &self,
         pango_context: &pango::Context,
-        style_context: &StyleContext,
+        style_computed: &Style,
         content_boundary: crate::common::Rectangle,
     ) -> crate::common::Rectangle {
         let text = self.CharacterDataProps().text();
         let rect =
             self.TextProps()
                 .layout
-                .layout(pango_context, style_context, content_boundary, text);
+                .layout(pango_context, style_computed, content_boundary, text);
         rect
+    }
+
+    fn display(&self) -> Display {
+        crate::style::Display::FelisText
     }
 }
 

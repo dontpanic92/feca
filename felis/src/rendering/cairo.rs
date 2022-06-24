@@ -2,7 +2,7 @@ use cairo::{Context, FontFace, Win32Surface};
 use raw_window_handle::{HasRawWindowHandle, Win32Handle};
 use winapi::shared::windef::HWND;
 
-use crate::{common::Rectangle, layout::text::TextLayout, style::StyleContext};
+use crate::{common::Rectangle, layout::text::TextLayout, style::Style};
 
 pub struct CairoRenderer {
     _surface: Win32Surface,
@@ -25,11 +25,11 @@ impl CairoRenderer {
         }
     }
 
-    pub fn render_text(&self, layout: &TextLayout, style_context: &StyleContext) {
+    pub fn render_text(&self, layout: &TextLayout, style_computed: &Style) {
         let boundary = layout.get_boundary();
         let layout = layout.get_layout();
 
-        if let Some(color) = style_context.text_color.as_ref() {
+        if let Some(color) = style_computed.text_color.as_ref() {
             let color_f = color.to_color_f();
             self.context
                 .set_source_rgba(color_f.r, color_f.g, color_f.b, color_f.a);

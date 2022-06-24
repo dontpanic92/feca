@@ -3,7 +3,7 @@ use crate::{
     dom::Node,
     layout::{flow::FlowLayout, Layoutable},
     rendering::Renderable,
-    style::StyleContext,
+    style::Style,
 };
 use intertrait::castable_to;
 use xcdt::{Object, ObjectBase, XcDataType};
@@ -61,15 +61,19 @@ impl<T: 'static + XcDataType> Layoutable for CoreNodeBase<T> {
     default fn layout(
         &self,
         pango_context: &pango::Context,
-        style_context: &StyleContext,
+        style_computed: &Style,
         content_boundary: crate::common::Rectangle,
     ) -> crate::common::Rectangle {
         layout_children(
             &self.NodeProps().children,
             pango_context,
-            style_context,
+            style_computed,
             content_boundary,
         )
+    }
+
+    default fn display(&self) -> crate::style::Display {
+        crate::style::Display::Block
     }
 }
 
@@ -77,32 +81,32 @@ impl<T: 'static + XcDataType> Renderable for CoreNodeBase<T> {
     default fn paint(
         &self,
         renderer: &crate::rendering::cairo::CairoRenderer,
-        style_context: &StyleContext,
+        style_computed: &Style,
     ) {
-        paint_children(&self.NodeProps().children, renderer, style_context)
+        paint_children(&self.NodeProps().children, renderer, style_computed)
     }
 }
 
 pub fn layout_children(
     children: &[Box<dyn Node>],
     pango_context: &pango::Context,
-    style_context: &StyleContext,
+    style_computed: &Style,
     content_boundary: crate::common::Rectangle,
 ) -> Rectangle {
     let children: Vec<&dyn Layoutable> = children.iter().map(|c| c.as_layoutable()).collect();
 
-    FlowLayout::layout(pango_context, style_context, content_boundary, &children)
+    FlowLayout::layout(pango_context, style_computed, content_boundary, &children)
 }
 
 pub fn paint_children(
     children: &[Box<dyn Node>],
     renderer: &crate::rendering::cairo::CairoRenderer,
-    style_context: &StyleContext,
+    style_computed: &Style,
 ) {
     children
         .iter()
         .map(|c| c.as_renderable())
-        .for_each(|c| c.paint(renderer, style_context))
+        .for_each(|c| c.paint(renderer, style_computed))
 }
 
 castable_to!(CoreNode => Node, Layoutable);

@@ -33,7 +33,6 @@ impl HtmlDom {
     fn process_tl_node(tl_node: &tl::Node, tl_parser: &tl::Parser) -> Option<Box<dyn Node>> {
         match tl_node {
             tl::Node::Tag(t) => {
-                println!("tag: {}", t.name().as_utf8_str());
                 let children: Vec<Box<dyn Node>> = t
                     .children()
                     .top()
@@ -47,6 +46,7 @@ impl HtmlDom {
                     "p" => Some(paragraph::new_core_paragraph(children)),
                     "i" => Some(html_element::new_i_element(children)),
                     "a" => Some(html_element::new_a_element(children)),
+                    "b" => Some(html_element::new_b_element(children)),
                     "h1" => Some(html_element::new_h1_element(children)),
                     _ => None,
                 }

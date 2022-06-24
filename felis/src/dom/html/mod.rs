@@ -42,14 +42,23 @@ impl HtmlDom {
                     .collect();
 
                 match t.name().as_utf8_str().to_lowercase().as_str() {
+                    "html" => Some(html::new_core_html(children)),
                     "body" => Some(body::new_core_body(children)),
                     "p" => Some(paragraph::new_core_paragraph(children)),
                     "i" => Some(html_element::new_i_element(children)),
                     "a" => Some(html_element::new_a_element(children)),
+                    "h1" => Some(html_element::new_h1_element(children)),
                     _ => None,
                 }
             }
-            tl::Node::Raw(b) => Some(text::new_core_text(b.as_utf8_str().to_string())),
+            tl::Node::Raw(b) => {
+                let s = b.as_utf8_str();
+                if s.trim() != "" {
+                    Some(text::new_core_text(s.to_string()))
+                } else {
+                    None
+                }
+            }
             tl::Node::Comment(_) => None,
         }
     }

@@ -1,6 +1,6 @@
 use std::cell::{Ref, RefCell};
 
-use pango::Layout;
+use pango::{ffi::PANGO_WEIGHT_BOLD, Layout};
 
 use crate::{
     common::Rectangle,
@@ -52,7 +52,17 @@ impl TextLayout {
             }
         }
 
-        println!("{}", text);
+        if let Some(size) = style_context.font_size.as_ref() {
+            let size_i = Self::css_size_to_int(size).or(Some(12)).unwrap() * pango::SCALE;
+            desc.set_size(size_i);
+        }
+
+        if let Some(weight) = style_context.font_weight.as_ref() {
+            let pango_weight = Self::css_weight_to_pango(weight).unwrap();
+            desc.set_weight(pango_weight);
+        }
+
+        println!("{:?}", text);
         layout.set_text(text);
         layout.set_width(content_boundary.width * pango::SCALE);
         layout.set_font_description(Some(&desc));
@@ -66,7 +76,6 @@ impl TextLayout {
         }
 
         let size = layout.size();
-        println!("{} {}", size.0 / pango::SCALE, size.1 / pango::SCALE);
 
         let boundary = Rectangle {
             top: content_boundary.top,
@@ -86,5 +95,19 @@ impl TextLayout {
 
     pub fn get_boundary(&self) -> Ref<Rectangle> {
         self.boundary.borrow()
+    }
+
+    fn css_size_to_int(size: &str) -> Option<i32> {
+        size.replace("px", "").parse().ok()
+    }
+
+    fn css_weight_to_pango(weight: &str) -> Option<pango::Weight> {
+        match weight {
+            "normal" | "400" => Some(pango::Weight::Normal),
+            "bold" | "700" => Some(pango::Weight::Bold),
+            "bolder" | "900" => Some(pango::Weight::Ultrabold),
+            "lighter" | "200" => Some(pango::Weight::Light),
+            _ => Some(pango::Weight::Normal),
+        }
     }
 }

@@ -98,3 +98,22 @@ pub fn new_a_element(children: Vec<Box<dyn Node>>) -> Box<CoreHtmlElement> {
         },
     )
 }
+
+macro_rules! new_element {
+    ($name: ident, $style: expr) => {
+        paste::paste! {
+            pub fn [<new_ $name _element>](children: Vec<Box<dyn Node>>) -> Box<CoreHtmlElement> {
+                new_core_html_element(children,$style)
+            }
+        }
+    };
+}
+
+new_element!(
+    h1,
+    Style {
+        font_size: Some("20px".to_string()),
+        font_weight: Some("700".to_string()),
+        ..Style::default()
+    }
+);

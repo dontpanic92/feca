@@ -20,13 +20,15 @@ mod style;
 fn main() {
     // test::test();
 
-    let input = r#"<body>
+    let input = r#"<html>
+    <body>
+        <h1>关雎</h1>
         <p>关关雎鸠，在河之洲。窈窕淑女，君子好逑。</p>
         <p>参差荇菜，左右流之。窈窕淑女，寤寐求之。</p>
         <p>求之不得，寤寐思服。悠哉悠哉，辗转反侧。</p>
         <p><i>参差荇菜，左右采之。窈窕淑女，琴瑟友之。</i></p>
         <p><a>参差荇菜，左右芼之。窈窕淑女，钟鼓乐之。</a></p>
-    </body>"#;
+    </body></html>"#;
     let event_loop = EventLoop::new();
     let window = WindowBuilder::new().build(&event_loop).unwrap();
     let mut renderer = CairoRenderer::new_from_winit(&window);

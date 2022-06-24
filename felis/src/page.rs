@@ -30,8 +30,8 @@ impl Page {
             &self.pango_context,
             &style_context,
             Rectangle {
-                top: 50,
-                left: 50,
+                top: 8,
+                left: 8,
                 height: 800,
                 width: 600,
             },

@@ -1,0 +1,424 @@
+use crate::ast::*;
+
+grammar;
+
+// LEXICAL GRAMMAR
+
+// Names and Keywords
+
+PrivateIdentifier = {
+    "#" IdentifierName,
+};
+
+IdentifierName: String = {
+    IdentifierStart => <>.into(),
+    IdentifierName IdentifierPart => concat_str(<>),
+};
+
+IdentifierStart = {
+    IdentifierStartChar,
+    // "\\" UnicodeEscapeSequence,
+};
+
+IdentifierPart = {
+    IdentifierPartChar,
+    // "\\" UnicodeEscapeSequence,
+}
+
+IdentifierStartChar = {
+    UnicodeIDStart,
+    "$",
+    "_",
+};
+
+IdentifierPartChar = {
+    UnicodeIDContinue,
+    "$",
+}
+
+// TODO
+UnicodeIDStart = r"[0-9a-zA-Z]";
+UnicodeIDContinue = r"[0-9a-zA-Z]";
+
+
+// Literals
+
+NullLiteral: Literal = "null" => Literal::NullLiteral;
+
+BooleanLiteral: Literal = {
+    "true" => Literal::BooleanLiteral(true),
+    "false" => Literal::BooleanLiteral(false),
+};
+
+NumericLiteralSeparator = "-";
+
+StringLiteral: Literal = {
+    "\"" DoubleStringCharacters "\"" => Literal::StringLiteral("hello, world".to_string()),
+    "'" SingleStringCharacters "'" => Literal::StringLiteral("hello, world".to_string()),
+};
+
+// TODO
+DoubleStringCharacters = r"[0-9a-zA-Z]";
+SingleStringCharacters = r"[0-9a-zA-Z]";
+
+// UnicodeEscapeSequence = {
+//     "u" Hex4Digits,
+//     "u" "{" CodePoint "}",
+// };
+
+Hex4Digits: String = {
+    HexDigit HexDigit HexDigit HexDigit => concat_str4(<>),
+};
+
+HexDigits: String = {
+    HexDigit => <>.into(),
+    <a:HexDigits> <b:HexDigit> => concat_str(a, b),
+};
+
+HexDigit = r"[0-9a-zA-Z]";
+
+CodePoint = {
+    HexDigits, // but only if MV of HexDigits ≤ 0x10FFFF
+};
+
+
+
+// EXPRESSIONS
+
+// Identifiers
+
+IdentifierReference = {
+    Identifier,
+    // YIELD,
+    // AWAIT,
+};
+
+// BindingIdentifier = {
+//     Identifier,
+//     YIELD,
+//     AWAIT,
+// };
+
+// LabelIdentifier = {
+//     Identifier,
+//     YIELD,
+//     AWAIT,
+// };
+
+Identifier = {
+    IdentifierName, // But not ReservedKeyword
+};
+
+// Primary Expression
+
+PrimaryExpression: PrimaryExpression = {
+    "this" => PrimaryExpression::This,
+    IdentifierReference => PrimaryExpression::IdentifierReference(<>),
+    Literal => PrimaryExpression::Literal(<>),
+    // ArrayLiteral,
+    // ObjectLiteral,
+    // FunctionExpression,
+    // ClassExpression,
+    // GeneratorExpression,
+    // AsyncFunctionExpression,
+    // AsyncGeneratorExpression,
+    // RegularExpressionLiteral,
+    // TemplateLiteral,
+    // CoverParenthesizedExpressionAndArrowParameterList, 
+};
+
+Literal: Literal = {
+    NullLiteral => <>,
+    BooleanLiteral => <>,
+    // NumericLiteral,
+    StringLiteral => <>,
+};
+
+
+// Left-Hand-Side Expressions
+
+MemberExpression: MemberExpression = {
+    PrimaryExpression => MemberExpression::PrimaryExpression(<>),
+    // MemberExpression "[" Expression "]"
+    <a:MemberExpression> "." <b:IdentifierName> => MemberExpression::MemberExpressionDotIdentiferName(Box::new(a), b)
+    // MemberExpression TemplateLiteral
+    // SuperProperty
+    // MetaProperty
+    // "new" MemberExpression Arguments
+    // MemberExpression "." PrivateIdentifier
+};
+
+CallExpression: Expression = {
+    CoverCallExpressionAndAsyncArrowHead,
+    // SuperCall,
+    // ImportCall,
+    // CallExpression Arguments,
+    // CallExpression "[" Expression "]"
+    // CallExpression "." IdentifierName
+    // CallExpression TemplateLiteral
+    // CallExpression "." PrivateIdentifier
+};
+
+Arguments: ArgumentList = {
+    "(" ")" => ArgumentList(vec![]),
+    "(" <a:ArgumentList> ")" => ArgumentList(a),
+    "(" <a:ArgumentList> "," ")" => ArgumentList(a)
+};
+
+ArgumentList: Vec<Box<Expression>> = {
+    AssignmentExpression => vec![Box::new(<>)],
+    // "..." AssignmentExpression,
+    // ArgumentList "," AssignmentExpression,
+    // ArgumentList "," "..." AssignmentExpression,
+};
+
+NewExpression: Expression = {
+    MemberExpression => Expression::MemberExpression(<>),
+    // "new" NewExpression => Expression::NewExpression(<>),
+};
+
+
+LeftHandSideExpression: Expression = {
+    NewExpression,
+    CallExpression,
+    // OptionalExpression,
+};
+
+
+// Update Expressions
+
+UpdateExpression = {
+    LeftHandSideExpression,
+    // LeftHandSideExpression /*[no LineTerminator here]*/ "++"
+    // LeftHandSideExpression /*[no LineTerminator here]*/ "--"
+    // "++" UnaryExpression,
+    // "--" UnaryExpression,
+};
+
+// Unary Operators
+
+UnaryExpression ={
+    UpdateExpression,
+    // "delete" UnaryExpression,
+    // "void" UnaryExpression,
+    // "typeof" UnaryExpression,
+    // "+" UnaryExpression,
+    // "-" UnaryExpression,
+    // "~" UnaryExpression,
+    // "!" UnaryExpression,
+    // AwaitExpression,
+};
+
+// Exponentiation Operator
+
+ExponentiationExpression ={
+    UnaryExpression,
+    // UpdateExpression "**" ExponentiationExpression,
+};
+
+
+// Multiplicative Operators
+
+MultiplicativeExpression = {
+    ExponentiationExpression,
+    // MultiplicativeExpression MultiplicativeOperator ExponentiationExpression,
+};
+
+MultiplicativeOperator = {
+    "*",
+    "/",
+    "%",
+};
+
+
+// Additive Operators
+
+AdditiveExpression = {
+    MultiplicativeExpression,
+    // AdditiveExpression "+" MultiplicativeExpression,
+    // AdditiveExpression "-" MultiplicativeExpression,
+};
+
+// Bitwise Shift Operators
+
+ShiftExpression= {
+    AdditiveExpression,
+    // ShiftExpression "<<" AdditiveExpression,
+    // ShiftExpression ">>" AdditiveExpression,
+    // ShiftExpression ">>>" AdditiveExpression,
+};
+
+
+// Relational Operators
+
+RelationalExpression = {
+    ShiftExpression,
+    // RelationalExpression "<" ShiftExpression,
+    // RelationalExpression ">" ShiftExpression,
+    // RelationalExpression "<=" ShiftExpression,
+    // RelationalExpression ">=" ShiftExpression,
+    // RelationalExpression "instanceof" ShiftExpression,
+    // RelationalExpression "in" ShiftExpression,
+    // PrivateIdentifier "in" ShiftExpression,
+};
+
+// Equality Operators
+
+EqualityExpression = {
+    RelationalExpression,
+    // EqualityExpression "==" RelationalExpression,
+    // EqualityExpression "!=" RelationalExpression,
+    // EqualityExpression "===" RelationalExpression,
+    // EqualityExpression "!==" RelationalExpression,
+};
+
+
+// Binary Bitwise Operators
+
+BitwiseANDExpression = {
+    EqualityExpression,
+    // BitwiseANDExpression "&" EqualityExpression,
+};
+
+BitwiseXORExpression = {
+    BitwiseANDExpression,
+    // BitwiseXORExpression "^" BitwiseANDExpression,
+};
+
+BitwiseORExpression = {
+    BitwiseXORExpression,
+    // BitwiseORExpression "|" BitwiseXORExpression,
+};
+
+
+// Binary Logical Operators
+
+LogicalANDExpression = {
+    BitwiseORExpression,
+    // LogicalANDExpression "&&" BitwiseORExpression,
+};
+
+LogicalORExpression = {
+    LogicalANDExpression,
+    // LogicalORExpression "||" LogicalANDExpression,
+};
+
+// CoalesceExpression = {
+//     CoalesceExpressionHead "??" BitwiseORExpression,
+// };
+
+// CoalesceExpressionHead = {
+//     CoalesceExpression,
+//     BitwiseORExpression,
+// };
+
+
+ShortCircuitExpression = {
+    LogicalORExpression,
+    // CoalesceExpression,
+};
+
+
+// Conditional Operator
+
+ConditionalExpression = {
+    ShortCircuitExpression,
+    // ShortCircuitExpression "?" AssignmentExpression ":" AssignmentExpression,
+};
+
+// Assignment Operators
+
+AssignmentExpression = {
+    ConditionalExpression,
+    // YieldExpression,
+    // ArrowFunction,
+    // AsyncArrowFunction,
+    // LeftHandSideExpression "=" AssignmentExpression,
+    // LeftHandSideExpression AssignmentOperator AssignmentExpression,
+    // LeftHandSideExpression "&&=" AssignmentExpression,
+    // LeftHandSideExpression "||=" AssignmentExpression,
+    // LeftHandSideExpression "??=" AssignmentExpression,
+};
+
+AssignmentOperator = {
+    "*=",
+    "/=",
+    "%=",
+    "+=",
+    "-=",
+    "<<=",
+    ">>=",
+    ">>>=",
+    "&=",
+    "^=",
+    "|=",
+    "**=",
+};
+
+
+// Comma Operator
+Expression: Vec<Box<Expression>>  = {
+    AssignmentExpression => vec![Box::new(<>)],
+    // Expression "," AssignmentExpression,
+};
+
+// STATEMENTS AND DECLARATIONS
+
+Statement: Statement = {
+    // BlockStatement,
+    // VariableStatement,
+    // EmptyStatement,
+    ExpressionStatement => Statement::ExpressionStatement(<>),
+    // IfStatement,
+    // BreakableStatement,
+    // ContinueStatement,
+    // BreakStatement,
+    // ReturnStatement,
+    // WithStatement,
+    // LabelledStatement,
+    // ThrowStatement,
+    // TryStatement,
+    // DebuggerStatement,
+};
+
+// Block
+
+StatementList: Vec<Box<Statement>> = {
+    StatementListItem => vec![Box::new(<>)],
+    <a:StatementList> <b:StatementListItem> => append(a, Box::new(b)),
+};
+
+StatementListItem: Statement = {
+    Statement,
+    // Declaration,
+};
+
+
+
+// Expression Statement
+ExpressionStatement: Vec<Box<Expression>> = {
+    <e:Expression> ";" => e,
+};
+
+
+// ASYNC FUNCTION DEFINITIONS 
+
+CoverCallExpressionAndAsyncArrowHead: Expression = {
+    MemberExpression Arguments => Expression::CoverCallExpressionAndAsyncArrowHead(<>),
+}
+
+
+// SCRIPT AND MODULES
+
+// Scripts
+
+pub Script: Script = {
+    ScriptBody? => Script::ScriptBody(<>),
+};
+
+ScriptBody: ScriptBody = {
+    StatementList => ScriptBody::StatementList(<>),
+};
+
+YIELD = "yield";
+AWAIT = "await";

@@ -1,4 +1,3 @@
-
 #[derive(Debug)]
 pub enum Literal {
     NullLiteral,
@@ -51,7 +50,6 @@ pub enum Expression {
 pub enum Statement {
     ExpressionStatement(Vec<Box<Expression>>),
 }
-
 
 #[derive(Debug)]
 pub enum ScriptBody {

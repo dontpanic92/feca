@@ -2,12 +2,13 @@
 name = "catus"
 version = "0.1.0"
 edition = "2021"
-build = "build.rs"
+# build = "build.rs"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
 lalrpop-util = "0.19.7"
 regex = "1"
+nom = "7.1.1"
 
 [build-dependencies]
 lalrpop = "0.19.7"

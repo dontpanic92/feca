@@ -1,43 +1,31 @@
 use nom::{
     branch::alt,
-    bytes::complete::{escaped, is_not, tag, take_while_m_n},
-    character::complete::{alphanumeric1, hex_digit1, multispace0, one_of},
-    combinator::{map, opt},
+    bytes::complete::{escaped, is_not, tag, take, take_while_m_n},
+    character::complete::{alphanumeric1, char, hex_digit1, multispace0, one_of},
+    combinator::{map, opt, peek},
     error::ParseError,
-    multi::{many1, separated_list1},
-    sequence::{delimited, pair, preceded, separated_pair, terminated},
+    multi::{many1, separated_list0, separated_list1},
+    sequence::{delimited, pair, preceded, separated_pair, terminated, tuple},
     IResult,
 };
 
 use crate::ast::{
-    ArgumentList, Expression, Literal, MemberExpression, PrimaryExpression, Script, ScriptBody,
-    Statement,
+    ArgumentList, BindingElement, Declaration, Expression, FormalParameter, FormalParameters,
+    FunctionBody, FunctionDeclaration, HoistableDeclaration, Literal, MemberExpression,
+    PrimaryExpression, Script, ScriptBody, SingleNameBinding, Statement, StatementListItem,
 };
 
 pub fn parse(input: &str) -> IResult<&str, Script> {
     script(input)
 }
 
-/*macro_rules! p {
-    ($output: ident, $parser: expr, $input: ident) => {
-        let ($input, $output) = $parser($input)?;
-        let ($input, _) = multispace0($input)?;
-    };
-}
-
-macro_rules! ok {
-    ($input: ident, $output: expr) => {
-        return Ok(($input, $output));
-    };
-}*/
-
 macro_rules! def {
     ($name: ident: $ret_ty: ty { $($var: ident = $parser: expr;)* } $ret: expr;) => {
         fn $name(input: &str) -> IResult<&str, $ret_ty> {
-            println!("entering {}: {}", stringify!($name), input);
+            // println!("entering {}: {}", stringify!($name), input);
             $( let (input, _) = multispace0(input)?; let (input, $var) = $parser(input)?; )*
 
-            println!("leaving {}: {}", stringify!($name), input);
+            // println!("leaving {}: {}", stringify!($name), input);
             return Ok((input, $ret));
         }
     };
@@ -61,6 +49,24 @@ macro_rules! p2 {
             } $ret(val);
         }
     };
+}
+
+fn w<'a, F: 'a, O, E: ParseError<&'a str>>(
+    inner: F,
+) -> impl FnMut(&'a str) -> IResult<&'a str, O, E>
+where
+    F: FnMut(&'a str) -> IResult<&'a str, O, E>,
+{
+    preceded(multispace0, inner)
+}
+
+fn w2<'a, F: 'a, O, E: ParseError<&'a str>>(
+    inner: F,
+) -> impl FnMut(&'a str) -> IResult<&'a str, O, E>
+where
+    F: FnMut(&'a str) -> IResult<&'a str, O, E>,
+{
+    delimited(multispace0, inner, multispace0)
 }
 
 fn boxed<'a, F: 'a, O, I, E: ParseError<I>>(inner: F) -> impl FnMut(I) -> IResult<I, Box<O>, E>
@@ -96,7 +102,7 @@ p!(
 );
 
 // TODO
-p!(identifier_name, String, to_string(alphanumeric1));
+p!(identifier_name, String, to_string(w(alphanumeric1)));
 
 p!(
     unicode_id_start,
@@ -113,15 +119,15 @@ p!(
 p!(
     null_literal,
     Literal,
-    map(tag("null"), |_| Literal::NullLiteral)
+    map(w(tag("null")), |_| Literal::NullLiteral)
 );
 
 p!(
     boolean_literal,
     Literal,
     alt((
-        map(tag("true"), |_| Literal::BooleanLiteral(true)),
-        map(tag("false"), |_| Literal::BooleanLiteral(false)),
+        map(w(tag("true")), |_| Literal::BooleanLiteral(true)),
+        map(w(tag("false")), |_| Literal::BooleanLiteral(false)),
     )),
 );
 
@@ -130,8 +136,8 @@ p!(
     Literal,
     map(
         alt((
-            delimited(tag("\""), double_string_characters, tag("\"")),
-            delimited(tag("'"), single_string_characters, tag("'")),
+            w(delimited(tag("\""), double_string_characters, tag("\""))),
+            w(delimited(tag("'"), single_string_characters, tag("'"))),
         )),
         |s| Literal::StringLiteral(s)
     ),
@@ -159,11 +165,17 @@ p!(hex_digits, String, to_string(hex_digit1));
 
 p!(code_point, String, hex_digits);
 
-// Expressions
+// 13 Expressions
+
+// 13.1 Identifiers
 
 p!(identifier_reference, String, identifier);
 
+p!(binding_identifier, String, identifier);
+
 p!(identifier, String, identifier_name);
+
+// 13.2 Primary Expression
 
 p!(
     primary_expression,
@@ -184,18 +196,30 @@ p!(
 );
 
 p!(
-    member_expression,
-    MemberExpression,
-    alt((
-        map(primary_expression, |p| MemberExpression::PrimaryExpression(
-            p
-        )),
-        map(
-            separated_pair(member_expression, tag("."), identifier_name),
-            |p| MemberExpression::MemberExpressionDotIdentiferName(Box::new(p.0), p.1)
-        ),
-    ))
+    initializer,
+    Expression,
+    preceded(tag("="), assignment_expression)
 );
+
+fn member_expression(input: &str) -> IResult<&str, MemberExpression> {
+    let (mut input, mut member_expr) = alt((map(primary_expression, |p| {
+        MemberExpression::PrimaryExpression(p)
+    }),))(input)?;
+
+    loop {
+        let next: IResult<&str, &str> = peek(w(tag(".")))(input);
+        if next.is_ok() {
+            let (i, _) = w(tag("."))(input)?;
+            let (i, name) = alt((private_identifier, identifier_name))(i)?;
+
+            input = i;
+            member_expr =
+                MemberExpression::MemberExpressionDotIdentiferName(Box::new(member_expr), name);
+        } else {
+            return Ok((input, member_expr));
+        }
+    }
+}
 
 p!(
     call_expression,
@@ -207,9 +231,13 @@ p2!(
     arguments,
     ArgumentList,
     alt((
-        make_vec(pair(tag("("), tag(")"))),
-        delimited(tag("("), argument_list, tag(")")),
-        delimited(tag("("), terminated(argument_list, tag(",")), tag(")")),
+        make_vec(pair(w(tag("(")), w(tag(")")))),
+        delimited(w(tag("(")), argument_list, w(tag(")"))),
+        delimited(
+            w(tag("(")),
+            terminated(argument_list, tag(",")),
+            w(tag(")"))
+        ),
     )),
     ArgumentList
 );
@@ -230,7 +258,7 @@ p2!(
 p!(
     left_hand_side_expression,
     Expression,
-    alt((new_expression, call_expression))
+    alt((call_expression, new_expression))
 );
 
 p!(update_expression, Expression, left_hand_side_expression);
@@ -283,33 +311,119 @@ def! {
     } expr;
 }
 
-// Statements and Declarations
+// 14 Statements and Declarations
 
 def! {
-    statement: Box<Statement> {
+    statement: Statement {
         expr_stmt = expression_statement;
-     } Box::new(Statement::ExpressionStatement(expr_stmt));
+     } Statement::ExpressionStatement(expr_stmt);
 }
 
+p!(
+    declaration,
+    Declaration,
+    map(
+        hoistable_declaration,
+        |d| Declaration::HoistableDeclaration(d)
+    )
+);
+
+p!(
+    hoistable_declaration,
+    HoistableDeclaration,
+    map(function_declaration, |d| {
+        HoistableDeclaration::FunctionDeclaration(d)
+    })
+);
+
+// 14.2 Block
+
 def! {
-    statement_list: Vec<Box<Statement>> {
-        stmt_list = many1(statement_item);
+    statement_list: Vec<Box<StatementListItem>> {
+        stmt_list = many1(boxed(statement_list_item));
      } stmt_list;
 }
 
 def! {
-    statement_item: Box<Statement>{
-        stmt = statement;
+    statement_list_item: StatementListItem {
+        stmt = alt(( map(declaration, |d| StatementListItem::Declaration(d)), map(statement, |s| StatementListItem::Statement(s)),));
     } stmt;
 }
 
+// 14.3 Decalrations and Variable Statement
+
+p!(
+    binding_element,
+    BindingElement,
+    map(single_name_binding, |b| BindingElement::SingleNameBinding(
+        b
+    ))
+);
+
+p!(
+    single_name_binding,
+    SingleNameBinding,
+    map(pair(binding_identifier, opt(initializer)), |p| {
+        SingleNameBinding {
+            name: p.0,
+            initializer: p.1,
+        }
+    })
+);
+
 def! {
     expression_statement: Vec<Box<Expression>> {
-        expr = terminated(expression, tag(";"));
+        expr = terminated(expression, opt(w(tag(";"))));
     } expr;
 }
 
-// Async Function Definitions
+// 15 Functions and Classes
+
+// 15.1 Parameter Lists
+
+p!(
+    formal_parameters,
+    FormalParameters,
+    map(separated_list0(tag(","), boxed(formal_parameter)), |p| {
+        FormalParameters::FormalParameterList(p)
+    })
+);
+
+p!(
+    formal_parameter,
+    FormalParameter,
+    map(binding_element, |e| FormalParameter::BindingElement(e)),
+);
+
+// 15.2 Function Definitions
+
+p!(
+    function_declaration,
+    FunctionDeclaration,
+    map(
+        tuple((
+            w(tag("function")),
+            opt(binding_identifier),
+            w(tag("(")),
+            formal_parameters,
+            w(tag(")")),
+            w(tag("{")),
+            function_body,
+            w(tag("}"))
+        )),
+        |t| FunctionDeclaration {
+            name: t.1,
+            parameters: t.3,
+            body: t.6
+        }
+    )
+);
+
+p!(
+    function_body,
+    FunctionBody,
+    map(opt(statement_list), |s| FunctionBody(s))
+);
 
 p!(
     cover_call_expression_and_async_arrow_head,
@@ -323,7 +437,7 @@ p!(
 
 def! {
     script: Script {
-        script_body = script_body;
+        script_body = w2(script_body);
     } Script::ScriptBody(Some(script_body));
 }
 

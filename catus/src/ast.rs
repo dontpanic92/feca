@@ -52,8 +52,63 @@ pub enum Statement {
 }
 
 #[derive(Debug)]
+pub enum Declaration {
+    HoistableDeclaration(HoistableDeclaration),
+    ClassDeclaration,
+    LexicalDeclaration,
+}
+
+#[derive(Debug)]
+pub enum HoistableDeclaration {
+    FunctionDeclaration(FunctionDeclaration),
+}
+
+
+#[derive(Debug)]
+pub struct SingleNameBinding {
+    pub name: String,
+    pub initializer: Option<Expression>,
+}
+
+#[derive(Debug)]
+pub enum BindingElement {
+    SingleNameBinding(SingleNameBinding),
+    BindingPattern,
+}
+
+#[derive(Debug)]
+pub enum FormalParameter {
+    BindingElement(BindingElement),
+}
+
+pub type FormalParameterList = Vec<Box<FormalParameter>>;
+
+#[derive(Debug)]
+pub enum FormalParameters {
+    FormalParameterList(FormalParameterList),
+}
+
+#[derive(Debug)]
+pub struct FunctionDeclaration {
+    pub name: Option<String>,
+    pub parameters: FormalParameters,
+    pub body: FunctionBody,
+}
+
+#[derive(Debug)]
+pub struct FunctionBody(pub Option<StatementList>);
+
+#[derive(Debug)]
+pub enum StatementListItem {
+    Statement(Statement),
+    Declaration(Declaration),
+}
+
+pub type StatementList = Vec<Box<StatementListItem>>;
+
+#[derive(Debug)]
 pub enum ScriptBody {
-    StatementList(Vec<Box<Statement>>),
+    StatementList(StatementList),
 }
 
 #[derive(Debug)]

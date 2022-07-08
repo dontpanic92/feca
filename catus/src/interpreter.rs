@@ -2,10 +2,10 @@ use std::collections::HashMap;
 
 use crate::{
     ast::{
-        ArgumentList, Expression, Literal, MemberExpression, PrimaryExpression, Script, ScriptBody,
-        Statement,
+        ArgumentList, Declaration, Expression, FunctionDeclaration, HoistableDeclaration, Literal,
+        MemberExpression, PrimaryExpression, Script, ScriptBody, Statement, StatementListItem,
     },
-    builtins::{make_object, Console},
+    builtins::{make_object, Console, Function, make_new_object},
     symtbl::{JsValue, Symbol},
 };
 
@@ -20,7 +20,7 @@ impl Interpreter {
         Self { global }
     }
 
-    pub fn eval(&self, script: &Script) {
+    pub fn eval(&mut self, script: &Script) {
         match script {
             Script::ScriptBody(body) => {
                 if let Some(body) = body {
@@ -30,17 +30,39 @@ impl Interpreter {
         }
     }
 
-    fn eval_script_body(&self, body: &ScriptBody) {
+    fn eval_script_body(&mut self, body: &ScriptBody) {
         match body {
             ScriptBody::StatementList(stmts) => {
                 for s in stmts {
-                    self.eval_statement(s);
+                    match s.as_ref() {
+                        StatementListItem::Statement(s) => self.eval_statement(s),
+                        StatementListItem::Declaration(d) => self.eval_declaration(d),
+                    }
                 }
             }
         }
     }
 
-    fn eval_statement(&self, stmt: &Statement) {
+    fn eval_declaration(&mut self, decl: &Declaration) {
+        match decl {
+            Declaration::HoistableDeclaration(d) => self.eval_hoistable_declaration(d),
+            Declaration::ClassDeclaration => todo!(),
+            Declaration::LexicalDeclaration => todo!(),
+        }
+    }
+
+    fn eval_hoistable_declaration(&mut self, decl: &HoistableDeclaration) {
+        match decl {
+            HoistableDeclaration::FunctionDeclaration(f) => self.eval_function_declaration(f),
+        }
+    }
+
+    fn eval_function_declaration(&mut self, decl: &FunctionDeclaration) {
+        let function = self.global.get("Function").unwrap();
+        let object = make_new_object(decl.name.unwrap(), function.clone(), );
+    }
+
+    fn eval_statement(&mut self, stmt: &Statement) {
         match stmt {
             Statement::ExpressionStatement(exprs) => {
                 for e in exprs {
@@ -50,7 +72,7 @@ impl Interpreter {
         }
     }
 
-    fn eval_expression(&self, expr: &Expression) -> JsValue {
+    fn eval_expression(&mut self, expr: &Expression) -> JsValue {
         match expr {
             Expression::AssignmentExpression => todo!(),
             Expression::ConditionalExpression => todo!(),
@@ -78,7 +100,7 @@ impl Interpreter {
         }
     }
 
-    fn eval_call_expression(&self, member: &MemberExpression, arguments: &ArgumentList) -> JsValue {
+    fn eval_call_expression(&mut self, member: &MemberExpression, arguments: &ArgumentList) -> JsValue {
         let lhs = self.eval_member_expression(member);
         let a = self.eval_argument_list(arguments);
 
@@ -94,7 +116,7 @@ impl Interpreter {
         }
     }
 
-    fn eval_argument_list(&self, arguments: &ArgumentList) -> Vec<JsValue> {
+    fn eval_argument_list(&mut self, arguments: &ArgumentList) -> Vec<JsValue> {
         let mut ret = vec![];
         for a in &arguments.0 {
             ret.push(self.eval_expression(a));
@@ -103,7 +125,7 @@ impl Interpreter {
         ret
     }
 
-    fn eval_member_expression(&self, member: &MemberExpression) -> JsValue {
+    fn eval_member_expression(&mut self, member: &MemberExpression) -> JsValue {
         match member {
             MemberExpression::PrimaryExpression(p) => self.eval_primary_expression(p),
             MemberExpression::MemberExpressionDotIdentiferName(member, prop) => {
@@ -122,7 +144,7 @@ impl Interpreter {
         }
     }
 
-    fn eval_primary_expression(&self, primary: &PrimaryExpression) -> JsValue {
+    fn eval_primary_expression(&mut self, primary: &PrimaryExpression) -> JsValue {
         match primary {
             PrimaryExpression::This => todo!(),
             PrimaryExpression::IdentifierReference(s) => self
@@ -144,8 +166,10 @@ fn builtin_globals() -> HashMap<String, Symbol> {
 
     let object = make_object();
     let console = Console::make_console(object.clone());
+    let function = Function::make_function(object.clone());
 
     globals.insert("Object".to_string(), object);
     globals.insert("console".to_string(), console);
+    globals.insert("Function".to_string(), function);
     globals
 }

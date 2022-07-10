@@ -1,27 +1,27 @@
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum Literal {
     NullLiteral,
     BooleanLiteral(bool),
     StringLiteral(String),
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum PrimaryExpression {
     This,
     IdentifierReference(String),
     Literal(Literal),
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum MemberExpression {
     PrimaryExpression(PrimaryExpression),
     MemberExpressionDotIdentiferName(Box<MemberExpression>, String),
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct ArgumentList(pub Vec<Box<Expression>>);
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum Expression {
     AssignmentExpression,
     ConditionalExpression,
@@ -46,59 +46,58 @@ pub enum Expression {
     CoverCallExpressionAndAsyncArrowHead(MemberExpression, ArgumentList),
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum Statement {
     ExpressionStatement(Vec<Box<Expression>>),
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum Declaration {
     HoistableDeclaration(HoistableDeclaration),
     ClassDeclaration,
     LexicalDeclaration,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum HoistableDeclaration {
     FunctionDeclaration(FunctionDeclaration),
 }
 
-
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct SingleNameBinding {
     pub name: String,
     pub initializer: Option<Expression>,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum BindingElement {
     SingleNameBinding(SingleNameBinding),
     BindingPattern,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum FormalParameter {
     BindingElement(BindingElement),
 }
 
 pub type FormalParameterList = Vec<Box<FormalParameter>>;
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum FormalParameters {
     FormalParameterList(FormalParameterList),
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct FunctionDeclaration {
     pub name: Option<String>,
     pub parameters: FormalParameters,
     pub body: FunctionBody,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct FunctionBody(pub Option<StatementList>);
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum StatementListItem {
     Statement(Statement),
     Declaration(Declaration),
@@ -106,12 +105,12 @@ pub enum StatementListItem {
 
 pub type StatementList = Vec<Box<StatementListItem>>;
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum ScriptBody {
     StatementList(StatementList),
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum Script {
     ScriptBody(Option<ScriptBody>),
 }

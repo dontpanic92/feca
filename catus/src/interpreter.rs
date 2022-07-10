@@ -5,8 +5,8 @@ use crate::{
         ArgumentList, Declaration, Expression, FunctionDeclaration, HoistableDeclaration, Literal,
         MemberExpression, PrimaryExpression, Script, ScriptBody, Statement, StatementListItem,
     },
-    builtins::{make_object, Console, Function, make_new_object},
-    symtbl::{JsValue, Symbol},
+    builtins::{make_object, Console, Function},
+    symtbl::{JsObject, JsValue, Symbol},
 };
 
 pub struct Interpreter {
@@ -34,13 +34,19 @@ impl Interpreter {
         match body {
             ScriptBody::StatementList(stmts) => {
                 for s in stmts {
-                    match s.as_ref() {
-                        StatementListItem::Statement(s) => self.eval_statement(s),
-                        StatementListItem::Declaration(d) => self.eval_declaration(d),
-                    }
+                    self.eval_statement_list_item(s);
                 }
             }
         }
+    }
+
+    fn eval_statement_list_item(&mut self, item: &StatementListItem) -> JsValue {
+        match item {
+            StatementListItem::Statement(s) => self.eval_statement(s),
+            StatementListItem::Declaration(d) => self.eval_declaration(d),
+        }
+
+        JsValue::Undefined
     }
 
     fn eval_declaration(&mut self, decl: &Declaration) {
@@ -58,8 +64,9 @@ impl Interpreter {
     }
 
     fn eval_function_declaration(&mut self, decl: &FunctionDeclaration) {
-        let function = self.global.get("Function").unwrap();
-        let object = make_new_object(decl.name.unwrap(), function.clone(), );
+        let function_proto = self.global.get("Function").unwrap();
+        let f = Function::new_js_function(function_proto.clone(), decl);
+        self.global.insert(f.name().clone(), f);
     }
 
     fn eval_statement(&mut self, stmt: &Statement) {
@@ -100,7 +107,11 @@ impl Interpreter {
         }
     }
 
-    fn eval_call_expression(&mut self, member: &MemberExpression, arguments: &ArgumentList) -> JsValue {
+    fn eval_call_expression(
+        &mut self,
+        member: &MemberExpression,
+        arguments: &ArgumentList,
+    ) -> JsValue {
         let lhs = self.eval_member_expression(member);
         let a = self.eval_argument_list(arguments);
 
@@ -111,9 +122,29 @@ impl Interpreter {
             JsValue::String(_) => todo!(),
             JsValue::Number(_) => todo!(),
             JsValue::BigInt => todo!(),
-            JsValue::Object(_) => todo!(),
-            JsValue::FunctionProxy(mut p) => p.function()(&a),
+            JsValue::Object(f) => {
+                let f = f.borrow();
+                self.eval_js_function_call(&f)
+            }
+            JsValue::NativeFunctionProxy(mut p) => p.function()(&a),
+            JsValue::FunctionDeclaration(_) => todo!(),
         }
+    }
+
+    fn eval_js_function_call(&mut self, obj: &JsObject) -> JsValue {
+        if !obj.is_function() {
+            return JsValue::Undefined;
+        }
+
+        if let JsValue::FunctionDeclaration(decl) = obj.get_property_value("__function__") {
+            if let Some(items) = decl.body.0.as_ref() {
+                for item in items {
+                    self.eval_statement_list_item(item);
+                }
+            }
+        }
+
+        JsValue::Undefined
     }
 
     fn eval_argument_list(&mut self, arguments: &ArgumentList) -> Vec<JsValue> {
@@ -138,7 +169,8 @@ impl Interpreter {
                     JsValue::Number(_) => todo!(),
                     JsValue::BigInt => todo!(),
                     JsValue::Object(o) => o.borrow().get_property_value(prop),
-                    JsValue::FunctionProxy(_) => todo!(),
+                    JsValue::NativeFunctionProxy(_) => todo!(),
+                    JsValue::FunctionDeclaration(_) => todo!(),
                 }
             }
         }

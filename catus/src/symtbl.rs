@@ -4,6 +4,8 @@ use std::{
     rc::Rc,
 };
 
+use crate::ast::FunctionDeclaration;
+
 #[derive(Clone)]
 pub enum JsValue {
     Undefined,
@@ -15,7 +17,8 @@ pub enum JsValue {
     Object(Rc<RefCell<JsObject>>),
 
     // Internal Use
-    FunctionProxy(JsFunctionProxy),
+    NativeFunctionProxy(NativeFunctionProxy),
+    FunctionDeclaration(FunctionDeclaration),
 }
 
 impl JsValue {
@@ -28,7 +31,10 @@ impl JsValue {
             JsValue::Number(n) => format!("{}", n),
             JsValue::BigInt => format!("BitInt"),
             JsValue::Object(_) => format!("[Object object]"),
-            JsValue::FunctionProxy(_) => format!("[native proxy]"),
+            JsValue::NativeFunctionProxy(_) => format!("[native proxy]"),
+            JsValue::FunctionDeclaration(f) => {
+                format!("function {}", f.name.as_deref().unwrap_or("[Anonymous]"))
+            }
         }
     }
 }
@@ -42,6 +48,10 @@ pub struct Symbol {
 impl Symbol {
     pub fn new(name: String, value: JsValue) -> Self {
         Self { name, value }
+    }
+
+    pub fn name(&self) -> &String {
+        &self.name
     }
 
     pub fn value(&self) -> JsValue {
@@ -60,6 +70,7 @@ pub struct JsObject {
     name: String,
     properties: HashMap<String, JsValue>,
     prototype: Option<Symbol>,
+    is_function: bool,
 }
 
 impl JsObject {
@@ -72,6 +83,7 @@ impl JsObject {
             name,
             properties,
             prototype,
+            is_function: false,
         }
     }
 
@@ -81,14 +93,22 @@ impl JsObject {
             .and_then(|s| Some(s.clone()))
             .unwrap_or(JsValue::Undefined)
     }
+
+    pub fn is_function(&self) -> bool {
+        self.is_function
+    }
+
+    pub fn set_is_function(&mut self, is_function: bool) {
+        self.is_function = is_function
+    }
 }
 
 #[derive(Clone)]
-pub struct JsFunctionProxy {
+pub struct NativeFunctionProxy {
     function: Rc<RefCell<dyn FnMut(&[JsValue]) -> JsValue>>,
 }
 
-impl JsFunctionProxy {
+impl NativeFunctionProxy {
     pub fn new<F: 'static + FnMut(&[JsValue]) -> JsValue>(function: F) -> Self {
         Self {
             function: Rc::new(RefCell::new(function)),

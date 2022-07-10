@@ -1,6 +1,9 @@
 use std::{cell::RefCell, collections::HashMap, rc::Rc};
 
-use crate::symtbl::{JsFunctionProxy, JsObject, JsValue, Symbol};
+use crate::{
+    ast::FunctionDeclaration,
+    symtbl::{JsObject, JsValue, NativeFunctionProxy, Symbol},
+};
 
 pub fn make_object() -> Symbol {
     Symbol::new(
@@ -14,14 +17,10 @@ pub fn make_object() -> Symbol {
 }
 
 fn new_object(name: String, proto: Symbol, properties: HashMap<String, JsValue>) -> Symbol {
-    Symbol::new(
-        name.clone(),
-        JsValue::Object(Rc::new(RefCell::new(JsObject::new(
-            name,
-            properties,
-            Some(proto),
-        )))),
-    )
+    let mut obj = JsObject::new(name.clone(), properties, Some(proto));
+    obj.set_is_function(true);
+
+    Symbol::new(name, JsValue::Object(Rc::new(RefCell::new(obj))))
 }
 
 pub struct Console {}
@@ -39,7 +38,7 @@ impl Console {
             let s = s.clone();
             map.insert(
                 "log".to_string(),
-                JsValue::FunctionProxy(JsFunctionProxy::new(move |params| {
+                JsValue::NativeFunctionProxy(NativeFunctionProxy::new(move |params| {
                     s.borrow_mut().log(params)
                 })),
             );
@@ -63,12 +62,25 @@ impl Console {
 pub struct Function;
 
 impl Function {
-    pub fn new_js_function()
+    pub fn new_js_function(function_proto: Symbol, decl: &FunctionDeclaration) -> Symbol {
+        let mut properties = HashMap::new();
+
+        properties.insert(
+            "__function__".to_string(),
+            JsValue::FunctionDeclaration(decl.clone()),
+        );
+
+        new_object(
+            decl.name.as_ref().unwrap().clone(),
+            function_proto.clone(),
+            properties,
+        )
+    }
 
     pub fn make_function(object: Symbol) -> Symbol {
         new_object("Function".to_string(), object, Self::make_props())
     }
-    
+
     fn make_props() -> HashMap<String, JsValue> {
         let mut map = HashMap::new();
         let s = Rc::new(RefCell::new(Self {}));
@@ -77,7 +89,7 @@ impl Function {
             let s = s.clone();
             map.insert(
                 "apply".to_string(),
-                JsValue::FunctionProxy(JsFunctionProxy::new(move |params| {
+                JsValue::NativeFunctionProxy(NativeFunctionProxy::new(move |params| {
                     s.borrow_mut().apply(params)
                 })),
             );

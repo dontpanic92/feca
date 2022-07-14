@@ -2,8 +2,9 @@ use std::collections::HashMap;
 
 use crate::{
     ast::{
-        ArgumentList, Declaration, Expression, FunctionDeclaration, HoistableDeclaration, Literal,
-        MemberExpression, PrimaryExpression, Script, ScriptBody, Statement, StatementListItem,
+        ArgumentList, CallExpression, Declaration, Expression, FunctionDeclaration,
+        HoistableDeclaration, LeftHandSideExpression, Literal, MemberExpression, PrimaryExpression,
+        Script, ScriptBody, Statement, StatementListItem,
     },
     builtins::{make_object, Console, Function},
     symtbl::{JsObject, JsValue, Symbol},
@@ -81,7 +82,7 @@ impl Interpreter {
 
     fn eval_expression(&mut self, expr: &Expression) -> JsValue {
         match expr {
-            Expression::AssignmentExpression => todo!(),
+            Expression::AssignmentExpression(a) => todo!(),
             Expression::ConditionalExpression => todo!(),
             Expression::ShortCircuitExpression => todo!(),
             Expression::LogicalORExpression => todo!(),
@@ -97,21 +98,25 @@ impl Interpreter {
             Expression::ExponentiationExpression => todo!(),
             Expression::UnaryExpression => todo!(),
             Expression::UpdateExpression => todo!(),
-            Expression::LeftHandSideExpression => todo!(),
-            Expression::MemberExpression(m) => self.eval_member_expression(m),
-            Expression::NewExpression => todo!(),
-            Expression::CallExpression => todo!(),
-            Expression::CoverCallExpressionAndAsyncArrowHead(member, arguments) => {
-                self.eval_call_expression(member, arguments)
-            }
+            Expression::LeftHandSideExpression(lhs_expr) => self.eval_lhs_expression(lhs_expr),
         }
     }
 
-    fn eval_call_expression(
-        &mut self,
-        member: &MemberExpression,
-        arguments: &ArgumentList,
-    ) -> JsValue {
+    fn eval_lhs_expression(&mut self, lhs_expr: &LeftHandSideExpression) -> JsValue {
+        match lhs_expr {
+            LeftHandSideExpression::MemberExpression(m) => self.eval_member_expression(m),
+            LeftHandSideExpression::NewExpression => todo!(),
+            LeftHandSideExpression::CallExpression(c) => self.eval_call_expression(c),
+        }
+    }
+
+    fn eval_call_expression(&mut self, call_expr: &CallExpression) -> JsValue {
+        match call_expr {
+            CallExpression::CoverCallExpressionAndAsyncArrowHead(m, a) => self.eval_call(m, a),
+        }
+    }
+
+    fn eval_call(&mut self, member: &MemberExpression, arguments: &ArgumentList) -> JsValue {
         let lhs = self.eval_member_expression(member);
         let a = self.eval_argument_list(arguments);
 

@@ -1,4 +1,5 @@
-function test() { 
+function test() {
+    g = 1;
     console.log("In test: Hello, World!");
 }
 

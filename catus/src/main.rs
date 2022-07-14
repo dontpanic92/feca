@@ -13,7 +13,6 @@ mod symtbl;
 // lalrpop_mod!(pub parser);
 
 fn main() {
-    // let program = parser::ScriptParser::new().parse("console.log('1');");
     let args: Vec<String> = std::env::args().collect();
     if args.len() < 2 {
         println!("{} file.js", args[0]);

@@ -22,8 +22,27 @@ pub enum MemberExpression {
 pub struct ArgumentList(pub Vec<Box<Expression>>);
 
 #[derive(Debug, Clone)]
+pub enum CallExpression {
+    CoverCallExpressionAndAsyncArrowHead(MemberExpression, ArgumentList),
+}
+
+#[derive(Debug, Clone)]
+pub enum LeftHandSideExpression {
+    MemberExpression(MemberExpression),
+    NewExpression,
+    CallExpression(CallExpression),
+}
+
+#[derive(Debug, Clone)] 
+pub struct AssignmentExpression {
+    pub lhs_expr: LeftHandSideExpression,
+    pub op: String,
+    pub expr: Box<Expression>,
+}
+
+#[derive(Debug, Clone)]
 pub enum Expression {
-    AssignmentExpression,
+    AssignmentExpression(AssignmentExpression),
     ConditionalExpression,
     ShortCircuitExpression,
     LogicalORExpression,
@@ -39,11 +58,7 @@ pub enum Expression {
     ExponentiationExpression,
     UnaryExpression,
     UpdateExpression,
-    LeftHandSideExpression,
-    MemberExpression(MemberExpression),
-    NewExpression,
-    CallExpression,
-    CoverCallExpressionAndAsyncArrowHead(MemberExpression, ArgumentList),
+    LeftHandSideExpression(LeftHandSideExpression),
 }
 
 #[derive(Debug, Clone)]

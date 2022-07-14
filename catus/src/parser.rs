@@ -2,7 +2,7 @@ use nom::{
     branch::alt,
     bytes::complete::{escaped, is_not, tag, take, take_while_m_n},
     character::complete::{alphanumeric1, char, hex_digit1, multispace0, one_of},
-    combinator::{map, opt, peek},
+    combinator::{consumed, map, opt, peek},
     error::ParseError,
     multi::{many1, separated_list0, separated_list1},
     sequence::{delimited, pair, preceded, separated_pair, terminated, tuple},
@@ -10,9 +10,10 @@ use nom::{
 };
 
 use crate::ast::{
-    ArgumentList, BindingElement, Declaration, Expression, FormalParameter, FormalParameters,
-    FunctionBody, FunctionDeclaration, HoistableDeclaration, Literal, MemberExpression,
-    PrimaryExpression, Script, ScriptBody, SingleNameBinding, Statement, StatementListItem,
+    ArgumentList, AssignmentExpression, BindingElement, CallExpression, Declaration, Expression,
+    FormalParameter, FormalParameters, FunctionBody, FunctionDeclaration, HoistableDeclaration,
+    LeftHandSideExpression, Literal, MemberExpression, PrimaryExpression, Script, ScriptBody,
+    SingleNameBinding, Statement, StatementListItem,
 };
 
 pub fn parse(input: &str) -> IResult<&str, Script> {
@@ -22,7 +23,7 @@ pub fn parse(input: &str) -> IResult<&str, Script> {
 macro_rules! def {
     ($name: ident: $ret_ty: ty { $($var: ident = $parser: expr;)* } $ret: expr;) => {
         fn $name(input: &str) -> IResult<&str, $ret_ty> {
-            // println!("entering {}: {}", stringify!($name), input);
+            // println!("entering {}", stringify!($name));
             $( let (input, _) = multispace0(input)?; let (input, $var) = $parser(input)?; )*
 
             // println!("leaving {}: {}", stringify!($name), input);
@@ -223,7 +224,7 @@ fn member_expression(input: &str) -> IResult<&str, MemberExpression> {
 
 p!(
     call_expression,
-    Expression,
+    CallExpression,
     cover_call_expression_and_async_arrow_head
 );
 
@@ -250,18 +251,29 @@ p!(
 
 p2!(
     new_expression,
-    Expression,
+    LeftHandSideExpression,
     member_expression,
-    Expression::MemberExpression
+    LeftHandSideExpression::MemberExpression
 );
 
 p!(
     left_hand_side_expression,
-    Expression,
-    alt((call_expression, new_expression))
+    LeftHandSideExpression,
+    alt((
+        map(call_expression, |e| LeftHandSideExpression::CallExpression(
+            e
+        )),
+        new_expression,
+    ))
 );
 
-p!(update_expression, Expression, left_hand_side_expression);
+p!(
+    update_expression,
+    Expression,
+    map(left_hand_side_expression, |e| {
+        Expression::LeftHandSideExpression(e)
+    })
+);
 
 p!(unary_expression, Expression, update_expression);
 
@@ -293,16 +305,34 @@ p!(logical_or_expression, Expression, logical_and_expression);
 
 p!(short_circuit_expression, Expression, logical_or_expression);
 
-def! {
-    conditional_exprsesion: Expression {
-        expr = short_circuit_expression;
-    } expr;
-}
+p!(conditional_exprsesion, Expression, short_circuit_expression);
 
-def! {
-    assignment_expression: Expression {
-        expr = conditional_exprsesion;
-    } expr;
+// p!(assignment_expression, Expression, conditional_exprsesion);
+
+fn assignment_expression(input: &str) -> IResult<&str, Expression> {
+    let (input, expr) = conditional_exprsesion(input)?;
+    if let Expression::LeftHandSideExpression(lhs_expr) = &expr {
+        let res: IResult<&str, &str> = peek(w(tag("=")))(input);
+        if let Ok((input, next)) = res {
+            match next {
+                "=" => {
+                    let (input, op) = w(tag("="))(input)?;
+                    let (input, expr) = assignment_expression(input)?;
+                    return Ok((
+                        input,
+                        Expression::AssignmentExpression(AssignmentExpression {
+                            lhs_expr: lhs_expr.clone(),
+                            op: op.to_string(),
+                            expr: Box::new(expr),
+                        }),
+                    ));
+                }
+                _ => {}
+            }
+        }
+    }
+
+    Ok((input, expr))
 }
 
 def! {
@@ -371,11 +401,11 @@ p!(
     })
 );
 
-def! {
-    expression_statement: Vec<Box<Expression>> {
-        expr = terminated(expression, opt(w(tag(";"))));
-    } expr;
-}
+p!(
+    expression_statement,
+    Vec<Box<Expression>>,
+    terminated(expression, opt(w(tag(";"))))
+);
 
 // 15 Functions and Classes
 
@@ -427,9 +457,9 @@ p!(
 
 p!(
     cover_call_expression_and_async_arrow_head,
-    Expression,
+    CallExpression,
     map(pair(member_expression, arguments), |p| {
-        Expression::CoverCallExpressionAndAsyncArrowHead(p.0, p.1)
+        CallExpression::CoverCallExpressionAndAsyncArrowHead(p.0, p.1)
     })
 );
 

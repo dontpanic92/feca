@@ -1,3 +1,5 @@
+use crate::symtbl::JsValue;
+
 #[derive(Debug, Clone)]
 pub enum Literal {
     NullLiteral,
@@ -33,7 +35,7 @@ pub enum LeftHandSideExpression {
     CallExpression(CallExpression),
 }
 
-#[derive(Debug, Clone)] 
+#[derive(Debug, Clone)]
 pub struct AssignmentExpression {
     pub lhs_expr: LeftHandSideExpression,
     pub op: String,

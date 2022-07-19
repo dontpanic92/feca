@@ -2,9 +2,9 @@ use std::collections::HashMap;
 
 use crate::{
     ast::{
-        ArgumentList, CallExpression, Declaration, Expression, FunctionDeclaration,
-        HoistableDeclaration, LeftHandSideExpression, Literal, MemberExpression, PrimaryExpression,
-        Script, ScriptBody, Statement, StatementListItem,
+        ArgumentList, AssignmentExpression, CallExpression, Declaration, Expression,
+        FunctionDeclaration, HoistableDeclaration, LeftHandSideExpression, Literal,
+        MemberExpression, PrimaryExpression, Script, ScriptBody, Statement, StatementListItem,
     },
     builtins::{make_object, Console, Function},
     symtbl::{JsObject, JsValue, Symbol},
@@ -82,7 +82,7 @@ impl Interpreter {
 
     fn eval_expression(&mut self, expr: &Expression) -> JsValue {
         match expr {
-            Expression::AssignmentExpression(a) => todo!(),
+            Expression::AssignmentExpression(expr) => self.eval_assignment_expression(expr),
             Expression::ConditionalExpression => todo!(),
             Expression::ShortCircuitExpression => todo!(),
             Expression::LogicalORExpression => todo!(),
@@ -102,11 +102,30 @@ impl Interpreter {
         }
     }
 
+    fn eval_assignment_expression(&mut self, expr: &AssignmentExpression) -> JsValue {
+        let rhs_value = self.eval_expression(&expr.expr);
+        self.eval_lhs_expression_assignment(&expr.lhs_expr, rhs_value)
+    }
+
     fn eval_lhs_expression(&mut self, lhs_expr: &LeftHandSideExpression) -> JsValue {
         match lhs_expr {
             LeftHandSideExpression::MemberExpression(m) => self.eval_member_expression(m),
             LeftHandSideExpression::NewExpression => todo!(),
             LeftHandSideExpression::CallExpression(c) => self.eval_call_expression(c),
+        }
+    }
+
+    fn eval_lhs_expression_assignment(
+        &mut self,
+        lhs_expr: &LeftHandSideExpression,
+        value: JsValue,
+    ) -> JsValue {
+        match lhs_expr {
+            LeftHandSideExpression::MemberExpression(member) => {
+                self.eval_member_expression_assignment(member, value)
+            }
+            LeftHandSideExpression::NewExpression => JsValue::Undefined,
+            LeftHandSideExpression::CallExpression(_) => todo!(),
         }
     }
 
@@ -181,6 +200,35 @@ impl Interpreter {
         }
     }
 
+    fn eval_member_expression_assignment(
+        &mut self,
+        member: &MemberExpression,
+        value: JsValue,
+    ) -> JsValue {
+        match member {
+            MemberExpression::PrimaryExpression(p) => {
+                self.eval_primary_expression_assignment(p, value)
+            }
+            MemberExpression::MemberExpressionDotIdentiferName(member, prop) => {
+                let lhs = self.eval_member_expression(&member);
+                match lhs {
+                    JsValue::Undefined => todo!(),
+                    JsValue::Null => todo!(),
+                    JsValue::Boolean(_) => todo!(),
+                    JsValue::String(_) => todo!(),
+                    JsValue::Number(_) => todo!(),
+                    JsValue::BigInt => todo!(),
+                    JsValue::Object(o) => {
+                        o.borrow_mut().set_property_value(prop, value.clone());
+                        value
+                    }
+                    JsValue::NativeFunctionProxy(_) => todo!(),
+                    JsValue::FunctionDeclaration(_) => todo!(),
+                }
+            }
+        }
+    }
+
     fn eval_primary_expression(&mut self, primary: &PrimaryExpression) -> JsValue {
         match primary {
             PrimaryExpression::This => todo!(),
@@ -194,6 +242,22 @@ impl Interpreter {
                 Literal::BooleanLiteral(_) => todo!(),
                 Literal::StringLiteral(s) => JsValue::String(s.clone()),
             },
+        }
+    }
+
+    fn eval_primary_expression_assignment(
+        &mut self,
+        primary: &PrimaryExpression,
+        value: JsValue,
+    ) -> JsValue {
+        match primary {
+            PrimaryExpression::This => todo!(),
+            PrimaryExpression::IdentifierReference(s) => {
+                self.global
+                    .insert(s.to_string(), Symbol::new(s.to_string(), value.clone()));
+                value
+            }
+            PrimaryExpression::Literal(_) => todo!(),
         }
     }
 }

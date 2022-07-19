@@ -58,6 +58,10 @@ impl Symbol {
         self.value.clone()
     }
 
+    pub fn set_value(&mut self, value: JsValue) {
+        self.value = value;
+    }
+
     pub fn get_property_value(&self, property: &str) -> JsValue {
         match &self.value {
             JsValue::Object(object) => object.borrow_mut().get_property_value(property),
@@ -92,6 +96,10 @@ impl JsObject {
             .get(property)
             .and_then(|s| Some(s.clone()))
             .unwrap_or(JsValue::Undefined)
+    }
+
+    pub fn set_property_value(&mut self, property: &str, value: JsValue) {
+        self.properties.insert(property.to_string(), value);
     }
 
     pub fn is_function(&self) -> bool {

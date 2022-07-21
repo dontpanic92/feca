@@ -1,14 +1,15 @@
 #![feature(generic_associated_types)]
 #![feature(min_specialization)]
 
+use crate::rendering::cairo::CairoRenderer;
 use page::Page;
+
 use winit::{
     event::{Event, WindowEvent},
     event_loop::{ControlFlow, EventLoop},
     window::WindowBuilder,
 };
 
-use crate::rendering::cairo::CairoRenderer;
 mod common;
 mod dom;
 mod layout;

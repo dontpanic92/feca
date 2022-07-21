@@ -1,6 +1,6 @@
 use crate::{common::Rectangle, dom::html::HtmlDom, rendering::cairo::CairoRenderer, style::Style};
 
-pub(crate) struct Page {
+pub struct Page {
     dom: HtmlDom,
     pango_context: pango::Context,
     style: Style,

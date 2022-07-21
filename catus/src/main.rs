@@ -8,10 +8,6 @@ mod interpreter;
 mod parser;
 mod symtbl;
 
-// #[macro_use]
-// extern crate lalrpop_util;
-// lalrpop_mod!(pub parser);
-
 fn main() {
     let args: Vec<String> = std::env::args().collect();
     if args.len() < 2 {

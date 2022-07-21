@@ -4,12 +4,17 @@ pub mod body;
 pub mod html;
 pub mod html_element;
 pub mod paragraph;
+pub mod script;
 
 pub(crate) trait HtmlElement {
     fn title(&self) -> Option<&str>;
 }
 
 pub(crate) trait Paragraph {}
+
+pub(crate) trait Script {
+    fn text(&self) -> &str;
+}
 
 pub(crate) struct HtmlDom {
     root: Option<Box<dyn Node>>,

@@ -1,10 +1,14 @@
 [package]
-name = "catus"
+name = "feca"
 version = "0.1.0"
 edition = "2021"
-# build = "build.rs"
+default-run = "feca"
+
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-regex = "1"
-nom = "7.1.1"
+felis = { path = "../felis" }
+catus = { path = "../catus" }
+tl = "0.6.0"
+winit = "0.26.1"
+raw-window-handle = "0.4.2"

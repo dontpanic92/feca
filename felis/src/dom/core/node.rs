@@ -5,7 +5,6 @@ use crate::{
     rendering::Renderable,
     style::Style,
 };
-use intertrait::castable_to;
 use xcdt::{Object, ObjectBase, XcDataType};
 
 xcdt::declare_xcdt!(CoreNode, NodeProps, Object, ObjectBase);
@@ -108,5 +107,3 @@ pub fn paint_children(
         .map(|c| c.as_renderable())
         .for_each(|c| c.paint(renderer, style_computed))
 }
-
-castable_to!(CoreNode => Node, Layoutable);

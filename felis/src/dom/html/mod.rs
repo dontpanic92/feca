@@ -1,6 +1,7 @@
 use super::{core::text, Node};
 
 pub mod body;
+pub mod head;
 pub mod html;
 pub mod html_element;
 pub mod paragraph;
@@ -47,12 +48,14 @@ impl HtmlDom {
 
                 match t.name().as_utf8_str().to_lowercase().as_str() {
                     "html" => Some(html::new_core_html(children)),
+                    "head" => Some(head::new_core_head(children)),
                     "body" => Some(body::new_core_body(children)),
                     "p" => Some(paragraph::new_core_paragraph(children)),
                     "i" => Some(html_element::new_i_element(children)),
                     "a" => Some(html_element::new_a_element(children)),
                     "b" => Some(html_element::new_b_element(children)),
                     "h1" => Some(html_element::new_h1_element(children)),
+                    "script" => Some(script::new_core_script(children)),
                     _ => None,
                 }
             }

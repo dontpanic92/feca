@@ -302,7 +302,6 @@ name = "felis"
 version = "0.1.0"
 dependencies = [
  "cairo-rs",
- "intertrait",
  "linkme",
  "pango",
  "pangocairo",
@@ -378,17 +377,6 @@ dependencies = [
  "pin-project-lite",
  "pin-utils",
  "slab",
-]
-
-[[package]]
-name = "getrandom"
-version = "0.2.4"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "418d37c8b1d42553c93648be529cb70f920d3baf8ef469b74b9638df426e0b4c"
-dependencies = [
- "cfg-if 1.0.0",
- "libc",
- "wasi",
 ]
 
 [[package]]
@@ -469,29 +457,6 @@ dependencies = [
  "js-sys",
  "wasm-bindgen",
  "web-sys",
-]
-
-[[package]]
-name = "intertrait"
-version = "0.2.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f00fc6ef7d878dfcf59d9e556ef1b368d7f55b9da5813ed481a3573eef485a01"
-dependencies = [
- "intertrait-macros",
- "linkme",
- "once_cell",
-]
-
-[[package]]
-name = "intertrait-macros"
-version = "0.2.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "4d56984da2d4c9d6d7de8463892e65a9354f4238f641c246fe99176150e97bb8"
-dependencies = [
- "proc-macro2",
- "quote",
- "syn",
- "uuid",
 ]
 
 [[package]]
@@ -1059,15 +1024,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "8ccb82d61f80a663efe1f787a51b16b5a51e3314d6ac365b08639f52387b33f3"
 
 [[package]]
-name = "uuid"
-version = "0.8.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "bc5cf98d8186244414c848017f0e2676b3fcb46807f6668a97dfe67359a3c4b7"
-dependencies = [
- "getrandom",
-]
-
-[[package]]
 name = "version-compare"
 version = "0.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1078,12 +1034,6 @@ name = "version_check"
 version = "0.9.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "49874b5167b65d7193b8aba1567f5c7d93d001cafc34600cee003eda787e483f"
-
-[[package]]
-name = "wasi"
-version = "0.10.2+wasi-snapshot-preview1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "fd6fbd9a79829dd1ad0cc20627bf1ed606756a7f77edff7b66b7064f9cb327c6"
 
 [[package]]
 name = "wasm-bindgen"

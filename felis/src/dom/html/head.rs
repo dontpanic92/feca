@@ -6,29 +6,28 @@ use crate::{
         },
         Node,
     },
-    layout::Layoutable,
     style::Style,
 };
 
 use super::html_element::{CoreHtmlElement, CoreHtmlElementBase, HtmlElementProps};
 
-xcdt::declare_xcdt!(CoreBody, BodyProps, CoreHtmlElement, CoreHtmlElementBase);
+xcdt::declare_xcdt!(CoreHead, HeadProps, CoreHtmlElement, CoreHtmlElementBase);
 
-pub struct BodyProps;
+pub struct HeadProps {}
 
-impl BodyProps {
+impl HeadProps {
     pub fn new() -> Self {
-        Self
+        Self {}
     }
 }
 
-pub fn new_core_body(children: Vec<Box<dyn Node>>) -> Box<CoreBody> {
+pub fn new_core_head(children: Vec<Box<dyn Node>>) -> Box<CoreHead> {
     Box::new(
-        CoreBody::builder()
+        CoreHead::builder()
             .with(NodeProps::new(NodeType::ElementNode, children))
             .with(ElementProps::new(None))
             .with(HtmlElementProps::new(None, Style::default()))
-            .with(BodyProps::new())
+            .with(HeadProps::new())
             .build(),
     )
 }

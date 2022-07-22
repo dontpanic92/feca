@@ -1,11 +1,9 @@
-use intertrait::CastFrom;
-
 use crate::{layout::Layoutable, rendering::Renderable};
 
 pub mod core;
 pub mod html;
 
-pub trait Node: CastFrom {
+pub trait Node {
     fn children(&self) -> &[Box<dyn Node>];
 
     fn as_layoutable(&self) -> &dyn Layoutable;

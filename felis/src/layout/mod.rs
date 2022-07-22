@@ -1,5 +1,3 @@
-use intertrait::CastFrom;
-
 use crate::{
     common::Rectangle,
     style::{Display, Style},
@@ -9,7 +7,7 @@ pub mod box_model;
 pub mod flow;
 pub mod text;
 
-pub trait Layoutable: CastFrom {
+pub trait Layoutable {
     fn display(&self) -> Display;
     fn layout(
         &self,

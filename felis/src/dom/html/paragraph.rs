@@ -1,3 +1,5 @@
+use std::rc::Rc;
+
 use crate::{
     dom::{
         core::{
@@ -26,11 +28,11 @@ impl ParagraphProps {
     }
 }
 
-pub fn new_core_paragraph(children: Vec<Box<dyn Node>>) -> Box<CoreParagraph> {
-    Box::new(
+pub fn new_core_paragraph(children: Vec<Rc<dyn Node>>, id: Option<String>) -> Rc<CoreParagraph> {
+    Rc::new(
         CoreParagraph::builder()
             .with(NodeProps::new(NodeType::ElementNode, children))
-            .with(ElementProps::new(None))
+            .with(ElementProps::new(id))
             .with(HtmlElementProps::new(None, Style::default()))
             .with(ParagraphProps::new())
             .build(),

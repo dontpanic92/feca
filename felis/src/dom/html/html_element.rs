@@ -1,3 +1,5 @@
+use std::rc::Rc;
+
 use xcdt::XcDataType;
 
 use crate::{
@@ -41,14 +43,18 @@ impl<T: 'static + XcDataType> HtmlElement for CoreHtmlElementBase<T> {
 }
 
 impl<T: 'static + XcDataType> Renderable for CoreHtmlElementBase<T> {
-    fn paint(&self, renderer: &crate::rendering::cairo::CairoRenderer, style_computed: &Style) {
+    default fn paint(
+        &self,
+        renderer: &crate::rendering::cairo::CairoRenderer,
+        style_computed: &Style,
+    ) {
         let style = Style::merge(&self.HtmlElementProps().style, style_computed);
         paint_children(self.NodeProps().children(), renderer, &style)
     }
 }
 
 impl<T: 'static + XcDataType> Layoutable for CoreHtmlElementBase<T> {
-    fn layout(
+    default fn layout(
         &self,
         pango_context: &pango::Context,
         style_computed: &Style,
@@ -63,24 +69,29 @@ impl<T: 'static + XcDataType> Layoutable for CoreHtmlElementBase<T> {
         )
     }
 
-    fn display(&self) -> Display {
+    default fn display(&self) -> Display {
         self.HtmlElementProps().style.display
     }
 }
 
-pub fn new_core_html_element(children: Vec<Box<dyn Node>>, style: Style) -> Box<CoreHtmlElement> {
-    Box::new(
+pub fn new_core_html_element(
+    children: Vec<Rc<dyn Node>>,
+    id: Option<String>,
+    style: Style,
+) -> Rc<CoreHtmlElement> {
+    Rc::new(
         CoreHtmlElement::builder()
             .with(NodeProps::new(NodeType::ElementNode, children))
-            .with(ElementProps::new(None))
+            .with(ElementProps::new(id))
             .with(HtmlElementProps::new(None, style))
             .build(),
     )
 }
 
-pub fn new_i_element(children: Vec<Box<dyn Node>>) -> Box<CoreHtmlElement> {
+pub fn new_i_element(children: Vec<Rc<dyn Node>>, id: Option<String>) -> Rc<CoreHtmlElement> {
     new_core_html_element(
         children,
+        id,
         Style {
             font_style: Some(FontStyle::Italic),
             display: Display::Inline,
@@ -89,9 +100,10 @@ pub fn new_i_element(children: Vec<Box<dyn Node>>) -> Box<CoreHtmlElement> {
     )
 }
 
-pub fn new_a_element(children: Vec<Box<dyn Node>>) -> Box<CoreHtmlElement> {
+pub fn new_a_element(children: Vec<Rc<dyn Node>>, id: Option<String>) -> Rc<CoreHtmlElement> {
     new_core_html_element(
         children,
+        id,
         Style {
             text_color: Some(Color::BLUE),
             text_decoration_line: Some(TextDecorationLine::Underline),
@@ -104,8 +116,8 @@ pub fn new_a_element(children: Vec<Box<dyn Node>>) -> Box<CoreHtmlElement> {
 macro_rules! new_element {
     ($name: ident, $style: expr) => {
         paste::paste! {
-            pub fn [<new_ $name _element>](children: Vec<Box<dyn Node>>) -> Box<CoreHtmlElement> {
-                new_core_html_element(children,$style)
+            pub fn [<new_ $name _element>](children: Vec<Rc<dyn Node>>, id: Option<String>) -> Rc<CoreHtmlElement> {
+                new_core_html_element(children, id, $style)
             }
         }
     };

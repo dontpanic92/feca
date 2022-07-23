@@ -50,6 +50,7 @@ impl FlowLayout {
                     content_boundary.right(),
                     last_boundary.bottom(),
                 ),
+                Display::None => last_boundary.clone(),
                 Display::Inherit | Display::FelisText => {
                     unreachable!("This branch should not be reachable")
                 }

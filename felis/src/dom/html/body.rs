@@ -1,3 +1,5 @@
+use std::rc::Rc;
+
 use crate::{
     dom::{
         core::{
@@ -6,7 +8,6 @@ use crate::{
         },
         Node,
     },
-    layout::Layoutable,
     style::Style,
 };
 
@@ -22,11 +23,11 @@ impl BodyProps {
     }
 }
 
-pub fn new_core_body(children: Vec<Box<dyn Node>>) -> Box<CoreBody> {
-    Box::new(
+pub fn new_core_body(children: Vec<Rc<dyn Node>>, id: Option<String>) -> Rc<CoreBody> {
+    Rc::new(
         CoreBody::builder()
             .with(NodeProps::new(NodeType::ElementNode, children))
-            .with(ElementProps::new(None))
+            .with(ElementProps::new(id))
             .with(HtmlElementProps::new(None, Style::default()))
             .with(BodyProps::new())
             .build(),

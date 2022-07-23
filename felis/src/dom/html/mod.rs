@@ -1,4 +1,6 @@
-use super::{core::text, Node};
+use std::rc::Rc;
+
+use super::{core::text, Element, Node};
 
 pub mod body;
 pub mod head;
@@ -7,18 +9,18 @@ pub mod html_element;
 pub mod paragraph;
 pub mod script;
 
-pub(crate) trait HtmlElement {
+pub(crate) trait HtmlElement: Element {
     fn title(&self) -> Option<&str>;
 }
 
-pub(crate) trait Paragraph {}
+pub(crate) trait Paragraph: HtmlElement {}
 
-pub(crate) trait Script {
+pub(crate) trait Script: HtmlElement {
     fn text(&self) -> &str;
 }
 
 pub(crate) struct HtmlDom {
-    root: Option<Box<dyn Node>>,
+    root: Option<Rc<dyn Node>>,
 }
 
 impl HtmlDom {
@@ -36,26 +38,30 @@ impl HtmlDom {
         self.root.as_deref()
     }
 
-    fn process_tl_node(tl_node: &tl::Node, tl_parser: &tl::Parser) -> Option<Box<dyn Node>> {
+    fn process_tl_node(tl_node: &tl::Node, tl_parser: &tl::Parser) -> Option<Rc<dyn Node>> {
         match tl_node {
             tl::Node::Tag(t) => {
-                let children: Vec<Box<dyn Node>> = t
+                let children: Vec<Rc<dyn Node>> = t
                     .children()
                     .top()
                     .iter()
                     .flat_map(|c| Self::process_tl_node(c.get(tl_parser)?, tl_parser))
                     .collect();
+                let id = t
+                    .attributes()
+                    .id()
+                    .map(|id| std::str::from_utf8(id.as_bytes()).unwrap_or("").to_string());
 
                 match t.name().as_utf8_str().to_lowercase().as_str() {
-                    "html" => Some(html::new_core_html(children)),
-                    "head" => Some(head::new_core_head(children)),
-                    "body" => Some(body::new_core_body(children)),
-                    "p" => Some(paragraph::new_core_paragraph(children)),
-                    "i" => Some(html_element::new_i_element(children)),
-                    "a" => Some(html_element::new_a_element(children)),
-                    "b" => Some(html_element::new_b_element(children)),
-                    "h1" => Some(html_element::new_h1_element(children)),
-                    "script" => Some(script::new_core_script(children)),
+                    "html" => Some(html::new_core_html(children, id)),
+                    "head" => Some(head::new_core_head(children, id)),
+                    "body" => Some(body::new_core_body(children, id)),
+                    "p" => Some(paragraph::new_core_paragraph(children, id)),
+                    "i" => Some(html_element::new_i_element(children, id)),
+                    "a" => Some(html_element::new_a_element(children, id)),
+                    "b" => Some(html_element::new_b_element(children, id)),
+                    "h1" => Some(html_element::new_h1_element(children, id)),
+                    "script" => Some(script::new_core_script(children, id)),
                     _ => None,
                 }
             }

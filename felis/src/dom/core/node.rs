@@ -1,6 +1,8 @@
+use std::{collections::HashMap, rc::Rc};
+
 use crate::{
     common::Rectangle,
-    dom::Node,
+    dom::{Node, NodeInternal},
     layout::{flow::FlowLayout, Layoutable},
     rendering::Renderable,
     style::Style,
@@ -26,25 +28,34 @@ pub enum NodeType {
 
 pub struct NodeProps {
     node_type: NodeType,
-    children: Vec<Box<dyn Node>>,
+    children: Vec<Rc<dyn Node>>,
 }
 
 impl NodeProps {
-    pub fn new(node_type: NodeType, children: Vec<Box<dyn Node>>) -> Self {
+    pub fn new(node_type: NodeType, children: Vec<Rc<dyn Node>>) -> Self {
         Self {
             node_type,
             children,
         }
     }
 
-    pub fn children(&self) -> &[Box<dyn Node>] {
+    pub fn children(&self) -> &[Rc<dyn Node>] {
         &self.children
     }
 }
 
 impl<T: 'static + XcDataType> Node for CoreNodeBase<T> {
-    fn children(&self) -> &[Box<dyn Node>] {
+    fn children(&self) -> &[Rc<dyn Node>] {
         self.NodeProps().children.as_ref()
+    }
+
+    fn inner_html(&self) -> String {
+        let mut frag_list = vec![];
+        for c in self.children() {
+            c.as_internal().collect_outer_html(&mut frag_list);
+        }
+
+        frag_list.join("\n")
     }
 
     fn as_layoutable(&self) -> &dyn Layoutable {
@@ -54,21 +65,28 @@ impl<T: 'static + XcDataType> Node for CoreNodeBase<T> {
     fn as_renderable(&self) -> &dyn Renderable {
         self as &dyn Renderable
     }
+
+    fn as_internal(&self) -> &dyn NodeInternal {
+        self as &dyn NodeInternal
+    }
+
+    fn get_element_by_id(&self, element_id: &str) -> Option<Rc<dyn Node>> {
+        todo!()
+    }
+}
+
+impl<T: 'static + XcDataType> NodeInternal for CoreNodeBase<T> {
+    default fn collect_outer_html(&self, _: &mut Vec<String>) {}
 }
 
 impl<T: 'static + XcDataType> Layoutable for CoreNodeBase<T> {
     default fn layout(
         &self,
-        pango_context: &pango::Context,
-        style_computed: &Style,
-        content_boundary: crate::common::Rectangle,
+        _pango_context: &pango::Context,
+        _style_computed: &Style,
+        _content_boundary: crate::common::Rectangle,
     ) -> crate::common::Rectangle {
-        layout_children(
-            &self.NodeProps().children,
-            pango_context,
-            style_computed,
-            content_boundary,
-        )
+        Rectangle::new(0, 0, 0, 0)
     }
 
     default fn display(&self) -> crate::style::Display {
@@ -79,15 +97,14 @@ impl<T: 'static + XcDataType> Layoutable for CoreNodeBase<T> {
 impl<T: 'static + XcDataType> Renderable for CoreNodeBase<T> {
     default fn paint(
         &self,
-        renderer: &crate::rendering::cairo::CairoRenderer,
-        style_computed: &Style,
+        _renderer: &crate::rendering::cairo::CairoRenderer,
+        _style_computed: &Style,
     ) {
-        paint_children(&self.NodeProps().children, renderer, style_computed)
     }
 }
 
 pub fn layout_children(
-    children: &[Box<dyn Node>],
+    children: &[Rc<dyn Node>],
     pango_context: &pango::Context,
     style_computed: &Style,
     content_boundary: crate::common::Rectangle,
@@ -98,7 +115,7 @@ pub fn layout_children(
 }
 
 pub fn paint_children(
-    children: &[Box<dyn Node>],
+    children: &[Rc<dyn Node>],
     renderer: &crate::rendering::cairo::CairoRenderer,
     style_computed: &Style,
 ) {

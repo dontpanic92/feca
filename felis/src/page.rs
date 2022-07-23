@@ -1,4 +1,9 @@
-use crate::{common::Rectangle, dom::html::HtmlDom, rendering::cairo::CairoRenderer, style::Style};
+use crate::{
+    common::Rectangle,
+    dom::{html::HtmlDom, Node},
+    rendering::cairo::CairoRenderer,
+    style::Style,
+};
 
 pub struct Page {
     dom: HtmlDom,
@@ -16,6 +21,10 @@ impl Page {
             pango_context,
             style: Style::html_default(),
         }
+    }
+
+    pub fn document(&self) -> Option<&dyn Node> {
+        self.dom.root()
     }
 
     pub fn layout(&mut self) {

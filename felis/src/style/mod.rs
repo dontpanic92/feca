@@ -119,6 +119,7 @@ pub enum Display {
     Block,
     Inline,
     Inherit,
+    None,
 
     // Internal use
     FelisText,

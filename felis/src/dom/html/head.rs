@@ -1,3 +1,5 @@
+use std::rc::Rc;
+
 use crate::{
     dom::{
         core::{
@@ -21,11 +23,11 @@ impl HeadProps {
     }
 }
 
-pub fn new_core_head(children: Vec<Box<dyn Node>>) -> Box<CoreHead> {
-    Box::new(
+pub fn new_core_head(children: Vec<Rc<dyn Node>>, id: Option<String>) -> Rc<CoreHead> {
+    Rc::new(
         CoreHead::builder()
             .with(NodeProps::new(NodeType::ElementNode, children))
-            .with(ElementProps::new(None))
+            .with(ElementProps::new(id))
             .with(HtmlElementProps::new(None, Style::default()))
             .with(HeadProps::new())
             .build(),

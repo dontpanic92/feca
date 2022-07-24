@@ -1,0 +1,14 @@
+[uuid(00000000-0000-0000-C000-000000000046), codegen(ignore)]
+interface IUnknown {
+    long query_interface(UUID guid, [out] IUnknown retval);
+    long add_ref();
+    long release();
+}
+
+[uuid(518d7182-9244-448e-a439-624115b0be12)]
+interface INode: IUnknown {
+    INode[] children();
+}
+
+[uuid(a7773164-58af-4eb2-8522-6d8bf0dee9b3)]
+class Node: INode {}

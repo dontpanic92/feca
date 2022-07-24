@@ -3,12 +3,12 @@ use std::rc::Rc;
 use crate::{layout::Layoutable, rendering::Renderable};
 
 pub mod core;
+pub mod defs;
 pub mod html;
 
 pub trait Node {
     fn children(&self) -> &[Rc<dyn Node>];
     fn inner_html(&self) -> String;
-    fn get_element_by_id(&self, element_id: &str) -> Option<Rc<dyn Node>>;
 
     fn as_layoutable(&self) -> &dyn Layoutable;
     fn as_renderable(&self) -> &dyn Renderable;

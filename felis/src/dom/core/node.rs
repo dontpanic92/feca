@@ -2,7 +2,7 @@ use std::{collections::HashMap, rc::Rc};
 
 use crate::{
     common::Rectangle,
-    dom::{Node, NodeInternal},
+    dom::{Node, NodeInternal, defs::INodeImpl},
     layout::{flow::FlowLayout, Layoutable},
     rendering::Renderable,
     style::Style,
@@ -25,6 +25,8 @@ pub enum NodeType {
     DocumentFragmentNode = 11,
     NotationNode = 12, // Legacy
 }
+
+crate::dom::defs::ComObject_Node!(crate::dom::core::node::CoreNode);
 
 pub struct NodeProps {
     node_type: NodeType,
@@ -51,7 +53,7 @@ impl<T: 'static + XcDataType> Node for CoreNodeBase<T> {
 
     fn inner_html(&self) -> String {
         let mut frag_list = vec![];
-        for c in self.children() {
+        for c in &self.NodeProps().children {
             c.as_internal().collect_outer_html(&mut frag_list);
         }
 
@@ -69,8 +71,10 @@ impl<T: 'static + XcDataType> Node for CoreNodeBase<T> {
     fn as_internal(&self) -> &dyn NodeInternal {
         self as &dyn NodeInternal
     }
+}
 
-    fn get_element_by_id(&self, element_id: &str) -> Option<Rc<dyn Node>> {
+impl<T: 'static + XcDataType> INodeImpl for CoreNodeBase<T> {
+    fn children(&self) -> crosscom::ObjectArray<crate::dom::defs::INode> {
         todo!()
     }
 }

@@ -1,12 +1,14 @@
 use std::rc::Rc;
 
+use crosscom::ComRc;
+
 use crate::{
     dom::{
         core::{
             element::ElementProps,
             node::{NodeProps, NodeType},
         },
-        Node,
+        defs::INode,
     },
     style::{Display, Style},
 };
@@ -23,7 +25,7 @@ impl HtmlProps {
     }
 }
 
-pub fn new_core_html(children: Vec<Rc<dyn Node>>, id: Option<String>) -> Rc<CoreHtml> {
+pub fn new_core_html(children: Vec<ComRc<INode>>, id: Option<String>) -> Rc<CoreHtml> {
     Rc::new(
         CoreHtml::builder()
             .with(NodeProps::new(NodeType::ElementNode, children))

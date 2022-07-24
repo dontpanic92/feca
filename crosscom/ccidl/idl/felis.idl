@@ -10,5 +10,25 @@ interface INode: IUnknown {
     INode[] children();
 }
 
-[uuid(a7773164-58af-4eb2-8522-6d8bf0dee9b3)]
+[uuid(a7773164-58af-4eb2-8522-6d8bf0dee9b3), rust_inner_field(0)]
 class Node: INode {}
+
+[uuid(c8c9b586-0569-4af4-b619-6491c61dc94a)]
+interface IElement: INode {
+    void id();
+}
+
+[uuid(a7773164-58af-4eb2-8522-6d8bf0dee9b3), rust_inner_field(0)]
+class Element: IElement {}
+
+[uuid(a8b5f552-0f22-4c4d-930c-432312b16a6c)]
+interface ICharacterData: INode {
+    void text();
+}
+
+[uuid(2d54063c-b56b-44ec-8930-2ca618be2ecf)]
+interface IText: ICharacterData {
+}
+
+[uuid(2dc26a34-aac7-4063-9a02-5afcb6128911), rust_inner_field(0)]
+class Text: IText {}

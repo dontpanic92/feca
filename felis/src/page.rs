@@ -1,6 +1,8 @@
+use crosscom::ComRc;
+
 use crate::{
     common::Rectangle,
-    dom::{html::HtmlDom, Node},
+    dom::{defs::INode, html::HtmlDom},
     rendering::cairo::CairoRenderer,
     style::Style,
 };
@@ -23,7 +25,7 @@ impl Page {
         }
     }
 
-    pub fn document(&self) -> Option<&dyn Node> {
+    pub fn document(&self) -> Option<ComRc<INode>> {
         self.dom.root()
     }
 

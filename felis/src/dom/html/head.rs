@@ -1,12 +1,14 @@
 use std::rc::Rc;
 
+use crosscom::ComRc;
+
 use crate::{
     dom::{
         core::{
             element::ElementProps,
             node::{NodeProps, NodeType},
         },
-        Node,
+        defs::INode,
     },
     style::Style,
 };
@@ -23,7 +25,7 @@ impl HeadProps {
     }
 }
 
-pub fn new_core_head(children: Vec<Rc<dyn Node>>, id: Option<String>) -> Rc<CoreHead> {
+pub fn new_core_head(children: Vec<ComRc<INode>>, id: Option<String>) -> Rc<CoreHead> {
     Rc::new(
         CoreHead::builder()
             .with(NodeProps::new(NodeType::ElementNode, children))

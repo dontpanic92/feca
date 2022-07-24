@@ -89,10 +89,12 @@ class RustGen:
     def __gen_raw_method_impl(self, klass: Class, method: Method) -> str:
         w = Writer()
 
+        field_name = "" if 'rust_inner_field' not in klass.attrs else f".{klass.attrs['rust_inner_field']}"
+
         w.ln(f"""
 unsafe extern "system" fn {method.name} (this: *const *const std::os::raw::c_void, {self.__gen_method_raw_param_list(method)}) -> {self.__map_raw_type(method.ret_ty)} {{
     let object = {self.crosscom_module_name}::get_object::<{klass.name}Ccw>(this);
-    (*object).inner.{ method.name }({','.join([p.name for p in method.params])}).into()
+    (*object).inner{field_name}.{ method.name }({','.join([p.name for p in method.params])}).into()
 }}
 """)
 

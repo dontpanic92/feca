@@ -1,5 +1,6 @@
 use std::rc::Rc;
 
+use crosscom::ComRc;
 use xcdt::XcDataType;
 
 use crate::{
@@ -9,7 +10,7 @@ use crate::{
             element::ElementProps,
             node::{NodeProps, NodeType},
         },
-        Node,
+        defs::INode,
     },
     layout::Layoutable,
     rendering::Renderable,
@@ -61,7 +62,7 @@ impl Layoutable for CoreScript {
     }
 }
 
-pub fn new_core_script(children: Vec<Rc<dyn Node>>, id: Option<String>) -> Rc<CoreScript> {
+pub fn new_core_script(children: Vec<ComRc<INode>>, id: Option<String>) -> Rc<CoreScript> {
     Rc::new(
         CoreScript::builder()
             .with(NodeProps::new(NodeType::ElementNode, children))

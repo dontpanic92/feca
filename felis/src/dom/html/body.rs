@@ -1,12 +1,14 @@
 use std::rc::Rc;
 
+use crosscom::ComRc;
+
 use crate::{
     dom::{
         core::{
             element::ElementProps,
             node::{NodeProps, NodeType},
         },
-        Node,
+        defs::INode,
     },
     style::Style,
 };
@@ -23,7 +25,7 @@ impl BodyProps {
     }
 }
 
-pub fn new_core_body(children: Vec<Rc<dyn Node>>, id: Option<String>) -> Rc<CoreBody> {
+pub fn new_core_body(children: Vec<ComRc<INode>>, id: Option<String>) -> Rc<CoreBody> {
     Rc::new(
         CoreBody::builder()
             .with(NodeProps::new(NodeType::ElementNode, children))

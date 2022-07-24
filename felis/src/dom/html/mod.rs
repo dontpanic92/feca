@@ -41,7 +41,7 @@ impl HtmlDom {
     fn process_tl_node(tl_node: &tl::Node, tl_parser: &tl::Parser) -> Option<Rc<dyn Node>> {
         match tl_node {
             tl::Node::Tag(t) => {
-                let children: Vec<Rc<dyn Node>> = t
+                let children: Vec<ComRc<INode>> = t
                     .children()
                     .top()
                     .iter()

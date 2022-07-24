@@ -1,5 +1,6 @@
 use std::rc::Rc;
 
+use crosscom::ComRc;
 use xcdt::XcDataType;
 
 use crate::{
@@ -9,7 +10,7 @@ use crate::{
             element::{CoreElement, CoreElementBase, ElementProps},
             node::{layout_children, paint_children, IsCoreNode, NodeProps, NodeType},
         },
-        Node,
+        defs::INode,
     },
     layout::Layoutable,
     rendering::Renderable,
@@ -75,7 +76,7 @@ impl<T: 'static + XcDataType> Layoutable for CoreHtmlElementBase<T> {
 }
 
 pub fn new_core_html_element(
-    children: Vec<Rc<dyn Node>>,
+    children: Vec<ComRc<INode>>,
     id: Option<String>,
     style: Style,
 ) -> Rc<CoreHtmlElement> {
@@ -88,7 +89,7 @@ pub fn new_core_html_element(
     )
 }
 
-pub fn new_i_element(children: Vec<Rc<dyn Node>>, id: Option<String>) -> Rc<CoreHtmlElement> {
+pub fn new_i_element(children: Vec<ComRc<INode>>, id: Option<String>) -> Rc<CoreHtmlElement> {
     new_core_html_element(
         children,
         id,
@@ -100,7 +101,7 @@ pub fn new_i_element(children: Vec<Rc<dyn Node>>, id: Option<String>) -> Rc<Core
     )
 }
 
-pub fn new_a_element(children: Vec<Rc<dyn Node>>, id: Option<String>) -> Rc<CoreHtmlElement> {
+pub fn new_a_element(children: Vec<ComRc<INode>>, id: Option<String>) -> Rc<CoreHtmlElement> {
     new_core_html_element(
         children,
         id,
@@ -116,7 +117,7 @@ pub fn new_a_element(children: Vec<Rc<dyn Node>>, id: Option<String>) -> Rc<Core
 macro_rules! new_element {
     ($name: ident, $style: expr) => {
         paste::paste! {
-            pub fn [<new_ $name _element>](children: Vec<Rc<dyn Node>>, id: Option<String>) -> Rc<CoreHtmlElement> {
+            pub fn [<new_ $name _element>](children: Vec<ComRc<INode>>, id: Option<String>) -> Rc<CoreHtmlElement> {
                 new_core_html_element(children, id, $style)
             }
         }

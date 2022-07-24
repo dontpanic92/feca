@@ -199,3 +199,9 @@ impl<TComInterface: ComInterface> From<*const *const c_void> for ObjectArray<TCo
         }
     }
 }
+
+impl<TComInterface: ComInterface> From<ObjectArray<TComInterface>> for *const *const c_void {
+    fn from(arr: ObjectArray<TComInterface>) -> Self {
+        arr.array.into()
+    }
+}

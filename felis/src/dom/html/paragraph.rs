@@ -1,12 +1,14 @@
 use std::rc::Rc;
 
+use crosscom::ComRc;
+
 use crate::{
     dom::{
         core::{
             element::ElementProps,
             node::{NodeProps, NodeType},
         },
-        Node,
+        defs::INode,
     },
     style::Style,
 };
@@ -28,7 +30,7 @@ impl ParagraphProps {
     }
 }
 
-pub fn new_core_paragraph(children: Vec<Rc<dyn Node>>, id: Option<String>) -> Rc<CoreParagraph> {
+pub fn new_core_paragraph(children: Vec<ComRc<INode>>, id: Option<String>) -> Rc<CoreParagraph> {
     Rc::new(
         CoreParagraph::builder()
             .with(NodeProps::new(NodeType::ElementNode, children))

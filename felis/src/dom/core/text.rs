@@ -3,7 +3,7 @@ use std::rc::Rc;
 use xcdt::XcDataType;
 
 use crate::{
-    dom::NodeInternal,
+    dom::defs::{ComObject_Text, ITextImpl},
     layout::{text::TextLayout, Layoutable},
     rendering::Renderable,
     style::{Display, Style},
@@ -23,6 +23,11 @@ xcdt::declare_xcdt!(
     CoreCharacterDataBase
 );
 
+pub struct Text(pub CoreText);
+ComObject_Text!(crate::dom::core::text::Text);
+
+impl ITextImpl for CoreText {}
+
 pub struct TextProps {
     layout: TextLayout,
 }
@@ -32,12 +37,6 @@ impl TextProps {
         Self {
             layout: TextLayout::new(),
         }
-    }
-}
-
-impl NodeInternal for CoreText {
-    fn collect_outer_html(&self, frag_list: &mut Vec<String>) {
-        frag_list.push(self.CharacterDataProps().text().to_string())
     }
 }
 

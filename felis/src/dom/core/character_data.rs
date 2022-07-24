@@ -1,7 +1,7 @@
 use xcdt::XcDataType;
 
 use super::node::{CoreNode, CoreNodeBase};
-use crate::dom::CharacterData;
+use crate::dom::defs::ICharacterDataImpl;
 
 xcdt::declare_xcdt!(
     CoreCharacterData,
@@ -26,8 +26,8 @@ impl CharacterDataProps {
     }
 }
 
-impl<T: 'static + XcDataType> CharacterData for CoreCharacterDataBase<T> {
-    fn text(&self) -> &str {
+impl<T: 'static + XcDataType> ICharacterDataImpl for CoreCharacterDataBase<T> {
+    fn text(&self) -> () {
         self.CharacterDataProps().text()
     }
 }

@@ -2,11 +2,12 @@ use std::{collections::HashMap, rc::Rc};
 
 use crate::{
     common::Rectangle,
-    dom::{Node, NodeInternal, defs::INodeImpl},
+    dom::defs::{INode, INodeImpl},
     layout::{flow::FlowLayout, Layoutable},
     rendering::Renderable,
     style::Style,
 };
+use crosscom::ComRc;
 use xcdt::{Object, ObjectBase, XcDataType};
 
 xcdt::declare_xcdt!(CoreNode, NodeProps, Object, ObjectBase);
@@ -26,28 +27,29 @@ pub enum NodeType {
     NotationNode = 12, // Legacy
 }
 
-crate::dom::defs::ComObject_Node!(crate::dom::core::node::CoreNode);
+pub struct Node(pub CoreNode);
+crate::dom::defs::ComObject_Node!(crate::dom::core::node::Node);
 
 pub struct NodeProps {
     node_type: NodeType,
-    children: Vec<Rc<dyn Node>>,
+    children: Vec<ComRc<INode>>,
 }
 
 impl NodeProps {
-    pub fn new(node_type: NodeType, children: Vec<Rc<dyn Node>>) -> Self {
+    pub fn new(node_type: NodeType, children: Vec<ComRc<INode>>) -> Self {
         Self {
             node_type,
             children,
         }
     }
 
-    pub fn children(&self) -> &[Rc<dyn Node>] {
+    pub fn children(&self) -> &[ComRc<INode>] {
         &self.children
     }
 }
 
-impl<T: 'static + XcDataType> Node for CoreNodeBase<T> {
-    fn children(&self) -> &[Rc<dyn Node>] {
+impl<T: 'static + XcDataType> INodeImpl for CoreNodeBase<T> {
+    fn children(&self) -> crosscom::ObjectArray<crate::dom::defs::INode> {
         self.NodeProps().children.as_ref()
     }
 
@@ -59,28 +61,6 @@ impl<T: 'static + XcDataType> Node for CoreNodeBase<T> {
 
         frag_list.join("\n")
     }
-
-    fn as_layoutable(&self) -> &dyn Layoutable {
-        self as &dyn Layoutable
-    }
-
-    fn as_renderable(&self) -> &dyn Renderable {
-        self as &dyn Renderable
-    }
-
-    fn as_internal(&self) -> &dyn NodeInternal {
-        self as &dyn NodeInternal
-    }
-}
-
-impl<T: 'static + XcDataType> INodeImpl for CoreNodeBase<T> {
-    fn children(&self) -> crosscom::ObjectArray<crate::dom::defs::INode> {
-        todo!()
-    }
-}
-
-impl<T: 'static + XcDataType> NodeInternal for CoreNodeBase<T> {
-    default fn collect_outer_html(&self, _: &mut Vec<String>) {}
 }
 
 impl<T: 'static + XcDataType> Layoutable for CoreNodeBase<T> {
@@ -108,7 +88,7 @@ impl<T: 'static + XcDataType> Renderable for CoreNodeBase<T> {
 }
 
 pub fn layout_children(
-    children: &[Rc<dyn Node>],
+    children: &[ComRc<INode>],
     pango_context: &pango::Context,
     style_computed: &Style,
     content_boundary: crate::common::Rectangle,

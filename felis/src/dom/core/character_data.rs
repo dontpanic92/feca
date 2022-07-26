@@ -1,7 +1,11 @@
+use crosscom::ComRc;
 use xcdt::XcDataType;
 
-use super::node::{CoreNode, CoreNodeBase};
-use crate::dom::CharacterData;
+use super::{
+    node::{CoreNode, CoreNodeBase},
+    string::DomString,
+};
+use crate::defs::{ICharacterDataImpl, IDomString};
 
 xcdt::declare_xcdt!(
     CoreCharacterData,
@@ -11,23 +15,23 @@ xcdt::declare_xcdt!(
 );
 
 pub struct CharacterDataProps {
-    text: String,
+    text: ComRc<IDomString>,
 }
 
 impl CharacterDataProps {
     pub fn new(text: String) -> Self {
         Self {
-            text: text.trim().to_string(),
+            text: DomString::new(text.trim().to_string()),
         }
     }
 
-    pub fn text(&self) -> &str {
-        &self.text
+    pub fn text(&self) -> ComRc<IDomString> {
+        self.text.clone()
     }
 }
 
-impl<T: 'static + XcDataType> CharacterData for CoreCharacterDataBase<T> {
-    fn text(&self) -> &str {
+impl<T: 'static + XcDataType> ICharacterDataImpl for CoreCharacterDataBase<T> {
+    fn text(&self) -> ComRc<IDomString> {
         self.CharacterDataProps().text()
     }
 }

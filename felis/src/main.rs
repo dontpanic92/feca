@@ -11,6 +11,7 @@ use winit::{
 };
 
 mod common;
+mod defs;
 mod dom;
 mod layout;
 mod page;

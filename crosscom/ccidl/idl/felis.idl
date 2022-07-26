@@ -1,0 +1,95 @@
+[uuid(00000000-0000-0000-C000-000000000046), codegen(ignore)]
+interface IUnknown {
+    long query_interface(UUID guid, [out] IUnknown retval);
+    long add_ref();
+    long release();
+}
+
+[uuid(81bb38bb-da96-4eee-9a80-47bae3c060aa)]
+interface IRenderable: IUnknown {
+    [internal(), rust()]
+    crate::style::Display display();
+
+    [internal(), rust()]
+    crate::common::Rectangle layout(&pango::Context pango_context, &crate::style::Style style_computed, crate::common::Rectangle content_boundary);
+
+    [internal(), rust()]
+    crosscom::Void paint(&crate::rendering::cairo::CairoRenderer renderer, &crate::style::Style style_computed);
+}
+
+[uuid(6c636789-fd7e-4411-b2e8-6606538e9c8d)]
+interface IDomString: IUnknown {
+    byte* bytes();
+
+    [internal(), rust()]
+    crosscom::StaticStr str();
+}
+
+[uuid(5d642ca4-cc85-44c8-a4cc-9044d5a82de9)]
+class DomString: IDomString {}
+
+[uuid(518d7182-9244-448e-a439-624115b0be12)]
+interface INode: IUnknown {
+    INode[] children();
+    IDomString inner_html();
+}
+
+[uuid(c8c9b586-0569-4af4-b619-6491c61dc94a)]
+interface IElement: INode {
+    IDomString id();
+}
+
+[uuid(a8b5f552-0f22-4c4d-930c-432312b16a6c)]
+interface ICharacterData: INode {
+    IDomString text();
+}
+
+[uuid(2d54063c-b56b-44ec-8930-2ca618be2ecf)]
+interface IText: ICharacterData {
+}
+
+[uuid(2dc26a34-aac7-4063-9a02-5afcb6128911), rust_inner_field(0)]
+class Text: IText, IRenderable {}
+
+[uuid(2be9cc09-3c60-45b9-9084-e4e50ab94ad2)]
+interface IHtmlElement: IElement {
+}
+
+[uuid(7f94e172-38d8-4e57-9824-485b70b0b824), rust_inner_field(0)]
+class HtmlElement: IHtmlElement, IRenderable {}
+
+[uuid(98dc32d3-7a60-4892-84ea-037b64b352ea)]
+interface IHtmlHtmlElement: IHtmlElement {
+}
+
+[uuid(1072bab7-dab8-43e3-a121-7b6dbe0f5fe8), rust_inner_field(0)]
+class HtmlHtmlElement: IHtmlHtmlElement, IRenderable {}
+
+[uuid(0f722326-a6fb-40c0-b66e-a88d50459859)]
+interface IHtmlScriptElement: IHtmlElement {
+    IDomString text();
+}
+
+[uuid(12fcecb6-1a73-4685-8f89-8d7fd0879ea1), rust_inner_field(0)]
+class HtmlScriptElement: IHtmlScriptElement {}
+
+[uuid(7c37faa1-4c84-49b4-85d2-0d48ef94f669)]
+interface IHtmlHeadElement: IHtmlElement {
+}
+
+[uuid(3dc6c7c3-4a4d-4b78-80e2-1814f3e342d9), rust_inner_field(0)]
+class HtmlHeadElement: IHtmlHeadElement, IRenderable {}
+
+[uuid(622e1b69-cb5a-442a-afd3-e8fa7d43cfeb)]
+interface IHtmlBodyElement: IHtmlElement {
+}
+
+[uuid(12ae250e-67e3-44b2-bd54-4d14b47f089a), rust_inner_field(0)]
+class HtmlBodyElement: IHtmlBodyElement, IRenderable {}
+
+[uuid(ebf22804-343a-431b-9719-f44396a5d0a8)]
+interface IHtmlParagraphElement: IHtmlElement {
+}
+
+[uuid(847bec20-3ab2-41f9-bfd5-ae1bed0c5f41), rust_inner_field(0)]
+class HtmlParagraphElement: IHtmlParagraphElement, IRenderable {}

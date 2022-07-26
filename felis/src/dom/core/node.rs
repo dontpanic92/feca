@@ -1,12 +1,10 @@
-use std::{collections::HashMap, rc::Rc};
-
 use crate::{
     common::Rectangle,
-    dom::{Node, NodeInternal},
-    layout::{flow::FlowLayout, Layoutable},
-    rendering::Renderable,
+    defs::{IDomString, INode, INodeImpl, IRenderable},
+    layout::flow::FlowLayout,
     style::Style,
 };
+use crosscom::{ComRc, IUnknown, ObjectArray};
 use xcdt::{Object, ObjectBase, XcDataType};
 
 xcdt::declare_xcdt!(CoreNode, NodeProps, Object, ObjectBase);
@@ -26,101 +24,69 @@ pub enum NodeType {
     NotationNode = 12, // Legacy
 }
 
+pub struct Node(pub CoreNode);
+
 pub struct NodeProps {
     node_type: NodeType,
-    children: Vec<Rc<dyn Node>>,
+    children: ObjectArray<INode>,
 }
 
 impl NodeProps {
-    pub fn new(node_type: NodeType, children: Vec<Rc<dyn Node>>) -> Self {
+    pub fn new(node_type: NodeType, children: Vec<ComRc<INode>>) -> Self {
+        let children = children
+            .into_iter()
+            .map(|c| c.query_interface::<IUnknown>().unwrap())
+            .collect();
         Self {
             node_type,
-            children,
+            children: ObjectArray::new(children),
         }
     }
 
-    pub fn children(&self) -> &[Rc<dyn Node>] {
-        &self.children
+    pub fn children(&self) -> ObjectArray<INode> {
+        self.children.clone()
     }
 }
 
-impl<T: 'static + XcDataType> Node for CoreNodeBase<T> {
-    fn children(&self) -> &[Rc<dyn Node>] {
-        self.NodeProps().children.as_ref()
+impl<T: 'static + XcDataType> INodeImpl for CoreNodeBase<T> {
+    fn children(&self) -> ObjectArray<INode> {
+        self.NodeProps().children.clone()
     }
 
-    fn inner_html(&self) -> String {
-        let mut frag_list = vec![];
-        for c in self.children() {
-            c.as_internal().collect_outer_html(&mut frag_list);
+    fn inner_html(&self) -> ComRc<IDomString> {
+        // let mut frag_list = vec![];
+        for i in 0..self.NodeProps().children.len() {
+            self.NodeProps().children.get(i).children();
         }
 
-        frag_list.join("\n")
-    }
-
-    fn as_layoutable(&self) -> &dyn Layoutable {
-        self as &dyn Layoutable
-    }
-
-    fn as_renderable(&self) -> &dyn Renderable {
-        self as &dyn Renderable
-    }
-
-    fn as_internal(&self) -> &dyn NodeInternal {
-        self as &dyn NodeInternal
-    }
-
-    fn get_element_by_id(&self, element_id: &str) -> Option<Rc<dyn Node>> {
-        todo!()
-    }
-}
-
-impl<T: 'static + XcDataType> NodeInternal for CoreNodeBase<T> {
-    default fn collect_outer_html(&self, _: &mut Vec<String>) {}
-}
-
-impl<T: 'static + XcDataType> Layoutable for CoreNodeBase<T> {
-    default fn layout(
-        &self,
-        _pango_context: &pango::Context,
-        _style_computed: &Style,
-        _content_boundary: crate::common::Rectangle,
-    ) -> crate::common::Rectangle {
-        Rectangle::new(0, 0, 0, 0)
-    }
-
-    default fn display(&self) -> crate::style::Display {
-        crate::style::Display::Block
-    }
-}
-
-impl<T: 'static + XcDataType> Renderable for CoreNodeBase<T> {
-    default fn paint(
-        &self,
-        _renderer: &crate::rendering::cairo::CairoRenderer,
-        _style_computed: &Style,
-    ) {
+        // frag_list.join("\n")
+        todo!();
     }
 }
 
 pub fn layout_children(
-    children: &[Rc<dyn Node>],
+    children: ObjectArray<INode>,
     pango_context: &pango::Context,
     style_computed: &Style,
     content_boundary: crate::common::Rectangle,
 ) -> Rectangle {
-    let children: Vec<&dyn Layoutable> = children.iter().map(|c| c.as_layoutable()).collect();
+    let children: Vec<ComRc<IRenderable>> = children
+        .raw()
+        .iter()
+        .flat_map(|c| c.query_interface::<IRenderable>())
+        .collect();
 
     FlowLayout::layout(pango_context, style_computed, content_boundary, &children)
 }
 
 pub fn paint_children(
-    children: &[Rc<dyn Node>],
+    children: ObjectArray<INode>,
     renderer: &crate::rendering::cairo::CairoRenderer,
     style_computed: &Style,
 ) {
     children
+        .raw()
         .iter()
-        .map(|c| c.as_renderable())
+        .flat_map(|c| c.query_interface::<IRenderable>())
         .for_each(|c| c.paint(renderer, style_computed))
 }

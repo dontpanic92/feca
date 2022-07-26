@@ -1,6 +1,8 @@
-use std::rc::Rc;
+use crosscom::ComRc;
 
-use super::{core::text, Element, Node};
+use crate::defs::INode;
+
+use super::core::{string::DomString, text};
 
 pub mod body;
 pub mod head;
@@ -9,18 +11,8 @@ pub mod html_element;
 pub mod paragraph;
 pub mod script;
 
-pub(crate) trait HtmlElement: Element {
-    fn title(&self) -> Option<&str>;
-}
-
-pub(crate) trait Paragraph: HtmlElement {}
-
-pub(crate) trait Script: HtmlElement {
-    fn text(&self) -> &str;
-}
-
 pub(crate) struct HtmlDom {
-    root: Option<Rc<dyn Node>>,
+    root: Option<ComRc<INode>>,
 }
 
 impl HtmlDom {
@@ -34,23 +26,25 @@ impl HtmlDom {
         Self { root }
     }
 
-    pub fn root(&self) -> Option<&dyn Node> {
-        self.root.as_deref()
+    pub fn root(&self) -> Option<ComRc<INode>> {
+        self.root.clone()
     }
 
-    fn process_tl_node(tl_node: &tl::Node, tl_parser: &tl::Parser) -> Option<Rc<dyn Node>> {
+    fn process_tl_node(tl_node: &tl::Node, tl_parser: &tl::Parser) -> Option<ComRc<INode>> {
         match tl_node {
             tl::Node::Tag(t) => {
-                let children: Vec<Rc<dyn Node>> = t
+                let children: Vec<ComRc<INode>> = t
                     .children()
                     .top()
                     .iter()
                     .flat_map(|c| Self::process_tl_node(c.get(tl_parser)?, tl_parser))
                     .collect();
-                let id = t
-                    .attributes()
-                    .id()
-                    .map(|id| std::str::from_utf8(id.as_bytes()).unwrap_or("").to_string());
+                let id = DomString::new(
+                    t.attributes()
+                        .id()
+                        .map(|id| std::str::from_utf8(id.as_bytes()).unwrap_or("").to_string())
+                        .unwrap_or("".to_string()),
+                );
 
                 match t.name().as_utf8_str().to_lowercase().as_str() {
                     "html" => Some(html::new_core_html(children, id)),

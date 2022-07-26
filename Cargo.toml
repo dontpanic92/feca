@@ -1,6 +1,7 @@
 [workspace]
 members = [
     "xcdt",
+    "crosscom/runtime/rust",
     "felis",
     "catus",
     "feca",

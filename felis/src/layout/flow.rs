@@ -1,22 +1,18 @@
+use crosscom::ComRc;
+
 use crate::{
     common::Rectangle,
+    defs::IRenderable,
     style::{Display, Style},
 };
-
-use super::Layoutable;
-
 pub struct FlowLayout;
 
 impl FlowLayout {
-    pub fn new() -> Self {
-        Self {}
-    }
-
     pub fn layout(
         pango_context: &pango::Context,
         style_computed: &Style,
         content_boundary: Rectangle,
-        children: &[&dyn Layoutable],
+        children: &[ComRc<IRenderable>],
     ) -> Rectangle {
         let mut last_boundary = Rectangle {
             left: content_boundary.left,

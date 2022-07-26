@@ -1,25 +1,17 @@
-use std::rc::Rc;
-
+use crosscom::ComRc;
 use xcdt::XcDataType;
 
 use crate::{
-    common::Rectangle,
-    dom::{
-        core::{
-            element::ElementProps,
-            node::{NodeProps, NodeType},
-        },
-        Node,
+    defs::{ComObject_HtmlScriptElement, IDomString, IHtmlScriptElementImpl, INode},
+    dom::core::{
+        element::ElementProps,
+        node::{NodeProps, NodeType},
+        string::DomString,
     },
-    layout::Layoutable,
-    rendering::Renderable,
-    style::{Display, Style},
+    style::Style,
 };
 
-use super::{
-    html_element::{CoreHtmlElement, CoreHtmlElementBase, HtmlElementProps},
-    Script,
-};
+use super::html_element::{CoreHtmlElement, CoreHtmlElementBase, HtmlElementProps};
 
 xcdt::declare_xcdt!(
     CoreScript,
@@ -27,6 +19,9 @@ xcdt::declare_xcdt!(
     CoreHtmlElement,
     CoreHtmlElementBase
 );
+
+pub struct Script(pub CoreScript);
+ComObject_HtmlScriptElement!(super::Script);
 
 pub struct ScriptProps {}
 
@@ -36,38 +31,22 @@ impl ScriptProps {
     }
 }
 
-impl<T: 'static + XcDataType> Script for CoreScriptBase<T> {
-    fn text(&self) -> &str {
+impl<T: 'static + XcDataType> IHtmlScriptElementImpl for CoreScriptBase<T> {
+    fn text(&self) -> ComRc<IDomString> {
         todo!();
     }
 }
 
-impl Renderable for CoreScript {
-    fn paint(&self, _: &crate::rendering::cairo::CairoRenderer, _: &Style) {}
-}
-
-impl Layoutable for CoreScript {
-    fn layout(
-        &self,
-        _: &pango::Context,
-        _: &Style,
-        _: crate::common::Rectangle,
-    ) -> crate::common::Rectangle {
-        Rectangle::new(0, 0, 0, 0)
-    }
-
-    fn display(&self) -> Display {
-        Display::None
-    }
-}
-
-pub fn new_core_script(children: Vec<Rc<dyn Node>>, id: Option<String>) -> Rc<CoreScript> {
-    Rc::new(
-        CoreScript::builder()
+pub fn new_core_script(children: Vec<ComRc<INode>>, id: ComRc<IDomString>) -> ComRc<INode> {
+    ComRc::<INode>::from_object(Script {
+        0: CoreScript::builder()
             .with(NodeProps::new(NodeType::ElementNode, children))
             .with(ElementProps::new(id))
-            .with(HtmlElementProps::new(None, Style::default()))
+            .with(HtmlElementProps::new(
+                DomString::new("".to_string()),
+                Style::default(),
+            ))
             .with(ScriptProps::new())
             .build(),
-    )
+    })
 }

@@ -1,22 +1,23 @@
+use crosscom::ComRc;
 use xcdt::XcDataType;
 
 use super::node::{CoreNode, CoreNodeBase};
-use crate::dom::Element;
+use crate::defs::{IDomString, IElementImpl};
 
 xcdt::declare_xcdt!(CoreElement, ElementProps, CoreNode, CoreNodeBase);
 
 pub struct ElementProps {
-    id: Option<String>,
+    id: ComRc<IDomString>,
 }
 
 impl ElementProps {
-    pub fn new(id: Option<String>) -> Self {
+    pub fn new(id: ComRc<IDomString>) -> Self {
         Self { id }
     }
 }
 
-impl<T: 'static + XcDataType> Element for CoreElementBase<T> {
-    fn id(&self) -> Option<&str> {
-        self.ElementProps().id.as_deref()
+impl<T: 'static + XcDataType> IElementImpl for CoreElementBase<T> {
+    fn id(&self) -> ComRc<IDomString> {
+        self.ElementProps().id.clone()
     }
 }

@@ -1,11 +1,8 @@
-use std::rc::Rc;
-
-use xcdt::XcDataType;
+use crosscom::ComRc;
 
 use crate::{
-    dom::NodeInternal,
-    layout::{text::TextLayout, Layoutable},
-    rendering::Renderable,
+    defs::{ComObject_Text, INode, IRenderableImpl, ITextImpl},
+    layout::text::TextLayout,
     style::{Display, Style},
 };
 
@@ -23,6 +20,11 @@ xcdt::declare_xcdt!(
     CoreCharacterDataBase
 );
 
+pub struct Text(pub CoreText);
+ComObject_Text!(crate::dom::core::text::Text);
+
+impl ITextImpl for CoreText {}
+
 pub struct TextProps {
     layout: TextLayout,
 }
@@ -35,26 +37,14 @@ impl TextProps {
     }
 }
 
-impl NodeInternal for CoreText {
-    fn collect_outer_html(&self, frag_list: &mut Vec<String>) {
-        frag_list.push(self.CharacterDataProps().text().to_string())
-    }
-}
-
-impl<T: 'static + XcDataType> Renderable for CoreTextBase<T> {
-    fn paint(&self, renderer: &crate::rendering::cairo::CairoRenderer, style_computed: &Style) {
-        renderer.render_text(&self.TextProps().layout, style_computed)
-    }
-}
-
-impl<T: 'static + XcDataType> Layoutable for CoreTextBase<T> {
+impl IRenderableImpl for CoreText {
     fn layout(
         &self,
         pango_context: &pango::Context,
         style_computed: &Style,
         content_boundary: crate::common::Rectangle,
     ) -> crate::common::Rectangle {
-        let text = self.CharacterDataProps().text();
+        let text = self.CharacterDataProps().text().str();
         let rect =
             self.TextProps()
                 .layout
@@ -65,14 +55,18 @@ impl<T: 'static + XcDataType> Layoutable for CoreTextBase<T> {
     fn display(&self) -> Display {
         crate::style::Display::FelisText
     }
+
+    fn paint(&self, renderer: &crate::rendering::cairo::CairoRenderer, style_computed: &Style) {
+        renderer.render_text(&self.TextProps().layout, style_computed)
+    }
 }
 
-pub fn new_core_text(text: String) -> Rc<CoreText> {
-    Rc::new(
-        CoreText::builder()
+pub fn new_core_text(text: String) -> ComRc<INode> {
+    ComRc::<INode>::from_object(Text {
+        0: CoreText::builder()
             .with(NodeProps::new(NodeType::TextNode, vec![]))
             .with(CharacterDataProps::new(text))
             .with(TextProps::new())
             .build(),
-    )
+    })
 }

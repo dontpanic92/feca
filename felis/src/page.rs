@@ -1,6 +1,9 @@
+use crosscom::ComRc;
+
 use crate::{
     common::Rectangle,
-    dom::{html::HtmlDom, Node},
+    defs::{INode, IRenderable},
+    dom::html::HtmlDom,
     rendering::cairo::CairoRenderer,
     style::Style,
 };
@@ -23,13 +26,13 @@ impl Page {
         }
     }
 
-    pub fn document(&self) -> Option<&dyn Node> {
+    pub fn document(&self) -> Option<ComRc<INode>> {
         self.dom.root()
     }
 
     pub fn layout(&mut self) {
         let root = self.dom.root().unwrap();
-        root.as_layoutable().layout(
+        root.query_interface::<IRenderable>().unwrap().layout(
             &self.pango_context,
             &self.style,
             Rectangle {
@@ -43,6 +46,8 @@ impl Page {
 
     pub fn paint(&self, renderer: &CairoRenderer) {
         let root = self.dom.root().unwrap();
-        root.as_renderable().paint(renderer, &self.style);
+        root.query_interface::<IRenderable>()
+            .unwrap()
+            .paint(renderer, &self.style);
     }
 }

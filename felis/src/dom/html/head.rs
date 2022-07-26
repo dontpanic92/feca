@@ -1,12 +1,11 @@
-use std::rc::Rc;
+use crosscom::ComRc;
 
 use crate::{
-    dom::{
-        core::{
-            element::ElementProps,
-            node::{NodeProps, NodeType},
-        },
-        Node,
+    defs::{ComObject_HtmlHeadElement, IDomString, INode},
+    dom::core::{
+        element::ElementProps,
+        node::{NodeProps, NodeType},
+        string::DomString,
     },
     style::Style,
 };
@@ -14,6 +13,9 @@ use crate::{
 use super::html_element::{CoreHtmlElement, CoreHtmlElementBase, HtmlElementProps};
 
 xcdt::declare_xcdt!(CoreHead, HeadProps, CoreHtmlElement, CoreHtmlElementBase);
+
+pub struct HtmlHeadElement(pub CoreHead);
+ComObject_HtmlHeadElement!(super::HtmlHeadElement);
 
 pub struct HeadProps {}
 
@@ -23,13 +25,16 @@ impl HeadProps {
     }
 }
 
-pub fn new_core_head(children: Vec<Rc<dyn Node>>, id: Option<String>) -> Rc<CoreHead> {
-    Rc::new(
-        CoreHead::builder()
+pub fn new_core_head(children: Vec<ComRc<INode>>, id: ComRc<IDomString>) -> ComRc<INode> {
+    ComRc::<INode>::from_object(HtmlHeadElement {
+        0: CoreHead::builder()
             .with(NodeProps::new(NodeType::ElementNode, children))
             .with(ElementProps::new(id))
-            .with(HtmlElementProps::new(None, Style::default()))
+            .with(HtmlElementProps::new(
+                DomString::new("".to_string()),
+                Style::default(),
+            ))
             .with(HeadProps::new())
             .build(),
-    )
+    })
 }

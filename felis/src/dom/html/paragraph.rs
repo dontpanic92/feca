@@ -1,12 +1,11 @@
-use std::rc::Rc;
+use crosscom::ComRc;
 
 use crate::{
-    dom::{
-        core::{
-            element::ElementProps,
-            node::{NodeProps, NodeType},
-        },
-        Node,
+    defs::{ComObject_HtmlParagraphElement, IDomString, INode},
+    dom::core::{
+        element::ElementProps,
+        node::{NodeProps, NodeType},
+        string::DomString,
     },
     style::Style,
 };
@@ -20,6 +19,9 @@ xcdt::declare_xcdt!(
     CoreHtmlElementBase
 );
 
+pub struct HtmlParagraphElement(pub CoreParagraph);
+ComObject_HtmlParagraphElement!(super::HtmlParagraphElement);
+
 pub struct ParagraphProps {}
 
 impl ParagraphProps {
@@ -28,13 +30,16 @@ impl ParagraphProps {
     }
 }
 
-pub fn new_core_paragraph(children: Vec<Rc<dyn Node>>, id: Option<String>) -> Rc<CoreParagraph> {
-    Rc::new(
-        CoreParagraph::builder()
+pub fn new_core_paragraph(children: Vec<ComRc<INode>>, id: ComRc<IDomString>) -> ComRc<INode> {
+    ComRc::<INode>::from_object(HtmlParagraphElement {
+        0: CoreParagraph::builder()
             .with(NodeProps::new(NodeType::ElementNode, children))
             .with(ElementProps::new(id))
-            .with(HtmlElementProps::new(None, Style::default()))
+            .with(HtmlElementProps::new(
+                DomString::new("".to_string()),
+                Style::default(),
+            ))
             .with(ParagraphProps::new())
             .build(),
-    )
+    })
 }

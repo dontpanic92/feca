@@ -1,22 +1,18 @@
-use std::rc::Rc;
-
+use crosscom::ComRc;
 use xcdt::XcDataType;
 
 use crate::{
     common::Color,
-    dom::{
-        core::{
-            element::{CoreElement, CoreElementBase, ElementProps},
-            node::{layout_children, paint_children, IsCoreNode, NodeProps, NodeType},
-        },
-        Node,
+    defs::{
+        ComObject_HtmlElement, IDomString, IHtmlElementImpl, INode, INodeImpl, IRenderableImpl,
     },
-    layout::Layoutable,
-    rendering::Renderable,
+    dom::core::{
+        element::{CoreElement, CoreElementBase, ElementProps},
+        node::{layout_children, paint_children, NodeProps, NodeType},
+        string::DomString,
+    },
     style::{Display, FontStyle, Style, TextDecorationLine},
 };
-
-use super::HtmlElement;
 
 xcdt::declare_xcdt!(
     CoreHtmlElement,
@@ -25,35 +21,23 @@ xcdt::declare_xcdt!(
     CoreElementBase
 );
 
+pub struct HtmlElement(pub CoreHtmlElement);
+ComObject_HtmlElement!(super::HtmlElement);
+
 pub struct HtmlElementProps {
-    title: Option<String>,
+    title: ComRc<IDomString>,
     style: Style,
 }
 
 impl HtmlElementProps {
-    pub fn new(title: Option<String>, style: Style) -> Self {
+    pub fn new(title: ComRc<IDomString>, style: Style) -> Self {
         Self { title, style }
     }
 }
 
-impl<T: 'static + XcDataType> HtmlElement for CoreHtmlElementBase<T> {
-    fn title(&self) -> Option<&str> {
-        self.HtmlElementProps().title.as_deref()
-    }
-}
+impl<T: 'static + XcDataType> IHtmlElementImpl for CoreHtmlElementBase<T> {}
 
-impl<T: 'static + XcDataType> Renderable for CoreHtmlElementBase<T> {
-    default fn paint(
-        &self,
-        renderer: &crate::rendering::cairo::CairoRenderer,
-        style_computed: &Style,
-    ) {
-        let style = Style::merge(&self.HtmlElementProps().style, style_computed);
-        paint_children(self.NodeProps().children(), renderer, &style)
-    }
-}
-
-impl<T: 'static + XcDataType> Layoutable for CoreHtmlElementBase<T> {
+impl<T: 'static + XcDataType> IRenderableImpl for CoreHtmlElementBase<T> {
     default fn layout(
         &self,
         pango_context: &pango::Context,
@@ -62,7 +46,7 @@ impl<T: 'static + XcDataType> Layoutable for CoreHtmlElementBase<T> {
     ) -> crate::common::Rectangle {
         let style_computed = Style::merge(&self.HtmlElementProps().style, style_computed);
         layout_children(
-            self.NodeProps().children(),
+            self.children(),
             pango_context,
             &style_computed,
             content_boundary,
@@ -72,23 +56,32 @@ impl<T: 'static + XcDataType> Layoutable for CoreHtmlElementBase<T> {
     default fn display(&self) -> Display {
         self.HtmlElementProps().style.display
     }
+
+    default fn paint(
+        &self,
+        renderer: &crate::rendering::cairo::CairoRenderer,
+        style_computed: &Style,
+    ) {
+        let style_computed = Style::merge(&self.HtmlElementProps().style, style_computed);
+        paint_children(self.children(), renderer, &style_computed)
+    }
 }
 
 pub fn new_core_html_element(
-    children: Vec<Rc<dyn Node>>,
-    id: Option<String>,
+    children: Vec<ComRc<INode>>,
+    id: ComRc<IDomString>,
     style: Style,
-) -> Rc<CoreHtmlElement> {
-    Rc::new(
-        CoreHtmlElement::builder()
+) -> ComRc<INode> {
+    ComRc::<INode>::from_object(HtmlElement {
+        0: CoreHtmlElement::builder()
             .with(NodeProps::new(NodeType::ElementNode, children))
             .with(ElementProps::new(id))
-            .with(HtmlElementProps::new(None, style))
+            .with(HtmlElementProps::new(DomString::new("".to_string()), style))
             .build(),
-    )
+    })
 }
 
-pub fn new_i_element(children: Vec<Rc<dyn Node>>, id: Option<String>) -> Rc<CoreHtmlElement> {
+pub fn new_i_element(children: Vec<ComRc<INode>>, id: ComRc<IDomString>) -> ComRc<INode> {
     new_core_html_element(
         children,
         id,
@@ -100,7 +93,7 @@ pub fn new_i_element(children: Vec<Rc<dyn Node>>, id: Option<String>) -> Rc<Core
     )
 }
 
-pub fn new_a_element(children: Vec<Rc<dyn Node>>, id: Option<String>) -> Rc<CoreHtmlElement> {
+pub fn new_a_element(children: Vec<ComRc<INode>>, id: ComRc<IDomString>) -> ComRc<INode> {
     new_core_html_element(
         children,
         id,
@@ -116,7 +109,7 @@ pub fn new_a_element(children: Vec<Rc<dyn Node>>, id: Option<String>) -> Rc<Core
 macro_rules! new_element {
     ($name: ident, $style: expr) => {
         paste::paste! {
-            pub fn [<new_ $name _element>](children: Vec<Rc<dyn Node>>, id: Option<String>) -> Rc<CoreHtmlElement> {
+            pub fn [<new_ $name _element>](children: Vec<ComRc<INode>>, id:  ComRc<IDomString>) -> ComRc<INode> {
                 new_core_html_element(children, id, $style)
             }
         }

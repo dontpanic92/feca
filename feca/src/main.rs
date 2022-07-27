@@ -2,6 +2,7 @@ use std::fs::read_to_string;
 
 use view::View;
 
+mod runtime;
 mod view;
 
 fn main() {

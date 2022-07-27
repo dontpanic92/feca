@@ -1,3 +1,5 @@
+use std::time::Instant;
+
 use catus::interpreter::Interpreter;
 use felis::{CairoRenderer, DomString, Page};
 use winit::{
@@ -6,8 +8,10 @@ use winit::{
     window::{Window, WindowBuilder},
 };
 
+use crate::runtime::{setup_js_runtime, timer_queue::TIMER_QUEUE};
+
 pub struct View {
-    event_loop: EventLoop<()>,
+    event_loop: Option<EventLoop<()>>,
     window: Window,
     page: Option<Page>,
     renderer: CairoRenderer,
@@ -16,10 +20,13 @@ pub struct View {
 
 impl View {
     pub fn new() -> Self {
-        let event_loop = EventLoop::new();
-        let window = WindowBuilder::new().build(&event_loop).unwrap();
+        let event_loop = Some(EventLoop::new());
+        let window = WindowBuilder::new()
+            .build(event_loop.as_ref().unwrap())
+            .unwrap();
         let renderer = CairoRenderer::new_from_winit(&window);
-        let interpreter = Interpreter::new();
+        let mut interpreter = Interpreter::new();
+        setup_js_runtime(&mut interpreter);
 
         Self {
             event_loop,
@@ -39,8 +46,10 @@ impl View {
         println!("len {}", elements.len());
         for i in 0..elements.len() {
             let script = catus::parser::parse(elements.get(i).inner_html().str());
-            if let Ok((s, script)) = script && s.len() == 0 {
-                self.interpreter.eval(&script);
+            if let Ok((text, s)) = &script && text.len() == 0 {
+                self.interpreter.eval(s);
+            } else {
+                println!("Unable to parse js: {:?}", script);
             }
         }
 
@@ -48,8 +57,11 @@ impl View {
     }
 
     pub fn run(mut self) {
-        self.event_loop.run(move |event, _, control_flow| {
+        let event_loop = self.event_loop.take().unwrap();
+        event_loop.run(move |event, _, control_flow| {
             *control_flow = ControlFlow::Wait;
+
+            self.handle_timer(control_flow);
 
             match event {
                 Event::WindowEvent {
@@ -68,6 +80,29 @@ impl View {
                     self.renderer = CairoRenderer::new_from_winit(&self.window);
                 }
                 _ => (),
+            }
+        });
+    }
+
+    fn handle_timer(&mut self, control_flow: &mut ControlFlow) {
+        TIMER_QUEUE.with(|q| {
+            let now = Instant::now();
+            loop {
+                let timeout = q.borrow().peek();
+                if let Some(timeout) = timeout {
+                    if now > timeout {
+                        let value = q.borrow_mut().pop().unwrap();
+                        self.interpreter.call(value);
+
+                        continue;
+                    }
+                }
+
+                break;
+            }
+
+            if let Some(timeout) = q.borrow().peek() {
+                *control_flow = ControlFlow::WaitUntil(timeout);
             }
         });
     }

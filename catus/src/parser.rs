@@ -1,10 +1,11 @@
 use nom::{
     branch::alt,
     bytes::complete::{escaped, is_not, tag, take, take_while_m_n},
-    character::complete::{alphanumeric1, char, hex_digit1, multispace0, one_of},
-    combinator::{consumed, map, opt, peek},
+    character::complete::{alpha1, alphanumeric1, char, hex_digit1, multispace0, one_of},
+    combinator::{consumed, map, opt, peek, recognize},
     error::ParseError,
-    multi::{many1, separated_list0, separated_list1},
+    multi::{many0_count, many1, separated_list0, separated_list1},
+    number::{self, complete::double},
     sequence::{delimited, pair, preceded, separated_pair, terminated, tuple},
     IResult,
 };
@@ -103,7 +104,14 @@ p!(
 );
 
 // TODO
-p!(identifier_name, String, to_string(w(alphanumeric1)));
+p!(
+    identifier_name,
+    String,
+    to_string(w(recognize(pair(
+        alt((alpha1, tag("_"))),
+        many0_count(alt((alphanumeric1, tag("_"))))
+    ))))
+);
 
 p!(
     unicode_id_start,
@@ -142,6 +150,12 @@ p!(
         )),
         |s| Literal::StringLiteral(s)
     ),
+);
+
+p!(
+    number_literal,
+    Literal,
+    map(double, |n| Literal::NumberLiteral(n)),
 );
 
 p!(
@@ -193,7 +207,12 @@ p!(
 p!(
     literal,
     Literal,
-    alt((null_literal, boolean_literal, string_literal,))
+    alt((
+        null_literal,
+        boolean_literal,
+        string_literal,
+        number_literal
+    ))
 );
 
 p!(
@@ -233,10 +252,10 @@ p2!(
     ArgumentList,
     alt((
         make_vec(pair(w(tag("(")), w(tag(")")))),
-        delimited(w(tag("(")), argument_list, w(tag(")"))),
+        // delimited(w(tag("(")), argument_list, w(tag(")"))),
         delimited(
             w(tag("(")),
-            terminated(argument_list, tag(",")),
+            terminated(argument_list, opt(tag(","))),
             w(tag(")"))
         ),
     )),
@@ -246,7 +265,7 @@ p2!(
 p!(
     argument_list,
     Vec<Box<Expression>>,
-    many1(boxed(assignment_expression))
+    separated_list1(w2(tag(",")), boxed(assignment_expression))
 );
 
 p2!(

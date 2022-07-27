@@ -3,6 +3,13 @@
 <head>
     <script>
         console.log("from js");
+
+        function timer() {
+            console.log("in timer!");
+            setTimeout(timer, 1000);
+        }
+
+        setTimeout(timer, 1000);
     </script>
 </head>
 

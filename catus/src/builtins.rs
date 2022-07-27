@@ -26,11 +26,11 @@ fn new_object(name: String, proto: Symbol, properties: HashMap<String, JsValue>)
 pub struct Console {}
 
 impl Console {
-    pub fn make_console(object: Symbol) -> Symbol {
-        new_object("console".to_string(), object, Self::make_props())
+    pub fn make_console(object: Symbol, function: Symbol) -> Symbol {
+        new_object("console".to_string(), object, Self::make_props(function))
     }
 
-    fn make_props() -> HashMap<String, JsValue> {
+    fn make_props(function: Symbol) -> HashMap<String, JsValue> {
         let mut map = HashMap::new();
         let s = Rc::new(RefCell::new(Self {}));
 
@@ -38,9 +38,12 @@ impl Console {
             let s = s.clone();
             map.insert(
                 "log".to_string(),
-                JsValue::NativeFunctionProxy(NativeFunctionProxy::new(move |params| {
-                    s.borrow_mut().log(params)
-                })),
+                Function::new_native_proxy_function(
+                    function,
+                    "log".to_string(),
+                    NativeFunctionProxy::new(move |params| s.borrow_mut().log(params)),
+                )
+                .value(),
             );
         }
 
@@ -75,6 +78,21 @@ impl Function {
             function_proto.clone(),
             properties,
         )
+    }
+
+    pub fn new_native_proxy_function(
+        function_proto: Symbol,
+        name: String,
+        proxy: NativeFunctionProxy,
+    ) -> Symbol {
+        let mut properties = HashMap::new();
+
+        properties.insert(
+            "__function__".to_string(),
+            JsValue::NativeFunctionProxy(proxy),
+        );
+
+        new_object(name, function_proto.clone(), properties)
     }
 
     pub fn make_function(object: Symbol) -> Symbol {

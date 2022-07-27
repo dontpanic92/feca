@@ -5,6 +5,7 @@ pub enum Literal {
     NullLiteral,
     BooleanLiteral(bool),
     StringLiteral(String),
+    NumberLiteral(f64),
 }
 
 #[derive(Debug, Clone)]

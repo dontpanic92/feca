@@ -21,6 +21,19 @@ impl Interpreter {
         Self { global }
     }
 
+    pub fn global_symbols(&mut self) -> &mut HashMap<String, Symbol> {
+        &mut self.global
+    }
+
+    pub fn call(&mut self, object: JsValue) {
+        match object {
+            JsValue::Object(obj) => {
+                self.eval_function_call(&obj.borrow(), vec![]);
+            }
+            _ => unreachable!(),
+        }
+    }
+
     pub fn eval(&mut self, script: &Script) {
         match script {
             Script::ScriptBody(body) => {
@@ -148,27 +161,34 @@ impl Interpreter {
             JsValue::BigInt => todo!(),
             JsValue::Object(f) => {
                 let f = f.borrow();
-                self.eval_js_function_call(&f)
+                self.eval_function_call(&f, a)
             }
-            JsValue::NativeFunctionProxy(mut p) => p.function()(&a),
+            JsValue::NativeFunctionProxy(_) => todo!(),
             JsValue::FunctionDeclaration(_) => todo!(),
         }
     }
 
-    fn eval_js_function_call(&mut self, obj: &JsObject) -> JsValue {
+    fn eval_function_call(&mut self, obj: &JsObject, args: Vec<JsValue>) -> JsValue {
         if !obj.is_function() {
             return JsValue::Undefined;
         }
 
-        if let JsValue::FunctionDeclaration(decl) = obj.get_property_value("__function__") {
-            if let Some(items) = decl.body.0.as_ref() {
-                for item in items {
-                    self.eval_statement_list_item(item);
+        let value = obj.get_property_value("__function__");
+        let ret = match value {
+            JsValue::FunctionDeclaration(decl) => {
+                if let Some(items) = decl.body.0.as_ref() {
+                    for item in items {
+                        self.eval_statement_list_item(item);
+                    }
                 }
-            }
-        }
 
-        JsValue::Undefined
+                JsValue::Undefined
+            }
+            JsValue::NativeFunctionProxy(mut p) => p.function()(&args),
+            _ => unreachable!(),
+        };
+
+        ret
     }
 
     fn eval_argument_list(&mut self, arguments: &ArgumentList) -> Vec<JsValue> {
@@ -241,6 +261,7 @@ impl Interpreter {
                 Literal::NullLiteral => todo!(),
                 Literal::BooleanLiteral(_) => todo!(),
                 Literal::StringLiteral(s) => JsValue::String(s.clone()),
+                Literal::NumberLiteral(n) => JsValue::Number(*n),
             },
         }
     }
@@ -266,8 +287,8 @@ fn builtin_globals() -> HashMap<String, Symbol> {
     let mut globals = HashMap::new();
 
     let object = make_object();
-    let console = Console::make_console(object.clone());
     let function = Function::make_function(object.clone());
+    let console = Console::make_console(object.clone(), function.clone());
 
     globals.insert("Object".to_string(), object);
     globals.insert("console".to_string(), console);

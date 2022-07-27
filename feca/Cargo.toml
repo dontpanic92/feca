@@ -9,6 +9,7 @@ default-run = "feca"
 [dependencies]
 felis = { path = "../felis" }
 catus = { path = "../catus" }
+crosscom = { path = "../crosscom/runtime/rust" }
 tl = "0.6.0"
 winit = "0.26.1"
 raw-window-handle = "0.4.2"

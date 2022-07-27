@@ -93,7 +93,7 @@ def test2(*args, **kwargs):
     return args
 
 
-identifier = (letter | digit | regex(r'[_&]') | string('::')).at_least(1).map("".join)
+identifier = (letter | digit | regex(r'[_&]') | string('::') | string('?')).at_least(1).map("".join)
 ty = (identifier + string('[]')) | (identifier + string('*')) | identifier
 
 attr_value = regex(r"[^()]").many().map("".join)

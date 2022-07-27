@@ -3,6 +3,7 @@ use xcdt::XcDataType;
 
 use crate::{
     defs::{ComObject_HtmlScriptElement, IDomString, IHtmlScriptElementImpl, INode, INodeImpl},
+    dom::core::node::IsCoreNode,
     dom::core::{
         element::ElementProps,
         node::{NodeProps, NodeType},
@@ -11,7 +12,10 @@ use crate::{
     style::Style,
 };
 
-use super::html_element::{CoreHtmlElement, CoreHtmlElementBase, HtmlElementProps};
+use super::{
+    html_element::{CoreHtmlElement, CoreHtmlElementBase, HtmlElementProps},
+    HtmlDom,
+};
 
 xcdt::declare_xcdt!(
     CoreScript,
@@ -28,6 +32,16 @@ pub struct ScriptProps {}
 impl ScriptProps {
     pub fn new() -> Self {
         Self {}
+    }
+}
+
+impl crate::defs::INodeImpl for CoreScript {
+    fn set_inner_html(&self, html: crosscom::ComRc<IDomString>) {
+        let html = "<script>".to_string() + html.str() + "</script>";
+        let tl_dom = tl::parse(&html, tl::ParserOptions::default()).unwrap();
+        let dom = HtmlDom::from_tl_dom(&tl_dom);
+        let root = dom.root().unwrap();
+        self.NodeProps().set_children(root.children());
     }
 }
 

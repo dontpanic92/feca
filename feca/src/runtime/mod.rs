@@ -5,16 +5,25 @@ use catus::{
     interpreter::Interpreter,
     symtbl::{JsValue, NativeFunctionProxy, Symbol},
 };
+use crosscom::ComRc;
+use felis::defs::INode;
 
-use self::timer_queue::TIMER_QUEUE;
+use self::{document::make_document, timer_queue::TIMER_QUEUE};
 
+pub mod document;
+pub mod element;
 pub mod timer_queue;
 
-pub fn setup_js_runtime(interpreter: &mut Interpreter) {
+pub fn setup_js_runtime(interpreter: &mut Interpreter, document: ComRc<INode>) {
     let globals = interpreter.global_symbols();
-    let function = globals.get("Function").unwrap();
+    let object = globals.get("Object").unwrap().clone();
+    let function = globals.get("Function").unwrap().clone();
 
     globals.insert("setTimeout".to_string(), make_set_timeout(function.clone()));
+    globals.insert(
+        "document".to_string(),
+        make_document(object.clone(), function.clone(), document.clone()),
+    );
 }
 
 fn make_set_timeout(function: Symbol) -> Symbol {
@@ -42,7 +51,6 @@ fn set_timeout(params: &[JsValue]) -> JsValue {
         })
         .unwrap_or(0.);
 
-    println!("timeout: {}", delay);
     match function {
         Some(JsValue::Object(obj)) => TIMER_QUEUE.with(|q| {
             let mut queue = q.borrow_mut();

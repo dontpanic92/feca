@@ -6,7 +6,7 @@ pub use dom::core::string::DomString;
 pub use page::Page;
 
 mod common;
-mod defs;
+pub mod defs;
 mod dom;
 mod layout;
 mod page;

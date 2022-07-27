@@ -15,7 +15,7 @@ pub struct View {
     window: Window,
     page: Option<Page>,
     renderer: CairoRenderer,
-    interpreter: Interpreter,
+    interpreter: Option<Interpreter>,
 }
 
 impl View {
@@ -25,35 +25,36 @@ impl View {
             .build(event_loop.as_ref().unwrap())
             .unwrap();
         let renderer = CairoRenderer::new_from_winit(&window);
-        let mut interpreter = Interpreter::new();
-        setup_js_runtime(&mut interpreter);
 
         Self {
             event_loop,
             window,
             page: None,
             renderer,
-            interpreter,
+            interpreter: None,
         }
     }
 
     pub fn load_html_string(&mut self, html: &str) {
         let mut page = Page::new_from_html_string(html, &self.renderer);
         page.layout();
+        let document = page.document().unwrap();
+        let mut interpreter = Interpreter::new();
 
-        let root = page.document().unwrap();
-        let elements = root.get_elements_by_tag_name(DomString::new("script".to_string()));
-        println!("len {}", elements.len());
+        setup_js_runtime(&mut interpreter, document.clone());
+
+        let elements = document.get_elements_by_tag_name(DomString::new("script".to_string()));
         for i in 0..elements.len() {
             let script = catus::parser::parse(elements.get(i).inner_html().str());
             if let Ok((text, s)) = &script && text.len() == 0 {
-                self.interpreter.eval(s);
+                interpreter.eval(s);
             } else {
                 println!("Unable to parse js: {:?}", script);
             }
         }
 
         self.page = Some(page);
+        self.interpreter = Some(interpreter);
     }
 
     pub fn run(mut self) {
@@ -92,8 +93,8 @@ impl View {
                 if let Some(timeout) = timeout {
                     if now > timeout {
                         let value = q.borrow_mut().pop().unwrap();
-                        self.interpreter.call(value);
-
+                        self.interpreter.as_mut().unwrap().call(value);
+                        self.window.request_redraw();
                         continue;
                     }
                 }

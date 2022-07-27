@@ -1,6 +1,9 @@
+use std::cell::RefCell;
+
 use crate::{
     common::Rectangle,
     defs::{IDomString, IElement, INode, INodeImpl, IRenderable},
+    dom::html::HtmlDom,
     layout::flow::FlowLayout,
     style::Style,
 };
@@ -30,7 +33,7 @@ pub struct Node(pub CoreNode);
 
 pub struct NodeProps {
     node_type: NodeType,
-    children: ObjectArray<INode>,
+    children: RefCell<ObjectArray<INode>>,
 }
 
 impl NodeProps {
@@ -41,27 +44,39 @@ impl NodeProps {
             .collect();
         Self {
             node_type,
-            children: ObjectArray::new(children),
+            children: RefCell::new(ObjectArray::new(children)),
         }
     }
 
-    pub fn children(&self) -> ObjectArray<INode> {
-        self.children.clone()
+    pub fn get_children(&self) -> ObjectArray<INode> {
+        self.children.borrow().clone()
+    }
+
+    pub fn set_children(&self, children: ObjectArray<INode>) {
+        self.children.replace(children);
     }
 }
 
 impl<T: 'static + XcDataType> INodeImpl for CoreNodeBase<T> {
     fn children(&self) -> ObjectArray<INode> {
-        self.NodeProps().children.clone()
+        self.NodeProps().get_children()
     }
 
     fn inner_html(&self) -> ComRc<IDomString> {
         let mut frag_list = vec![];
-        for i in 0..self.NodeProps().children.len() {
-            frag_list.push(self.NodeProps().children.get(i).outer_html().str());
+        for i in 0..self.children().len() {
+            frag_list.push(self.children().get(i).outer_html().str());
         }
 
         DomString::new(frag_list.join("\n"))
+    }
+
+    default fn set_inner_html(&self, html: crosscom::ComRc<IDomString>) {
+        let html = "<html>".to_string() + html.str() + "</html>";
+        let tl_dom = tl::parse(&html, tl::ParserOptions::default()).unwrap();
+        let dom = HtmlDom::from_tl_dom(&tl_dom);
+        let root = dom.root().unwrap();
+        self.NodeProps().children.replace(root.children());
     }
 
     default fn outer_html(&self) -> crosscom::ComRc<IDomString> {
@@ -74,14 +89,13 @@ impl<T: 'static + XcDataType> INodeImpl for CoreNodeBase<T> {
     ) -> ObjectArray<crate::defs::IElement> {
         let mut elements = vec![];
 
-        for i in 0..self.NodeProps().children.len() {
-            let node = self.NodeProps().children.get(i);
+        for i in 0..self.children().len() {
+            let node = self.children().get(i);
             let element = node.query_interface::<IElement>();
             if let Some(element) = element {
                 if element.tag().str() == tag.str() {
                     elements.push(
-                        self.NodeProps()
-                            .children
+                        self.children()
                             .get(i)
                             .query_interface::<IUnknown>()
                             .unwrap(),
@@ -93,6 +107,28 @@ impl<T: 'static + XcDataType> INodeImpl for CoreNodeBase<T> {
         }
 
         ObjectArray::new(elements)
+    }
+
+    fn get_element_by_id(
+        &self,
+        id: crosscom::ComRc<IDomString>,
+    ) -> Option<crosscom::ComRc<IElement>> {
+        for i in 0..self.children().len() {
+            let node = self.children().get(i);
+            let element = node.query_interface::<IElement>();
+            if let Some(element) = element {
+                if element.id().str() == id.str() {
+                    return Some(element);
+                } else {
+                    let ret = node.get_element_by_id(id.clone());
+                    if ret.is_some() {
+                        return ret;
+                    }
+                }
+            }
+        }
+
+        None
     }
 }
 

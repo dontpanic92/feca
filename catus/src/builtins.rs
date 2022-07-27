@@ -16,7 +16,7 @@ pub fn make_object() -> Symbol {
     )
 }
 
-fn new_object(name: String, proto: Symbol, properties: HashMap<String, JsValue>) -> Symbol {
+pub fn new_object(name: String, proto: Symbol, properties: HashMap<String, JsValue>) -> Symbol {
     let mut obj = JsObject::new(name.clone(), properties, Some(proto));
     obj.set_is_function(true);
 

@@ -33,7 +33,9 @@ interface INode: IUnknown {
     INode[] children();
     IDomString inner_html();
     IDomString outer_html();
+    void set_inner_html(IDomString html);
     IElement[] get_elements_by_tag_name(IDomString tag);
+    IElement? get_element_by_id(IDomString id);
 }
 
 [uuid(c8c9b586-0569-4af4-b619-6491c61dc94a)]

@@ -32,10 +32,47 @@ impl<TComInterface: ComInterface> ComRc<TComInterface> {
     }
 }
 
+#[repr(transparent)]
+pub struct RawPointer(pub *const *const c_void);
+
 impl<TComInterface: ComInterface> From<*const *const c_void> for ComRc<TComInterface> {
     fn from(raw: *const *const c_void) -> Self {
         Self {
             this: raw as *const TComInterface,
+        }
+    }
+}
+
+impl<TComInterface: ComInterface> From<RawPointer> for Option<ComRc<TComInterface>> {
+    fn from(raw: RawPointer) -> Self {
+        if raw.0 == std::ptr::null() {
+            None
+        } else {
+            Some(ComRc::<TComInterface> {
+                this: raw.0 as *const TComInterface,
+            })
+        }
+    }
+}
+
+impl<TComInterface: ComInterface> From<ComRc<TComInterface>> for *const *const c_void {
+    fn from(rc: ComRc<TComInterface>) -> Self {
+        let ret = rc.this as *const *const c_void;
+        std::mem::forget(rc);
+        ret
+    }
+}
+
+impl<TComInterface: ComInterface> From<Option<ComRc<TComInterface>>> for RawPointer {
+    fn from(rc: Option<ComRc<TComInterface>>) -> Self {
+        if rc.is_none() {
+            RawPointer {
+                0: std::ptr::null(),
+            }
+        } else {
+            let ret = rc.as_ref().unwrap().this as *const *const c_void;
+            std::mem::forget(rc);
+            RawPointer { 0: ret }
         }
     }
 }
@@ -65,14 +102,6 @@ impl<TComInterface: ComInterface> Drop for ComRc<TComInterface> {
         unsafe {
             (*(self.this as *const IUnknown)).release();
         }
-    }
-}
-
-impl<TComInterface: ComInterface> From<ComRc<TComInterface>> for *const *const c_void {
-    fn from(rc: ComRc<TComInterface>) -> Self {
-        let ret = rc.this as *const *const c_void;
-        std::mem::forget(rc);
-        ret
     }
 }
 

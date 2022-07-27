@@ -298,6 +298,7 @@ name = "feca"
 version = "0.1.0"
 dependencies = [
  "catus",
+ "crosscom",
  "felis",
  "raw-window-handle",
  "tl",

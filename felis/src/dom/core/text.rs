@@ -38,7 +38,7 @@ impl TextProps {
 }
 
 impl crate::defs::INodeImpl for CoreText {
-    default fn outer_html(&self) -> crosscom::ComRc<IDomString> {
+    fn outer_html(&self) -> crosscom::ComRc<IDomString> {
         self.CharacterDataProps().text().clone()
     }
 }

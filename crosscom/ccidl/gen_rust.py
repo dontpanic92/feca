@@ -450,7 +450,8 @@ impl {self.crosscom_module_name}::ComInterface for {i.name} {{
             # TODO
             inner_ty = self.__map_raw_type(idl_ty[0:-2])
             return '*const *const std::os::raw::c_void'
-
+        elif idl_ty.endswith('?'):
+            return 'crosscom::RawPointer'
         elif idl_ty in type_map:
             return type_map[idl_ty][0]
         else:
@@ -469,6 +470,12 @@ impl {self.crosscom_module_name}::ComInterface for {i.name} {{
                 mod = self.module_name if inner_ty.name != 'IUnknown' else self.crosscom_module_name
                 return f'{self.crosscom_module_name}::ObjectArray<{mod}::{inner_ty.name}>'
 
+        elif idl_ty.endswith('?'):
+            inner_idl_ty = idl_ty[0:-1]
+            inner_ty = self.__get_interface_symbol(inner_idl_ty)
+            if inner_ty != None:
+                mod = self.module_name if inner_ty.name != 'IUnknown' else self.crosscom_module_name
+                return f'Option<crosscom::ComRc<{mod}::{inner_ty.name}>>'
         elif idl_ty in type_map:
             return type_map[idl_ty][1]
         else:

@@ -370,11 +370,19 @@ pub struct INodeVirtualTable {
     pub outer_html: unsafe extern "system" fn(
         this: *const *const std::os::raw::c_void,
     ) -> *const *const std::os::raw::c_void,
+    pub set_inner_html: unsafe extern "system" fn(
+        this: *const *const std::os::raw::c_void,
+        html: *const *const std::os::raw::c_void,
+    ) -> (),
     pub get_elements_by_tag_name: unsafe extern "system" fn(
         this: *const *const std::os::raw::c_void,
         tag: *const *const std::os::raw::c_void,
     )
         -> *const *const std::os::raw::c_void,
+    pub get_element_by_id: unsafe extern "system" fn(
+        this: *const *const std::os::raw::c_void,
+        id: *const *const std::os::raw::c_void,
+    ) -> crosscom::RawPointer,
 }
 
 #[repr(C)]
@@ -441,6 +449,13 @@ impl INode {
         }
     }
 
+    pub fn set_inner_html(&self, html: crosscom::ComRc<IDomString>) -> () {
+        unsafe {
+            let this = self as *const INode as *const *const std::os::raw::c_void;
+            ((*self.vtable).set_inner_html)(this, html.into()).into()
+        }
+    }
+
     pub fn get_elements_by_tag_name(
         &self,
         tag: crosscom::ComRc<IDomString>,
@@ -450,16 +465,31 @@ impl INode {
             ((*self.vtable).get_elements_by_tag_name)(this, tag.into()).into()
         }
     }
+
+    pub fn get_element_by_id(
+        &self,
+        id: crosscom::ComRc<IDomString>,
+    ) -> Option<crosscom::ComRc<crate::defs::IElement>> {
+        unsafe {
+            let this = self as *const INode as *const *const std::os::raw::c_void;
+            ((*self.vtable).get_element_by_id)(this, id.into()).into()
+        }
+    }
 }
 
 pub trait INodeImpl {
     fn children(&self) -> crosscom::ObjectArray<crate::defs::INode>;
     fn inner_html(&self) -> crosscom::ComRc<IDomString>;
     fn outer_html(&self) -> crosscom::ComRc<IDomString>;
+    fn set_inner_html(&self, html: crosscom::ComRc<IDomString>) -> ();
     fn get_elements_by_tag_name(
         &self,
         tag: crosscom::ComRc<IDomString>,
     ) -> crosscom::ObjectArray<crate::defs::IElement>;
+    fn get_element_by_id(
+        &self,
+        id: crosscom::ComRc<IDomString>,
+    ) -> Option<crosscom::ComRc<crate::defs::IElement>>;
 }
 
 impl crosscom::ComInterface for INode {
@@ -493,11 +523,19 @@ pub struct IElementVirtualTable {
     pub outer_html: unsafe extern "system" fn(
         this: *const *const std::os::raw::c_void,
     ) -> *const *const std::os::raw::c_void,
+    pub set_inner_html: unsafe extern "system" fn(
+        this: *const *const std::os::raw::c_void,
+        html: *const *const std::os::raw::c_void,
+    ) -> (),
     pub get_elements_by_tag_name: unsafe extern "system" fn(
         this: *const *const std::os::raw::c_void,
         tag: *const *const std::os::raw::c_void,
     )
         -> *const *const std::os::raw::c_void,
+    pub get_element_by_id: unsafe extern "system" fn(
+        this: *const *const std::os::raw::c_void,
+        id: *const *const std::os::raw::c_void,
+    ) -> crosscom::RawPointer,
     pub id: unsafe extern "system" fn(
         this: *const *const std::os::raw::c_void,
     ) -> *const *const std::os::raw::c_void,
@@ -570,6 +608,13 @@ impl IElement {
         }
     }
 
+    pub fn set_inner_html(&self, html: crosscom::ComRc<IDomString>) -> () {
+        unsafe {
+            let this = self as *const IElement as *const *const std::os::raw::c_void;
+            ((*self.vtable).set_inner_html)(this, html.into()).into()
+        }
+    }
+
     pub fn get_elements_by_tag_name(
         &self,
         tag: crosscom::ComRc<IDomString>,
@@ -577,6 +622,16 @@ impl IElement {
         unsafe {
             let this = self as *const IElement as *const *const std::os::raw::c_void;
             ((*self.vtable).get_elements_by_tag_name)(this, tag.into()).into()
+        }
+    }
+
+    pub fn get_element_by_id(
+        &self,
+        id: crosscom::ComRc<IDomString>,
+    ) -> Option<crosscom::ComRc<crate::defs::IElement>> {
+        unsafe {
+            let this = self as *const IElement as *const *const std::os::raw::c_void;
+            ((*self.vtable).get_element_by_id)(this, id.into()).into()
         }
     }
 
@@ -631,11 +686,19 @@ pub struct ICharacterDataVirtualTable {
     pub outer_html: unsafe extern "system" fn(
         this: *const *const std::os::raw::c_void,
     ) -> *const *const std::os::raw::c_void,
+    pub set_inner_html: unsafe extern "system" fn(
+        this: *const *const std::os::raw::c_void,
+        html: *const *const std::os::raw::c_void,
+    ) -> (),
     pub get_elements_by_tag_name: unsafe extern "system" fn(
         this: *const *const std::os::raw::c_void,
         tag: *const *const std::os::raw::c_void,
     )
         -> *const *const std::os::raw::c_void,
+    pub get_element_by_id: unsafe extern "system" fn(
+        this: *const *const std::os::raw::c_void,
+        id: *const *const std::os::raw::c_void,
+    ) -> crosscom::RawPointer,
     pub text: unsafe extern "system" fn(
         this: *const *const std::os::raw::c_void,
     ) -> *const *const std::os::raw::c_void,
@@ -705,6 +768,13 @@ impl ICharacterData {
         }
     }
 
+    pub fn set_inner_html(&self, html: crosscom::ComRc<IDomString>) -> () {
+        unsafe {
+            let this = self as *const ICharacterData as *const *const std::os::raw::c_void;
+            ((*self.vtable).set_inner_html)(this, html.into()).into()
+        }
+    }
+
     pub fn get_elements_by_tag_name(
         &self,
         tag: crosscom::ComRc<IDomString>,
@@ -712,6 +782,16 @@ impl ICharacterData {
         unsafe {
             let this = self as *const ICharacterData as *const *const std::os::raw::c_void;
             ((*self.vtable).get_elements_by_tag_name)(this, tag.into()).into()
+        }
+    }
+
+    pub fn get_element_by_id(
+        &self,
+        id: crosscom::ComRc<IDomString>,
+    ) -> Option<crosscom::ComRc<crate::defs::IElement>> {
+        unsafe {
+            let this = self as *const ICharacterData as *const *const std::os::raw::c_void;
+            ((*self.vtable).get_element_by_id)(this, id.into()).into()
         }
     }
 
@@ -758,11 +838,19 @@ pub struct ITextVirtualTable {
     pub outer_html: unsafe extern "system" fn(
         this: *const *const std::os::raw::c_void,
     ) -> *const *const std::os::raw::c_void,
+    pub set_inner_html: unsafe extern "system" fn(
+        this: *const *const std::os::raw::c_void,
+        html: *const *const std::os::raw::c_void,
+    ) -> (),
     pub get_elements_by_tag_name: unsafe extern "system" fn(
         this: *const *const std::os::raw::c_void,
         tag: *const *const std::os::raw::c_void,
     )
         -> *const *const std::os::raw::c_void,
+    pub get_element_by_id: unsafe extern "system" fn(
+        this: *const *const std::os::raw::c_void,
+        id: *const *const std::os::raw::c_void,
+    ) -> crosscom::RawPointer,
     pub text: unsafe extern "system" fn(
         this: *const *const std::os::raw::c_void,
     ) -> *const *const std::os::raw::c_void,
@@ -832,6 +920,13 @@ impl IText {
         }
     }
 
+    pub fn set_inner_html(&self, html: crosscom::ComRc<IDomString>) -> () {
+        unsafe {
+            let this = self as *const IText as *const *const std::os::raw::c_void;
+            ((*self.vtable).set_inner_html)(this, html.into()).into()
+        }
+    }
+
     pub fn get_elements_by_tag_name(
         &self,
         tag: crosscom::ComRc<IDomString>,
@@ -839,6 +934,16 @@ impl IText {
         unsafe {
             let this = self as *const IText as *const *const std::os::raw::c_void;
             ((*self.vtable).get_elements_by_tag_name)(this, tag.into()).into()
+        }
+    }
+
+    pub fn get_element_by_id(
+        &self,
+        id: crosscom::ComRc<IDomString>,
+    ) -> Option<crosscom::ComRc<crate::defs::IElement>> {
+        unsafe {
+            let this = self as *const IText as *const *const std::os::raw::c_void;
+            ((*self.vtable).get_element_by_id)(this, id.into()).into()
         }
     }
 
@@ -1019,6 +1124,14 @@ macro_rules! ComObject_Text {
                 (*object).inner.0.outer_html().into()
             }
 
+            unsafe extern "system" fn set_inner_html(
+                this: *const *const std::os::raw::c_void,
+                html: *const *const std::os::raw::c_void,
+            ) -> () {
+                let object = crosscom::get_object::<TextCcw>(this);
+                (*object).inner.0.set_inner_html(html.into()).into()
+            }
+
             unsafe extern "system" fn get_elements_by_tag_name(
                 this: *const *const std::os::raw::c_void,
                 tag: *const *const std::os::raw::c_void,
@@ -1029,6 +1142,14 @@ macro_rules! ComObject_Text {
                     .0
                     .get_elements_by_tag_name(tag.into())
                     .into()
+            }
+
+            unsafe extern "system" fn get_element_by_id(
+                this: *const *const std::os::raw::c_void,
+                id: *const *const std::os::raw::c_void,
+            ) -> crosscom::RawPointer {
+                let object = crosscom::get_object::<TextCcw>(this);
+                (*object).inner.0.get_element_by_id(id.into()).into()
             }
 
             #[allow(non_upper_case_globals)]
@@ -1042,7 +1163,9 @@ macro_rules! ComObject_Text {
                         children,
                         inner_html,
                         outer_html,
+                        set_inner_html,
                         get_elements_by_tag_name,
+                        get_element_by_id,
                         text,
                     },
                 };
@@ -1110,11 +1233,19 @@ pub struct IHtmlElementVirtualTable {
     pub outer_html: unsafe extern "system" fn(
         this: *const *const std::os::raw::c_void,
     ) -> *const *const std::os::raw::c_void,
+    pub set_inner_html: unsafe extern "system" fn(
+        this: *const *const std::os::raw::c_void,
+        html: *const *const std::os::raw::c_void,
+    ) -> (),
     pub get_elements_by_tag_name: unsafe extern "system" fn(
         this: *const *const std::os::raw::c_void,
         tag: *const *const std::os::raw::c_void,
     )
         -> *const *const std::os::raw::c_void,
+    pub get_element_by_id: unsafe extern "system" fn(
+        this: *const *const std::os::raw::c_void,
+        id: *const *const std::os::raw::c_void,
+    ) -> crosscom::RawPointer,
     pub id: unsafe extern "system" fn(
         this: *const *const std::os::raw::c_void,
     ) -> *const *const std::os::raw::c_void,
@@ -1187,6 +1318,13 @@ impl IHtmlElement {
         }
     }
 
+    pub fn set_inner_html(&self, html: crosscom::ComRc<IDomString>) -> () {
+        unsafe {
+            let this = self as *const IHtmlElement as *const *const std::os::raw::c_void;
+            ((*self.vtable).set_inner_html)(this, html.into()).into()
+        }
+    }
+
     pub fn get_elements_by_tag_name(
         &self,
         tag: crosscom::ComRc<IDomString>,
@@ -1194,6 +1332,16 @@ impl IHtmlElement {
         unsafe {
             let this = self as *const IHtmlElement as *const *const std::os::raw::c_void;
             ((*self.vtable).get_elements_by_tag_name)(this, tag.into()).into()
+        }
+    }
+
+    pub fn get_element_by_id(
+        &self,
+        id: crosscom::ComRc<IDomString>,
+    ) -> Option<crosscom::ComRc<crate::defs::IElement>> {
+        unsafe {
+            let this = self as *const IHtmlElement as *const *const std::os::raw::c_void;
+            ((*self.vtable).get_element_by_id)(this, id.into()).into()
         }
     }
 
@@ -1388,6 +1536,14 @@ macro_rules! ComObject_HtmlElement {
                 (*object).inner.0.outer_html().into()
             }
 
+            unsafe extern "system" fn set_inner_html(
+                this: *const *const std::os::raw::c_void,
+                html: *const *const std::os::raw::c_void,
+            ) -> () {
+                let object = crosscom::get_object::<HtmlElementCcw>(this);
+                (*object).inner.0.set_inner_html(html.into()).into()
+            }
+
             unsafe extern "system" fn get_elements_by_tag_name(
                 this: *const *const std::os::raw::c_void,
                 tag: *const *const std::os::raw::c_void,
@@ -1398,6 +1554,14 @@ macro_rules! ComObject_HtmlElement {
                     .0
                     .get_elements_by_tag_name(tag.into())
                     .into()
+            }
+
+            unsafe extern "system" fn get_element_by_id(
+                this: *const *const std::os::raw::c_void,
+                id: *const *const std::os::raw::c_void,
+            ) -> crosscom::RawPointer {
+                let object = crosscom::get_object::<HtmlElementCcw>(this);
+                (*object).inner.0.get_element_by_id(id.into()).into()
             }
 
             #[allow(non_upper_case_globals)]
@@ -1412,7 +1576,9 @@ macro_rules! ComObject_HtmlElement {
                         children,
                         inner_html,
                         outer_html,
+                        set_inner_html,
                         get_elements_by_tag_name,
+                        get_element_by_id,
                         id,
                         tag,
                     },
@@ -1481,11 +1647,19 @@ pub struct IHtmlHtmlElementVirtualTable {
     pub outer_html: unsafe extern "system" fn(
         this: *const *const std::os::raw::c_void,
     ) -> *const *const std::os::raw::c_void,
+    pub set_inner_html: unsafe extern "system" fn(
+        this: *const *const std::os::raw::c_void,
+        html: *const *const std::os::raw::c_void,
+    ) -> (),
     pub get_elements_by_tag_name: unsafe extern "system" fn(
         this: *const *const std::os::raw::c_void,
         tag: *const *const std::os::raw::c_void,
     )
         -> *const *const std::os::raw::c_void,
+    pub get_element_by_id: unsafe extern "system" fn(
+        this: *const *const std::os::raw::c_void,
+        id: *const *const std::os::raw::c_void,
+    ) -> crosscom::RawPointer,
     pub id: unsafe extern "system" fn(
         this: *const *const std::os::raw::c_void,
     ) -> *const *const std::os::raw::c_void,
@@ -1558,6 +1732,13 @@ impl IHtmlHtmlElement {
         }
     }
 
+    pub fn set_inner_html(&self, html: crosscom::ComRc<IDomString>) -> () {
+        unsafe {
+            let this = self as *const IHtmlHtmlElement as *const *const std::os::raw::c_void;
+            ((*self.vtable).set_inner_html)(this, html.into()).into()
+        }
+    }
+
     pub fn get_elements_by_tag_name(
         &self,
         tag: crosscom::ComRc<IDomString>,
@@ -1565,6 +1746,16 @@ impl IHtmlHtmlElement {
         unsafe {
             let this = self as *const IHtmlHtmlElement as *const *const std::os::raw::c_void;
             ((*self.vtable).get_elements_by_tag_name)(this, tag.into()).into()
+        }
+    }
+
+    pub fn get_element_by_id(
+        &self,
+        id: crosscom::ComRc<IDomString>,
+    ) -> Option<crosscom::ComRc<crate::defs::IElement>> {
+        unsafe {
+            let this = self as *const IHtmlHtmlElement as *const *const std::os::raw::c_void;
+            ((*self.vtable).get_element_by_id)(this, id.into()).into()
         }
     }
 
@@ -1765,6 +1956,14 @@ macro_rules! ComObject_HtmlHtmlElement {
                 (*object).inner.0.outer_html().into()
             }
 
+            unsafe extern "system" fn set_inner_html(
+                this: *const *const std::os::raw::c_void,
+                html: *const *const std::os::raw::c_void,
+            ) -> () {
+                let object = crosscom::get_object::<HtmlHtmlElementCcw>(this);
+                (*object).inner.0.set_inner_html(html.into()).into()
+            }
+
             unsafe extern "system" fn get_elements_by_tag_name(
                 this: *const *const std::os::raw::c_void,
                 tag: *const *const std::os::raw::c_void,
@@ -1775,6 +1974,14 @@ macro_rules! ComObject_HtmlHtmlElement {
                     .0
                     .get_elements_by_tag_name(tag.into())
                     .into()
+            }
+
+            unsafe extern "system" fn get_element_by_id(
+                this: *const *const std::os::raw::c_void,
+                id: *const *const std::os::raw::c_void,
+            ) -> crosscom::RawPointer {
+                let object = crosscom::get_object::<HtmlHtmlElementCcw>(this);
+                (*object).inner.0.get_element_by_id(id.into()).into()
             }
 
             #[allow(non_upper_case_globals)]
@@ -1789,7 +1996,9 @@ macro_rules! ComObject_HtmlHtmlElement {
                         children,
                         inner_html,
                         outer_html,
+                        set_inner_html,
                         get_elements_by_tag_name,
+                        get_element_by_id,
                         id,
                         tag,
                     },
@@ -1859,11 +2068,19 @@ pub struct IHtmlScriptElementVirtualTable {
     pub outer_html: unsafe extern "system" fn(
         this: *const *const std::os::raw::c_void,
     ) -> *const *const std::os::raw::c_void,
+    pub set_inner_html: unsafe extern "system" fn(
+        this: *const *const std::os::raw::c_void,
+        html: *const *const std::os::raw::c_void,
+    ) -> (),
     pub get_elements_by_tag_name: unsafe extern "system" fn(
         this: *const *const std::os::raw::c_void,
         tag: *const *const std::os::raw::c_void,
     )
         -> *const *const std::os::raw::c_void,
+    pub get_element_by_id: unsafe extern "system" fn(
+        this: *const *const std::os::raw::c_void,
+        id: *const *const std::os::raw::c_void,
+    ) -> crosscom::RawPointer,
     pub id: unsafe extern "system" fn(
         this: *const *const std::os::raw::c_void,
     ) -> *const *const std::os::raw::c_void,
@@ -1939,6 +2156,13 @@ impl IHtmlScriptElement {
         }
     }
 
+    pub fn set_inner_html(&self, html: crosscom::ComRc<IDomString>) -> () {
+        unsafe {
+            let this = self as *const IHtmlScriptElement as *const *const std::os::raw::c_void;
+            ((*self.vtable).set_inner_html)(this, html.into()).into()
+        }
+    }
+
     pub fn get_elements_by_tag_name(
         &self,
         tag: crosscom::ComRc<IDomString>,
@@ -1946,6 +2170,16 @@ impl IHtmlScriptElement {
         unsafe {
             let this = self as *const IHtmlScriptElement as *const *const std::os::raw::c_void;
             ((*self.vtable).get_elements_by_tag_name)(this, tag.into()).into()
+        }
+    }
+
+    pub fn get_element_by_id(
+        &self,
+        id: crosscom::ComRc<IDomString>,
+    ) -> Option<crosscom::ComRc<crate::defs::IElement>> {
+        unsafe {
+            let this = self as *const IHtmlScriptElement as *const *const std::os::raw::c_void;
+            ((*self.vtable).get_element_by_id)(this, id.into()).into()
         }
     }
 
@@ -2122,6 +2356,14 @@ macro_rules! ComObject_HtmlScriptElement {
                 (*object).inner.0.outer_html().into()
             }
 
+            unsafe extern "system" fn set_inner_html(
+                this: *const *const std::os::raw::c_void,
+                html: *const *const std::os::raw::c_void,
+            ) -> () {
+                let object = crosscom::get_object::<HtmlScriptElementCcw>(this);
+                (*object).inner.0.set_inner_html(html.into()).into()
+            }
+
             unsafe extern "system" fn get_elements_by_tag_name(
                 this: *const *const std::os::raw::c_void,
                 tag: *const *const std::os::raw::c_void,
@@ -2132,6 +2374,14 @@ macro_rules! ComObject_HtmlScriptElement {
                     .0
                     .get_elements_by_tag_name(tag.into())
                     .into()
+            }
+
+            unsafe extern "system" fn get_element_by_id(
+                this: *const *const std::os::raw::c_void,
+                id: *const *const std::os::raw::c_void,
+            ) -> crosscom::RawPointer {
+                let object = crosscom::get_object::<HtmlScriptElementCcw>(this);
+                (*object).inner.0.get_element_by_id(id.into()).into()
             }
 
             #[allow(non_upper_case_globals)]
@@ -2146,7 +2396,9 @@ macro_rules! ComObject_HtmlScriptElement {
                         children,
                         inner_html,
                         outer_html,
+                        set_inner_html,
                         get_elements_by_tag_name,
+                        get_element_by_id,
                         id,
                         tag,
                         text,
@@ -2198,11 +2450,19 @@ pub struct IHtmlHeadElementVirtualTable {
     pub outer_html: unsafe extern "system" fn(
         this: *const *const std::os::raw::c_void,
     ) -> *const *const std::os::raw::c_void,
+    pub set_inner_html: unsafe extern "system" fn(
+        this: *const *const std::os::raw::c_void,
+        html: *const *const std::os::raw::c_void,
+    ) -> (),
     pub get_elements_by_tag_name: unsafe extern "system" fn(
         this: *const *const std::os::raw::c_void,
         tag: *const *const std::os::raw::c_void,
     )
         -> *const *const std::os::raw::c_void,
+    pub get_element_by_id: unsafe extern "system" fn(
+        this: *const *const std::os::raw::c_void,
+        id: *const *const std::os::raw::c_void,
+    ) -> crosscom::RawPointer,
     pub id: unsafe extern "system" fn(
         this: *const *const std::os::raw::c_void,
     ) -> *const *const std::os::raw::c_void,
@@ -2275,6 +2535,13 @@ impl IHtmlHeadElement {
         }
     }
 
+    pub fn set_inner_html(&self, html: crosscom::ComRc<IDomString>) -> () {
+        unsafe {
+            let this = self as *const IHtmlHeadElement as *const *const std::os::raw::c_void;
+            ((*self.vtable).set_inner_html)(this, html.into()).into()
+        }
+    }
+
     pub fn get_elements_by_tag_name(
         &self,
         tag: crosscom::ComRc<IDomString>,
@@ -2282,6 +2549,16 @@ impl IHtmlHeadElement {
         unsafe {
             let this = self as *const IHtmlHeadElement as *const *const std::os::raw::c_void;
             ((*self.vtable).get_elements_by_tag_name)(this, tag.into()).into()
+        }
+    }
+
+    pub fn get_element_by_id(
+        &self,
+        id: crosscom::ComRc<IDomString>,
+    ) -> Option<crosscom::ComRc<crate::defs::IElement>> {
+        unsafe {
+            let this = self as *const IHtmlHeadElement as *const *const std::os::raw::c_void;
+            ((*self.vtable).get_element_by_id)(this, id.into()).into()
         }
     }
 
@@ -2482,6 +2759,14 @@ macro_rules! ComObject_HtmlHeadElement {
                 (*object).inner.0.outer_html().into()
             }
 
+            unsafe extern "system" fn set_inner_html(
+                this: *const *const std::os::raw::c_void,
+                html: *const *const std::os::raw::c_void,
+            ) -> () {
+                let object = crosscom::get_object::<HtmlHeadElementCcw>(this);
+                (*object).inner.0.set_inner_html(html.into()).into()
+            }
+
             unsafe extern "system" fn get_elements_by_tag_name(
                 this: *const *const std::os::raw::c_void,
                 tag: *const *const std::os::raw::c_void,
@@ -2492,6 +2777,14 @@ macro_rules! ComObject_HtmlHeadElement {
                     .0
                     .get_elements_by_tag_name(tag.into())
                     .into()
+            }
+
+            unsafe extern "system" fn get_element_by_id(
+                this: *const *const std::os::raw::c_void,
+                id: *const *const std::os::raw::c_void,
+            ) -> crosscom::RawPointer {
+                let object = crosscom::get_object::<HtmlHeadElementCcw>(this);
+                (*object).inner.0.get_element_by_id(id.into()).into()
             }
 
             #[allow(non_upper_case_globals)]
@@ -2506,7 +2799,9 @@ macro_rules! ComObject_HtmlHeadElement {
                         children,
                         inner_html,
                         outer_html,
+                        set_inner_html,
                         get_elements_by_tag_name,
+                        get_element_by_id,
                         id,
                         tag,
                     },
@@ -2576,11 +2871,19 @@ pub struct IHtmlBodyElementVirtualTable {
     pub outer_html: unsafe extern "system" fn(
         this: *const *const std::os::raw::c_void,
     ) -> *const *const std::os::raw::c_void,
+    pub set_inner_html: unsafe extern "system" fn(
+        this: *const *const std::os::raw::c_void,
+        html: *const *const std::os::raw::c_void,
+    ) -> (),
     pub get_elements_by_tag_name: unsafe extern "system" fn(
         this: *const *const std::os::raw::c_void,
         tag: *const *const std::os::raw::c_void,
     )
         -> *const *const std::os::raw::c_void,
+    pub get_element_by_id: unsafe extern "system" fn(
+        this: *const *const std::os::raw::c_void,
+        id: *const *const std::os::raw::c_void,
+    ) -> crosscom::RawPointer,
     pub id: unsafe extern "system" fn(
         this: *const *const std::os::raw::c_void,
     ) -> *const *const std::os::raw::c_void,
@@ -2653,6 +2956,13 @@ impl IHtmlBodyElement {
         }
     }
 
+    pub fn set_inner_html(&self, html: crosscom::ComRc<IDomString>) -> () {
+        unsafe {
+            let this = self as *const IHtmlBodyElement as *const *const std::os::raw::c_void;
+            ((*self.vtable).set_inner_html)(this, html.into()).into()
+        }
+    }
+
     pub fn get_elements_by_tag_name(
         &self,
         tag: crosscom::ComRc<IDomString>,
@@ -2660,6 +2970,16 @@ impl IHtmlBodyElement {
         unsafe {
             let this = self as *const IHtmlBodyElement as *const *const std::os::raw::c_void;
             ((*self.vtable).get_elements_by_tag_name)(this, tag.into()).into()
+        }
+    }
+
+    pub fn get_element_by_id(
+        &self,
+        id: crosscom::ComRc<IDomString>,
+    ) -> Option<crosscom::ComRc<crate::defs::IElement>> {
+        unsafe {
+            let this = self as *const IHtmlBodyElement as *const *const std::os::raw::c_void;
+            ((*self.vtable).get_element_by_id)(this, id.into()).into()
         }
     }
 
@@ -2860,6 +3180,14 @@ macro_rules! ComObject_HtmlBodyElement {
                 (*object).inner.0.outer_html().into()
             }
 
+            unsafe extern "system" fn set_inner_html(
+                this: *const *const std::os::raw::c_void,
+                html: *const *const std::os::raw::c_void,
+            ) -> () {
+                let object = crosscom::get_object::<HtmlBodyElementCcw>(this);
+                (*object).inner.0.set_inner_html(html.into()).into()
+            }
+
             unsafe extern "system" fn get_elements_by_tag_name(
                 this: *const *const std::os::raw::c_void,
                 tag: *const *const std::os::raw::c_void,
@@ -2870,6 +3198,14 @@ macro_rules! ComObject_HtmlBodyElement {
                     .0
                     .get_elements_by_tag_name(tag.into())
                     .into()
+            }
+
+            unsafe extern "system" fn get_element_by_id(
+                this: *const *const std::os::raw::c_void,
+                id: *const *const std::os::raw::c_void,
+            ) -> crosscom::RawPointer {
+                let object = crosscom::get_object::<HtmlBodyElementCcw>(this);
+                (*object).inner.0.get_element_by_id(id.into()).into()
             }
 
             #[allow(non_upper_case_globals)]
@@ -2884,7 +3220,9 @@ macro_rules! ComObject_HtmlBodyElement {
                         children,
                         inner_html,
                         outer_html,
+                        set_inner_html,
                         get_elements_by_tag_name,
+                        get_element_by_id,
                         id,
                         tag,
                     },
@@ -2954,11 +3292,19 @@ pub struct IHtmlParagraphElementVirtualTable {
     pub outer_html: unsafe extern "system" fn(
         this: *const *const std::os::raw::c_void,
     ) -> *const *const std::os::raw::c_void,
+    pub set_inner_html: unsafe extern "system" fn(
+        this: *const *const std::os::raw::c_void,
+        html: *const *const std::os::raw::c_void,
+    ) -> (),
     pub get_elements_by_tag_name: unsafe extern "system" fn(
         this: *const *const std::os::raw::c_void,
         tag: *const *const std::os::raw::c_void,
     )
         -> *const *const std::os::raw::c_void,
+    pub get_element_by_id: unsafe extern "system" fn(
+        this: *const *const std::os::raw::c_void,
+        id: *const *const std::os::raw::c_void,
+    ) -> crosscom::RawPointer,
     pub id: unsafe extern "system" fn(
         this: *const *const std::os::raw::c_void,
     ) -> *const *const std::os::raw::c_void,
@@ -3031,6 +3377,13 @@ impl IHtmlParagraphElement {
         }
     }
 
+    pub fn set_inner_html(&self, html: crosscom::ComRc<IDomString>) -> () {
+        unsafe {
+            let this = self as *const IHtmlParagraphElement as *const *const std::os::raw::c_void;
+            ((*self.vtable).set_inner_html)(this, html.into()).into()
+        }
+    }
+
     pub fn get_elements_by_tag_name(
         &self,
         tag: crosscom::ComRc<IDomString>,
@@ -3038,6 +3391,16 @@ impl IHtmlParagraphElement {
         unsafe {
             let this = self as *const IHtmlParagraphElement as *const *const std::os::raw::c_void;
             ((*self.vtable).get_elements_by_tag_name)(this, tag.into()).into()
+        }
+    }
+
+    pub fn get_element_by_id(
+        &self,
+        id: crosscom::ComRc<IDomString>,
+    ) -> Option<crosscom::ComRc<crate::defs::IElement>> {
+        unsafe {
+            let this = self as *const IHtmlParagraphElement as *const *const std::os::raw::c_void;
+            ((*self.vtable).get_element_by_id)(this, id.into()).into()
         }
     }
 
@@ -3238,6 +3601,14 @@ macro_rules! ComObject_HtmlParagraphElement {
                 (*object).inner.0.outer_html().into()
             }
 
+            unsafe extern "system" fn set_inner_html(
+                this: *const *const std::os::raw::c_void,
+                html: *const *const std::os::raw::c_void,
+            ) -> () {
+                let object = crosscom::get_object::<HtmlParagraphElementCcw>(this);
+                (*object).inner.0.set_inner_html(html.into()).into()
+            }
+
             unsafe extern "system" fn get_elements_by_tag_name(
                 this: *const *const std::os::raw::c_void,
                 tag: *const *const std::os::raw::c_void,
@@ -3248,6 +3619,14 @@ macro_rules! ComObject_HtmlParagraphElement {
                     .0
                     .get_elements_by_tag_name(tag.into())
                     .into()
+            }
+
+            unsafe extern "system" fn get_element_by_id(
+                this: *const *const std::os::raw::c_void,
+                id: *const *const std::os::raw::c_void,
+            ) -> crosscom::RawPointer {
+                let object = crosscom::get_object::<HtmlParagraphElementCcw>(this);
+                (*object).inner.0.get_element_by_id(id.into()).into()
             }
 
             #[allow(non_upper_case_globals)]
@@ -3262,7 +3641,9 @@ macro_rules! ComObject_HtmlParagraphElement {
                         children,
                         inner_html,
                         outer_html,
+                        set_inner_html,
                         get_elements_by_tag_name,
+                        get_element_by_id,
                         id,
                         tag,
                     },

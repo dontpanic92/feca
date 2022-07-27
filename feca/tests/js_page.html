@@ -6,6 +6,10 @@
 
         function timer() {
             console.log("in timer!");
+
+            body = document.getElementById("body");
+            body.setInnerHTML("Now it is 1000");
+
             setTimeout(timer, 1000);
         }
 
@@ -13,7 +17,7 @@
     </script>
 </head>
 
-<body>
+<body id="body">
     Now it is 23:05
 </body>
 

@@ -70,12 +70,13 @@ impl<T: 'static + XcDataType> IRenderableImpl for CoreHtmlElementBase<T> {
 pub fn new_core_html_element(
     children: Vec<ComRc<INode>>,
     id: ComRc<IDomString>,
+    tag: &str,
     style: Style,
 ) -> ComRc<INode> {
     ComRc::<INode>::from_object(HtmlElement {
         0: CoreHtmlElement::builder()
             .with(NodeProps::new(NodeType::ElementNode, children))
-            .with(ElementProps::new(id))
+            .with(ElementProps::new(id, tag))
             .with(HtmlElementProps::new(DomString::new("".to_string()), style))
             .build(),
     })
@@ -85,6 +86,7 @@ pub fn new_i_element(children: Vec<ComRc<INode>>, id: ComRc<IDomString>) -> ComR
     new_core_html_element(
         children,
         id,
+        "i",
         Style {
             font_style: Some(FontStyle::Italic),
             display: Display::Inline,
@@ -97,6 +99,7 @@ pub fn new_a_element(children: Vec<ComRc<INode>>, id: ComRc<IDomString>) -> ComR
     new_core_html_element(
         children,
         id,
+        "a",
         Style {
             text_color: Some(Color::BLUE),
             text_decoration_line: Some(TextDecorationLine::Underline),
@@ -110,7 +113,7 @@ macro_rules! new_element {
     ($name: ident, $style: expr) => {
         paste::paste! {
             pub fn [<new_ $name _element>](children: Vec<ComRc<INode>>, id:  ComRc<IDomString>) -> ComRc<INode> {
-                new_core_html_element(children, id, $style)
+                new_core_html_element(children, id, stringify!($name), $style)
             }
         }
     };

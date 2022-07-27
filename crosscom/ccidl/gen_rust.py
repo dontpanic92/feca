@@ -119,7 +119,7 @@ class RustGen:
             w.ln(f"""
     unsafe extern "system" fn {method.name} (this: *const *const std::os::raw::c_void, {self.__gen_method_raw_param_list(method)}) -> {self.__map_raw_type(method.ret_ty)} {{
         let object = {self.crosscom_module_name}::get_object::<{klass.name}Ccw>(this);
-        (*object).inner{field_name}.{ method.name }({','.join([p.name for p in method.params])}).into()
+        (*object).inner{field_name}.{ method.name }({','.join([f'{p.name}.into()' for p in method.params])}).into()
     }}
     """)
 
@@ -348,7 +348,7 @@ pub(crate) use ComObject_{klass.name};
 pub {self.__gen_method_signature2(method)} {{
     unsafe {{
         let this = self as *const {i.name} as *const *const std::os::raw::c_void;
-        ((*self.vtable).{method.name})(this, {','.join([p.name for p in method.params])}).into()
+        ((*self.vtable).{method.name})(this, {','.join([f'{p.name}.into()' for p in method.params])}).into()
     }}
 }}
 """)

@@ -1,5 +1,5 @@
 use catus::interpreter::Interpreter;
-use felis::{CairoRenderer, Page};
+use felis::{CairoRenderer, DomString, Page};
 use winit::{
     event::{Event, WindowEvent},
     event_loop::{ControlFlow, EventLoop},
@@ -33,6 +33,16 @@ impl View {
     pub fn load_html_string(&mut self, html: &str) {
         let mut page = Page::new_from_html_string(html, &self.renderer);
         page.layout();
+
+        let root = page.document().unwrap();
+        let elements = root.get_elements_by_tag_name(DomString::new("script".to_string()));
+        println!("len {}", elements.len());
+        for i in 0..elements.len() {
+            let script = catus::parser::parse(elements.get(i).inner_html().str());
+            if let Ok((s, script)) = script && s.len() == 0 {
+                self.interpreter.eval(&script);
+            }
+        }
 
         self.page = Some(page);
     }

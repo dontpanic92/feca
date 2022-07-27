@@ -29,7 +29,7 @@ pub fn new_core_body(children: Vec<ComRc<INode>>, id: ComRc<IDomString>) -> ComR
     ComRc::<INode>::from_object(HtmlBodyElement {
         0: CoreBody::builder()
             .with(NodeProps::new(NodeType::ElementNode, children))
-            .with(ElementProps::new(id))
+            .with(ElementProps::new(id, "body"))
             .with(HtmlElementProps::new(
                 DomString::new("".to_string()),
                 Style::default(),

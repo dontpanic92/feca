@@ -1,11 +1,13 @@
 use crate::{
     common::Rectangle,
-    defs::{IDomString, INode, INodeImpl, IRenderable},
+    defs::{IDomString, IElement, INode, INodeImpl, IRenderable},
     layout::flow::FlowLayout,
     style::Style,
 };
 use crosscom::{ComRc, IUnknown, ObjectArray};
 use xcdt::{Object, ObjectBase, XcDataType};
+
+use super::string::DomString;
 
 xcdt::declare_xcdt!(CoreNode, NodeProps, Object, ObjectBase);
 
@@ -54,13 +56,43 @@ impl<T: 'static + XcDataType> INodeImpl for CoreNodeBase<T> {
     }
 
     fn inner_html(&self) -> ComRc<IDomString> {
-        // let mut frag_list = vec![];
+        let mut frag_list = vec![];
         for i in 0..self.NodeProps().children.len() {
-            self.NodeProps().children.get(i).children();
+            frag_list.push(self.NodeProps().children.get(i).outer_html().str());
         }
 
-        // frag_list.join("\n")
-        todo!();
+        DomString::new(frag_list.join("\n"))
+    }
+
+    default fn outer_html(&self) -> crosscom::ComRc<IDomString> {
+        DomString::new("<>".to_string() + self.inner_html().str() + "</>")
+    }
+
+    fn get_elements_by_tag_name(
+        &self,
+        tag: ComRc<IDomString>,
+    ) -> ObjectArray<crate::defs::IElement> {
+        let mut elements = vec![];
+
+        for i in 0..self.NodeProps().children.len() {
+            let node = self.NodeProps().children.get(i);
+            let element = node.query_interface::<IElement>();
+            if let Some(element) = element {
+                if element.tag().str() == tag.str() {
+                    elements.push(
+                        self.NodeProps()
+                            .children
+                            .get(i)
+                            .query_interface::<IUnknown>()
+                            .unwrap(),
+                    );
+                } else {
+                    elements.extend_from_slice(node.get_elements_by_tag_name(tag.clone()).raw());
+                }
+            }
+        }
+
+        ObjectArray::new(elements)
     }
 }
 

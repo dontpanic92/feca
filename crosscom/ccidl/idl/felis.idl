@@ -32,11 +32,14 @@ class DomString: IDomString {}
 interface INode: IUnknown {
     INode[] children();
     IDomString inner_html();
+    IDomString outer_html();
+    IElement[] get_elements_by_tag_name(IDomString tag);
 }
 
 [uuid(c8c9b586-0569-4af4-b619-6491c61dc94a)]
 interface IElement: INode {
     IDomString id();
+    IDomString tag();
 }
 
 [uuid(a8b5f552-0f22-4c4d-930c-432312b16a6c)]

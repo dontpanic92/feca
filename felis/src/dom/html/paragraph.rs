@@ -34,7 +34,7 @@ pub fn new_core_paragraph(children: Vec<ComRc<INode>>, id: ComRc<IDomString>) ->
     ComRc::<INode>::from_object(HtmlParagraphElement {
         0: CoreParagraph::builder()
             .with(NodeProps::new(NodeType::ElementNode, children))
-            .with(ElementProps::new(id))
+            .with(ElementProps::new(id, "p"))
             .with(HtmlElementProps::new(
                 DomString::new("".to_string()),
                 Style::default(),

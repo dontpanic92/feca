@@ -29,7 +29,7 @@ pub fn new_core_head(children: Vec<ComRc<INode>>, id: ComRc<IDomString>) -> ComR
     ComRc::<INode>::from_object(HtmlHeadElement {
         0: CoreHead::builder()
             .with(NodeProps::new(NodeType::ElementNode, children))
-            .with(ElementProps::new(id))
+            .with(ElementProps::new(id, "head"))
             .with(HtmlElementProps::new(
                 DomString::new("".to_string()),
                 Style::default(),

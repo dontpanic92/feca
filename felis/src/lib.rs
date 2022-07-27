@@ -2,6 +2,7 @@
 #![feature(min_specialization)]
 
 pub use crate::rendering::cairo::CairoRenderer;
+pub use dom::core::string::DomString;
 pub use page::Page;
 
 mod common;

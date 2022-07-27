@@ -2,7 +2,7 @@ use crosscom::ComRc;
 use xcdt::XcDataType;
 
 use crate::{
-    defs::{ComObject_HtmlScriptElement, IDomString, IHtmlScriptElementImpl, INode},
+    defs::{ComObject_HtmlScriptElement, IDomString, IHtmlScriptElementImpl, INode, INodeImpl},
     dom::core::{
         element::ElementProps,
         node::{NodeProps, NodeType},
@@ -33,7 +33,7 @@ impl ScriptProps {
 
 impl<T: 'static + XcDataType> IHtmlScriptElementImpl for CoreScriptBase<T> {
     fn text(&self) -> ComRc<IDomString> {
-        todo!();
+        self.inner_html()
     }
 }
 
@@ -41,7 +41,7 @@ pub fn new_core_script(children: Vec<ComRc<INode>>, id: ComRc<IDomString>) -> Co
     ComRc::<INode>::from_object(Script {
         0: CoreScript::builder()
             .with(NodeProps::new(NodeType::ElementNode, children))
-            .with(ElementProps::new(id))
+            .with(ElementProps::new(id, "script"))
             .with(HtmlElementProps::new(
                 DomString::new("".to_string()),
                 Style::default(),

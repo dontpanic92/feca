@@ -29,7 +29,7 @@ pub fn new_core_html(children: Vec<ComRc<INode>>, id: ComRc<IDomString>) -> ComR
     ComRc::<INode>::from_object(HtmlHtmlElement {
         0: CoreHtml::builder()
             .with(NodeProps::new(NodeType::ElementNode, children))
-            .with(ElementProps::new(id))
+            .with(ElementProps::new(id, "html"))
             .with(HtmlElementProps::new(
                 DomString::new("".to_string()),
                 Style {

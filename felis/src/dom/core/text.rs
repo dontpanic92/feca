@@ -1,7 +1,7 @@
 use crosscom::ComRc;
 
 use crate::{
-    defs::{ComObject_Text, INode, IRenderableImpl, ITextImpl},
+    defs::{ComObject_Text, IDomString, INode, IRenderableImpl, ITextImpl},
     layout::text::TextLayout,
     style::{Display, Style},
 };
@@ -34,6 +34,12 @@ impl TextProps {
         Self {
             layout: TextLayout::new(),
         }
+    }
+}
+
+impl crate::defs::INodeImpl for CoreText {
+    default fn outer_html(&self) -> crosscom::ComRc<IDomString> {
+        self.CharacterDataProps().text().clone()
     }
 }
 

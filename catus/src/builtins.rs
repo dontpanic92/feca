@@ -65,13 +65,20 @@ impl Console {
 pub struct Function;
 
 impl Function {
-    pub fn new_js_function(function_proto: Symbol, decl: &FunctionDeclaration) -> Symbol {
+    pub fn new_js_function(
+        object: Symbol,
+        function_proto: Symbol,
+        decl: &FunctionDeclaration,
+    ) -> Symbol {
         let mut properties = HashMap::new();
+        let prototype = new_object("prototype".to_string(), object, HashMap::new());
 
         properties.insert(
             "__function__".to_string(),
             JsValue::FunctionDeclaration(decl.clone()),
         );
+
+        properties.insert("prototype".to_string(), prototype.value());
 
         new_object(
             decl.name.as_ref().unwrap().clone(),

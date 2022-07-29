@@ -7,18 +7,18 @@
         function timer() {
             console.log("in timer!");
 
-            body = document.getElementById("body");
-            body.setInnerHTML("Now it is 1000");
+            time = document.getElementById("time");
+            time.setInnerHTML(Date());
 
             setTimeout(timer, 1000);
         }
 
-        setTimeout(timer, 1000);
+        setTimeout(timer, 0);
     </script>
 </head>
 
-<body id="body">
-    Now it is 23:05
+<body>
+    Now it is <b id="time"></b>
 </body>
 
 </html>

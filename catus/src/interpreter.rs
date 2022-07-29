@@ -78,8 +78,9 @@ impl Interpreter {
     }
 
     fn eval_function_declaration(&mut self, decl: &FunctionDeclaration) {
+        let object = self.global.get("Object").unwrap();
         let function_proto = self.global.get("Function").unwrap();
-        let f = Function::new_js_function(function_proto.clone(), decl);
+        let f = Function::new_js_function(object.clone(), function_proto.clone(), decl);
         self.global.insert(f.name().clone(), f);
     }
 

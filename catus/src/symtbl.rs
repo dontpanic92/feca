@@ -73,20 +73,16 @@ impl Symbol {
 pub struct JsObject {
     name: String,
     properties: HashMap<String, JsValue>,
-    prototype: Option<Symbol>,
+    proto: Option<Symbol>,
     is_function: bool,
 }
 
 impl JsObject {
-    pub fn new(
-        name: String,
-        properties: HashMap<String, JsValue>,
-        prototype: Option<Symbol>,
-    ) -> Self {
+    pub fn new(name: String, properties: HashMap<String, JsValue>, proto: Option<Symbol>) -> Self {
         Self {
             name,
             properties,
-            prototype,
+            proto,
             is_function: false,
         }
     }

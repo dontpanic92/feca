@@ -26,7 +26,6 @@ impl BodyProps {
 }
 
 pub fn new_core_body(children: Vec<ComRc<INode>>, id: ComRc<IDomString>) -> ComRc<INode> {
-    println!("body id: {}", id.str());
     ComRc::<INode>::from_object(HtmlBodyElement {
         0: CoreBody::builder()
             .with(NodeProps::new(NodeType::ElementNode, children))

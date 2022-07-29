@@ -8,8 +8,9 @@ use catus::{
 use crosscom::ComRc;
 use felis::defs::INode;
 
-use self::{document::make_document, timer_queue::TIMER_QUEUE};
+use self::{date::make_date, document::make_document, timer_queue::TIMER_QUEUE};
 
+pub mod date;
 pub mod document;
 pub mod element;
 pub mod timer_queue;
@@ -23,6 +24,10 @@ pub fn setup_js_runtime(interpreter: &mut Interpreter, document: ComRc<INode>) {
     globals.insert(
         "document".to_string(),
         make_document(object.clone(), function.clone(), document.clone()),
+    );
+    globals.insert(
+        "Date".to_string(),
+        make_date(object.clone(), function.clone()),
     );
 }
 

@@ -10,18 +10,15 @@ use crate::{
 
 pub struct Page {
     dom: HtmlDom,
-    pango_context: pango::Context,
     style: Style,
 }
 
 impl Page {
-    pub fn new_from_html_string(html: &str, renderer: &CairoRenderer) -> Self {
+    pub fn new_from_html_string(html: &str) -> Self {
         let tl_dom = tl::parse(html, tl::ParserOptions::default()).unwrap();
         let dom = HtmlDom::from_tl_dom(&tl_dom);
-        let pango_context = pangocairo::create_context(renderer.context()).unwrap();
         Self {
             dom,
-            pango_context,
             style: Style::html_default(),
         }
     }
@@ -30,10 +27,10 @@ impl Page {
         self.dom.root()
     }
 
-    pub fn layout(&mut self) {
+    pub fn layout(&mut self, pango_context: &pango::Context) {
         let root = self.dom.root().unwrap();
         root.query_interface::<IRenderable>().unwrap().layout(
-            &self.pango_context,
+            pango_context,
             &self.style,
             Rectangle {
                 top: 8,
@@ -45,6 +42,9 @@ impl Page {
     }
 
     pub fn paint(&self, renderer: &CairoRenderer) {
+        renderer.context().set_source_rgb(1., 1., 1.);
+        renderer.context().paint().unwrap();
+
         let root = self.dom.root().unwrap();
         root.query_interface::<IRenderable>()
             .unwrap()

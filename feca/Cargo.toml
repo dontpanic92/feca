@@ -11,5 +11,18 @@ felis = { path = "../felis" }
 catus = { path = "../catus" }
 crosscom = { path = "../crosscom/runtime/rust" }
 tl = "0.6.0"
-winit = "0.26.1"
-raw-window-handle = "0.4.2"
+winit = "0.27"
+raw-window-handle = "0.5"
+pango = "0.15"
+pangocairo = "0.15"
+
+[dependencies.cairo-rs]
+version = "0.15"
+features = ["win32-surface"]
+
+[target.'cfg(windows)'.dependencies]
+winapi = { version = "0.3", features = ["winuser"] }
+
+[build-dependencies]
+cc = "1.0"
+

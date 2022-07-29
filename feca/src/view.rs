@@ -36,8 +36,7 @@ impl View {
     }
 
     pub fn load_html_string(&mut self, html: &str) {
-        let mut page = Page::new_from_html_string(html, &self.renderer);
-        page.layout();
+        let page = Page::new_from_html_string(html);
         let document = page.document().unwrap();
         let mut interpreter = Interpreter::new();
 
@@ -70,7 +69,8 @@ impl View {
                     window_id,
                 } if window_id == self.window.id() => *control_flow = ControlFlow::Exit,
                 Event::RedrawRequested(_) => {
-                    if let Some(page) = &self.page {
+                    if let Some(page) = &mut self.page {
+                        page.layout(self.renderer.pango_context());
                         page.paint(&self.renderer);
                     }
                 }

@@ -70,7 +70,7 @@ impl View {
                 } if window_id == self.window.id() => *control_flow = ControlFlow::Exit,
                 Event::RedrawRequested(_) => {
                     if let Some(page) = &mut self.page {
-                        page.layout(self.renderer.pango_context());
+                        page.layout(self.renderer.pango_context(), self.renderer.canvas_size());
                         page.paint(&self.renderer);
                     }
                 }

@@ -25,14 +25,19 @@ impl BodyProps {
     }
 }
 
-pub fn new_core_body(children: Vec<ComRc<INode>>, id: ComRc<IDomString>) -> ComRc<INode> {
+pub fn new_core_body(
+    children: Vec<ComRc<INode>>,
+    id: ComRc<IDomString>,
+    style: String,
+) -> ComRc<INode> {
+    let style = crate::style::parser::parse(&style).unwrap_or_default();
     ComRc::<INode>::from_object(HtmlBodyElement {
         0: CoreBody::builder()
             .with(NodeProps::new(NodeType::ElementNode, children))
             .with(ElementProps::new(id, "body"))
             .with(HtmlElementProps::new(
                 DomString::new("".to_string()),
-                Style::default(),
+                style.1,
             ))
             .with(BodyProps::new())
             .build(),

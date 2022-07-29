@@ -1,3 +1,5 @@
+pub mod parser;
+
 use crate::common::Color;
 
 #[derive(Clone, Default, Debug)]
@@ -21,6 +23,23 @@ impl Style {
 
             ..Default::default()
         }
+    }
+
+    pub fn from_key_value_list(list: &[(&str, &str)]) -> Self {
+        let mut style = Self {
+            ..Default::default()
+        };
+
+        for (key, value) in list {
+            match *key {
+                "display" => {
+                    style.display = Display::try_from(*value).unwrap_or_default();
+                }
+                _ => {}
+            }
+        }
+
+        style
     }
 
     pub fn merge(child: &Style, parent: &Style) -> Self {
@@ -119,10 +138,22 @@ pub enum Display {
     Block,
     Inline,
     Inherit,
+    Flex,
     None,
 
     // Internal use
     FelisText,
+}
+
+impl From<&str> for Display {
+    fn from(value: &str) -> Self {
+        match value {
+            "block" => Display::Block,
+            "inline" => Display::Inline,
+            "flex" => Display::Flex,
+            _ => Display::Block,
+        }
+    }
 }
 
 impl Default for Display {

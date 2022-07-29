@@ -36,7 +36,7 @@ fn main() {
     let mut renderer = CairoRenderer::new_from_winit(&window);
 
     let mut page = Page::new_from_html_string(input);
-    page.layout(renderer.pango_context());
+    page.layout(renderer.pango_context(), renderer.canvas_size());
 
     event_loop.run(move |event, _, control_flow| {
         *control_flow = ControlFlow::Wait;

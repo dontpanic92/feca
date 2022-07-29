@@ -27,7 +27,7 @@ impl Page {
         self.dom.root()
     }
 
-    pub fn layout(&mut self, pango_context: &pango::Context) {
+    pub fn layout(&mut self, pango_context: &pango::Context, canvas_size: (i32, i32)) {
         let root = self.dom.root().unwrap();
         root.query_interface::<IRenderable>().unwrap().layout(
             pango_context,
@@ -35,8 +35,8 @@ impl Page {
             Rectangle {
                 top: 8,
                 left: 8,
-                height: 800,
-                width: 600,
+                height: canvas_size.1 - 8,
+                width: canvas_size.0 - 8,
             },
         );
     }

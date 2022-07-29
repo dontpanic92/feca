@@ -46,10 +46,23 @@ impl HtmlDom {
                         .unwrap_or("".to_string()),
                 );
 
+                let style = t
+                    .attributes()
+                    .get("style")
+                    .map(|style| {
+                        style.map(|style| {
+                            std::str::from_utf8(style.as_bytes())
+                                .unwrap_or("")
+                                .to_string()
+                        })
+                    })
+                    .flatten()
+                    .unwrap_or("".to_string());
+
                 match t.name().as_utf8_str().to_lowercase().as_str() {
                     "html" => Some(html::new_core_html(children, id)),
                     "head" => Some(head::new_core_head(children, id)),
-                    "body" => Some(body::new_core_body(children, id)),
+                    "body" => Some(body::new_core_body(children, id, style)),
                     "p" => Some(paragraph::new_core_paragraph(children, id)),
                     "i" => Some(html_element::new_i_element(children, id)),
                     "a" => Some(html_element::new_a_element(children, id)),

@@ -54,6 +54,10 @@ impl CairoRenderer {
         &self.pango_context
     }
 
+    pub fn canvas_size(&self) -> (i32, i32) {
+        (self.canvas_width as i32, self.canvas_height as i32)
+    }
+
     fn create_surface_from_winit(window: &winit::window::Window) -> Win32Surface {
         match window.raw_window_handle() {
             raw_window_handle::RawWindowHandle::Win32(Win32WindowHandle { hwnd, .. }) => {

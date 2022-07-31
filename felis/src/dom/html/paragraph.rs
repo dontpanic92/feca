@@ -10,7 +10,7 @@ use crate::{
     style::Style,
 };
 
-use super::html_element::{CoreHtmlElement, CoreHtmlElementBase, HtmlElementProps};
+use super::html_element::{Attributes, CoreHtmlElement, CoreHtmlElementBase, HtmlElementProps};
 
 xcdt::declare_xcdt!(
     CoreParagraph,
@@ -30,7 +30,11 @@ impl ParagraphProps {
     }
 }
 
-pub fn new_core_paragraph(children: Vec<ComRc<INode>>, id: ComRc<IDomString>) -> ComRc<INode> {
+pub fn new_core_paragraph(
+    children: Vec<ComRc<INode>>,
+    id: ComRc<IDomString>,
+    attributes: Attributes,
+) -> ComRc<INode> {
     ComRc::<INode>::from_object(HtmlParagraphElement {
         0: CoreParagraph::builder()
             .with(NodeProps::new(NodeType::ElementNode, children))
@@ -38,6 +42,7 @@ pub fn new_core_paragraph(children: Vec<ComRc<INode>>, id: ComRc<IDomString>) ->
             .with(HtmlElementProps::new(
                 DomString::new("".to_string()),
                 Style::default(),
+                attributes,
             ))
             .with(ParagraphProps::new())
             .build(),

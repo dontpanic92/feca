@@ -98,3 +98,11 @@ interface IHtmlParagraphElement: IHtmlElement {
 
 [uuid(847bec20-3ab2-41f9-bfd5-ae1bed0c5f41), rust_inner_field(0)]
 class HtmlParagraphElement: IHtmlParagraphElement, IRenderable {}
+
+[uuid(0ccec5a8-23af-4b91-b4f9-27ebe63dcd6f)]
+interface IHtmlDivElement: IHtmlElement {
+}
+
+[uuid(6fb4f5d0-10e1-4f6c-b794-fdeacc63bd1e), rust_inner_field(0)]
+class HtmlDivElement: IHtmlDivElement, IRenderable {}
+

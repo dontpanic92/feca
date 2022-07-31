@@ -13,7 +13,7 @@ use crate::{
 };
 
 use super::{
-    html_element::{CoreHtmlElement, CoreHtmlElementBase, HtmlElementProps},
+    html_element::{Attributes, CoreHtmlElement, CoreHtmlElementBase, HtmlElementProps},
     HtmlDom,
 };
 
@@ -51,7 +51,11 @@ impl<T: 'static + XcDataType> IHtmlScriptElementImpl for CoreScriptBase<T> {
     }
 }
 
-pub fn new_core_script(children: Vec<ComRc<INode>>, id: ComRc<IDomString>) -> ComRc<INode> {
+pub fn new_core_script(
+    children: Vec<ComRc<INode>>,
+    id: ComRc<IDomString>,
+    attributes: Attributes,
+) -> ComRc<INode> {
     ComRc::<INode>::from_object(Script {
         0: CoreScript::builder()
             .with(NodeProps::new(NodeType::ElementNode, children))
@@ -59,6 +63,7 @@ pub fn new_core_script(children: Vec<ComRc<INode>>, id: ComRc<IDomString>) -> Co
             .with(HtmlElementProps::new(
                 DomString::new("".to_string()),
                 Style::default(),
+                attributes,
             ))
             .with(ScriptProps::new())
             .build(),

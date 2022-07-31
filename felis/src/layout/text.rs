@@ -62,7 +62,6 @@ impl TextLayout {
             desc.set_weight(pango_weight);
         }
 
-        println!("{:?}", text);
         layout.set_text(text);
         layout.set_width(content_boundary.width * pango::SCALE);
         layout.set_font_description(Some(&desc));

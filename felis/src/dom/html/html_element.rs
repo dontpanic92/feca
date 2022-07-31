@@ -1,3 +1,5 @@
+use std::collections::HashMap;
+
 use crosscom::ComRc;
 use xcdt::XcDataType;
 
@@ -24,13 +26,25 @@ xcdt::declare_xcdt!(
 pub struct HtmlElement(pub CoreHtmlElement);
 ComObject_HtmlElement!(super::HtmlElement);
 
+pub type Attributes = HashMap<String, Option<String>>;
+
 pub struct HtmlElementProps {
     title: ComRc<IDomString>,
     style: Style,
 }
 
 impl HtmlElementProps {
-    pub fn new(title: ComRc<IDomString>, style: Style) -> Self {
+    pub fn new(title: ComRc<IDomString>, default_style: Style, attributes: Attributes) -> Self {
+        let inline_style = attributes
+            .get("style")
+            .map(|style| crate::style::parser::parse(style.as_deref().unwrap_or("")).ok())
+            .flatten()
+            .unwrap_or_default();
+        let style = if inline_style.0.len() == 0 {
+            Style::merge(&default_style, &inline_style.1)
+        } else {
+            default_style
+        };
         Self { title, style }
     }
 }
@@ -72,17 +86,26 @@ pub fn new_core_html_element(
     id: ComRc<IDomString>,
     tag: &str,
     style: Style,
+    attributes: Attributes,
 ) -> ComRc<INode> {
     ComRc::<INode>::from_object(HtmlElement {
         0: CoreHtmlElement::builder()
             .with(NodeProps::new(NodeType::ElementNode, children))
             .with(ElementProps::new(id, tag))
-            .with(HtmlElementProps::new(DomString::new("".to_string()), style))
+            .with(HtmlElementProps::new(
+                DomString::new("".to_string()),
+                style,
+                attributes,
+            ))
             .build(),
     })
 }
 
-pub fn new_i_element(children: Vec<ComRc<INode>>, id: ComRc<IDomString>) -> ComRc<INode> {
+pub fn new_i_element(
+    children: Vec<ComRc<INode>>,
+    id: ComRc<IDomString>,
+    attributes: Attributes,
+) -> ComRc<INode> {
     new_core_html_element(
         children,
         id,
@@ -92,10 +115,15 @@ pub fn new_i_element(children: Vec<ComRc<INode>>, id: ComRc<IDomString>) -> ComR
             display: Display::Inline,
             ..Style::default()
         },
+        attributes,
     )
 }
 
-pub fn new_a_element(children: Vec<ComRc<INode>>, id: ComRc<IDomString>) -> ComRc<INode> {
+pub fn new_a_element(
+    children: Vec<ComRc<INode>>,
+    id: ComRc<IDomString>,
+    attributes: Attributes,
+) -> ComRc<INode> {
     new_core_html_element(
         children,
         id,
@@ -106,14 +134,15 @@ pub fn new_a_element(children: Vec<ComRc<INode>>, id: ComRc<IDomString>) -> ComR
             display: Display::Inline,
             ..Style::default()
         },
+        attributes,
     )
 }
 
 macro_rules! new_element {
     ($name: ident, $style: expr) => {
         paste::paste! {
-            pub fn [<new_ $name _element>](children: Vec<ComRc<INode>>, id:  ComRc<IDomString>) -> ComRc<INode> {
-                new_core_html_element(children, id, stringify!($name), $style)
+            pub fn [<new_ $name _element>](children: Vec<ComRc<INode>>, id: ComRc<IDomString>, attributes: Attributes) -> ComRc<INode> {
+                new_core_html_element(children, id, stringify!($name), $style, attributes)
             }
         }
     };

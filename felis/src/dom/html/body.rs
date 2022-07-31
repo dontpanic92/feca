@@ -10,7 +10,7 @@ use crate::{
     style::Style,
 };
 
-use super::html_element::{CoreHtmlElement, CoreHtmlElementBase, HtmlElementProps};
+use super::html_element::{Attributes, CoreHtmlElement, CoreHtmlElementBase, HtmlElementProps};
 
 xcdt::declare_xcdt!(CoreBody, BodyProps, CoreHtmlElement, CoreHtmlElementBase);
 
@@ -28,16 +28,16 @@ impl BodyProps {
 pub fn new_core_body(
     children: Vec<ComRc<INode>>,
     id: ComRc<IDomString>,
-    style: String,
+    attributes: Attributes,
 ) -> ComRc<INode> {
-    let style = crate::style::parser::parse(&style).unwrap_or_default();
     ComRc::<INode>::from_object(HtmlBodyElement {
         0: CoreBody::builder()
             .with(NodeProps::new(NodeType::ElementNode, children))
             .with(ElementProps::new(id, "body"))
             .with(HtmlElementProps::new(
                 DomString::new("".to_string()),
-                style.1,
+                Style::default(),
+                attributes,
             ))
             .with(BodyProps::new())
             .build(),

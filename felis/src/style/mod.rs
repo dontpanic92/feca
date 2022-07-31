@@ -11,6 +11,7 @@ pub struct Style {
     pub font_weight: Option<String>,
     pub text_decoration_line: Option<TextDecorationLine>,
     pub display: Display,
+    pub justify_content: Option<JustifyContent>,
 }
 
 impl Style {
@@ -34,6 +35,10 @@ impl Style {
             match *key {
                 "display" => {
                     style.display = Display::try_from(*value).unwrap_or_default();
+                }
+                "justify-content" => {
+                    style.justify_content =
+                        Some(JustifyContent::try_from(*value).unwrap_or_default());
                 }
                 _ => {}
             }
@@ -76,6 +81,7 @@ impl Style {
         merge_style!(font_weight);
         merge_style!(text_decoration_line);
         merge_style_inherit2!(display, Display);
+        merge_style!(justify_content);
 
         ret
     }
@@ -159,5 +165,40 @@ impl From<&str> for Display {
 impl Default for Display {
     fn default() -> Self {
         Self::Inherit
+    }
+}
+
+#[derive(Copy, Clone, PartialEq, Debug)]
+pub enum JustifyContent {
+    FlexStart,
+    FlexEnd,
+    Start,
+    End,
+    Center,
+    SpaceBetween,
+    SpaceAround,
+    SpaceEvenly,
+}
+
+impl Default for JustifyContent {
+    fn default() -> Self {
+        Self::FlexStart
+    }
+}
+
+impl From<&str> for JustifyContent {
+    fn from(value: &str) -> Self {
+        println!("{value}");
+        match value {
+            "flex-start" => JustifyContent::FlexStart,
+            "flex-end" => JustifyContent::FlexEnd,
+            "start" => JustifyContent::Start,
+            "end" => JustifyContent::End,
+            "center" => JustifyContent::Center,
+            "space-between" => JustifyContent::SpaceBetween,
+            "space-around" => JustifyContent::SpaceAround,
+            "space-evenly" => JustifyContent::SpaceEvenly,
+            _ => JustifyContent::FlexStart,
+        }
     }
 }

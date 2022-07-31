@@ -1,3 +1,5 @@
+use std::collections::HashMap;
+
 use crosscom::ComRc;
 
 use crate::defs::INode;
@@ -5,6 +7,7 @@ use crate::defs::INode;
 use super::core::{string::DomString, text};
 
 pub mod body;
+pub mod div;
 pub mod head;
 pub mod html;
 pub mod html_element;
@@ -46,29 +49,35 @@ impl HtmlDom {
                         .unwrap_or("".to_string()),
                 );
 
-                let style = t
-                    .attributes()
-                    .get("style")
-                    .map(|style| {
-                        style.map(|style| {
-                            std::str::from_utf8(style.as_bytes())
-                                .unwrap_or("")
-                                .to_string()
-                        })
+                /*let style = t
+                .attributes()
+                .get("style")
+                .map(|style| {
+                    style.map(|style| {
+                        std::str::from_utf8(style.as_bytes())
+                            .unwrap_or("")
+                            .to_string()
                     })
-                    .flatten()
-                    .unwrap_or("".to_string());
+                })
+                .flatten()
+                .unwrap_or("".to_string());*/
+                let attributes = t
+                    .attributes()
+                    .iter()
+                    .map(|attr| (attr.0.into_owned(), attr.1.map(|str| str.into_owned())))
+                    .collect::<HashMap<String, Option<String>>>();
 
                 match t.name().as_utf8_str().to_lowercase().as_str() {
-                    "html" => Some(html::new_core_html(children, id)),
-                    "head" => Some(head::new_core_head(children, id)),
-                    "body" => Some(body::new_core_body(children, id, style)),
-                    "p" => Some(paragraph::new_core_paragraph(children, id)),
-                    "i" => Some(html_element::new_i_element(children, id)),
-                    "a" => Some(html_element::new_a_element(children, id)),
-                    "b" => Some(html_element::new_b_element(children, id)),
-                    "h1" => Some(html_element::new_h1_element(children, id)),
-                    "script" => Some(script::new_core_script(children, id)),
+                    "html" => Some(html::new_core_html(children, id, attributes)),
+                    "head" => Some(head::new_core_head(children, id, attributes)),
+                    "body" => Some(body::new_core_body(children, id, attributes)),
+                    "p" => Some(paragraph::new_core_paragraph(children, id, attributes)),
+                    "i" => Some(html_element::new_i_element(children, id, attributes)),
+                    "a" => Some(html_element::new_a_element(children, id, attributes)),
+                    "b" => Some(html_element::new_b_element(children, id, attributes)),
+                    "h1" => Some(html_element::new_h1_element(children, id, attributes)),
+                    "script" => Some(script::new_core_script(children, id, attributes)),
+                    "div" => Some(div::new_div(children, id, attributes)),
                     _ => None,
                 }
             }

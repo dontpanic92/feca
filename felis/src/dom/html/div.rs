@@ -1,48 +1,45 @@
 use crosscom::ComRc;
 
 use crate::{
-    defs::{ComObject_HtmlHtmlElement, IDomString, INode},
+    defs::{ComObject_HtmlDivElement, IDomString, INode},
     dom::core::{
         element::ElementProps,
         node::{NodeProps, NodeType},
         string::DomString,
     },
-    style::{Display, Style},
+    style::Style,
 };
 
 use super::html_element::{Attributes, CoreHtmlElement, CoreHtmlElementBase, HtmlElementProps};
 
-xcdt::declare_xcdt!(CoreHtml, HtmlProps, CoreHtmlElement, CoreHtmlElementBase);
+xcdt::declare_xcdt!(CoreDiv, DivProps, CoreHtmlElement, CoreHtmlElementBase);
 
-pub struct HtmlHtmlElement(pub CoreHtml);
-ComObject_HtmlHtmlElement!(super::HtmlHtmlElement);
+pub struct HtmlDivElement(pub CoreDiv);
+ComObject_HtmlDivElement!(super::HtmlDivElement);
 
-pub struct HtmlProps;
+pub struct DivProps {}
 
-impl HtmlProps {
+impl DivProps {
     pub fn new() -> Self {
-        Self
+        Self {}
     }
 }
 
-pub fn new_core_html(
+pub fn new_div(
     children: Vec<ComRc<INode>>,
     id: ComRc<IDomString>,
     attributes: Attributes,
 ) -> ComRc<INode> {
-    ComRc::<INode>::from_object(HtmlHtmlElement {
-        0: CoreHtml::builder()
+    ComRc::<INode>::from_object(HtmlDivElement {
+        0: CoreDiv::builder()
             .with(NodeProps::new(NodeType::ElementNode, children))
-            .with(ElementProps::new(id, "html"))
+            .with(ElementProps::new(id, "div"))
             .with(HtmlElementProps::new(
                 DomString::new("".to_string()),
-                Style {
-                    display: Display::Block,
-                    ..Style::default()
-                },
+                Style::default(),
                 attributes,
             ))
-            .with(HtmlProps::new())
+            .with(DivProps::new())
             .build(),
     })
 }

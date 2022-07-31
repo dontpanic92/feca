@@ -1,17 +1,22 @@
 use std::time::Instant;
 
 use catus::interpreter::Interpreter;
-use felis::{CairoRenderer, DomString, Page};
+use felis::{CairoRenderer, DomString, FelisAction, Page};
 use winit::{
-    event::{Event, WindowEvent},
-    event_loop::{ControlFlow, EventLoop},
+    event::{ElementState, Event, WindowEvent},
+    event_loop::{ControlFlow, EventLoop, EventLoopBuilder},
     window::{Window, WindowBuilder},
 };
 
 use crate::runtime::{setup_js_runtime, timer_queue::TIMER_QUEUE};
 
+#[derive(Debug)]
+pub enum FecaEvent {
+    RequestLoadPage(String),
+}
+
 pub struct View {
-    event_loop: Option<EventLoop<()>>,
+    event_loop: Option<EventLoop<FecaEvent>>,
     window: Window,
     page: Option<Page>,
     renderer: CairoRenderer,
@@ -20,8 +25,9 @@ pub struct View {
 
 impl View {
     pub fn new() -> Self {
-        let event_loop = Some(EventLoop::new());
+        let event_loop = Some(EventLoopBuilder::<FecaEvent>::with_user_event().build());
         let window = WindowBuilder::new()
+            .with_title("Fica")
             .build(event_loop.as_ref().unwrap())
             .unwrap();
         let renderer = CairoRenderer::new_from_winit(&window);
@@ -58,12 +64,18 @@ impl View {
 
     pub fn run(mut self) {
         let event_loop = self.event_loop.take().unwrap();
+        let proxy = event_loop.create_proxy();
         event_loop.run(move |event, _, control_flow| {
             *control_flow = ControlFlow::Wait;
 
             self.handle_timer(control_flow);
 
             match event {
+                Event::UserEvent(FecaEvent::RequestLoadPage(uri)) => {
+                    let content = std::fs::read_to_string(uri).unwrap();
+                    self.load_html_string(&content);
+                    self.window.request_redraw();
+                }
                 Event::WindowEvent {
                     event: WindowEvent::CloseRequested,
                     window_id,
@@ -79,6 +91,32 @@ impl View {
                     ..
                 } => {
                     self.renderer = CairoRenderer::new_from_winit(&self.window);
+                }
+                Event::WindowEvent {
+                    event: WindowEvent::CursorMoved { position, .. },
+                    ..
+                } => {
+                    if let Some(page) = &mut self.page {
+                        page.on_mouse_move(position.x, position.y, &self.window);
+                    }
+                }
+                Event::WindowEvent {
+                    event:
+                        WindowEvent::MouseInput {
+                            state: ElementState::Pressed,
+                            ..
+                        },
+                    ..
+                } => {
+                    if let Some(page) = &mut self.page {
+                        let action = page.on_mouse_click();
+                        match action {
+                            FelisAction::None => {}
+                            FelisAction::RequestLoadPage(uri) => {
+                                proxy.send_event(FecaEvent::RequestLoadPage(uri)).unwrap();
+                            }
+                        }
+                    }
                 }
                 _ => (),
             }

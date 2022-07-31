@@ -1254,6 +1254,13 @@ pub struct IHtmlElementVirtualTable {
     pub tag: unsafe extern "system" fn(
         this: *const *const std::os::raw::c_void,
     ) -> *const *const std::os::raw::c_void,
+    pub on_mouse_move: fn(
+        this: *const *const std::os::raw::c_void,
+        x: f64,
+        y: f64,
+        window: &winit::window::Window,
+    ) -> crosscom::Void,
+    pub on_mouse_click: fn(this: *const *const std::os::raw::c_void) -> crate::page::FelisAction,
 }
 
 #[repr(C)]
@@ -1360,9 +1367,26 @@ impl IHtmlElement {
             ((*self.vtable).tag)(this).into()
         }
     }
+
+    pub fn on_mouse_move(&self, x: f64, y: f64, window: &winit::window::Window) -> crosscom::Void {
+        unsafe {
+            let this = self as *const IHtmlElement as *const *const std::os::raw::c_void;
+            ((*self.vtable).on_mouse_move)(this, x.into(), y.into(), window.into()).into()
+        }
+    }
+
+    pub fn on_mouse_click(&self) -> crate::page::FelisAction {
+        unsafe {
+            let this = self as *const IHtmlElement as *const *const std::os::raw::c_void;
+            ((*self.vtable).on_mouse_click)(this).into()
+        }
+    }
 }
 
-pub trait IHtmlElementImpl {}
+pub trait IHtmlElementImpl {
+    fn on_mouse_move(&self, x: f64, y: f64, window: &winit::window::Window) -> crosscom::Void;
+    fn on_mouse_click(&self) -> crate::page::FelisAction;
+}
 
 impl crosscom::ComInterface for IHtmlElement {
     // 2be9cc09-3c60-45b9-9084-e4e50ab94ad2
@@ -1469,6 +1493,27 @@ macro_rules! ComObject_HtmlElement {
                 }
 
                 (previous - 1) as std::os::raw::c_long
+            }
+
+            fn on_mouse_move(
+                this: *const *const std::os::raw::c_void,
+                x: f64,
+                y: f64,
+                window: &winit::window::Window,
+            ) -> crosscom::Void {
+                unsafe {
+                    let object = crosscom::get_object::<HtmlElementCcw>(this);
+                    (*object).inner.0.on_mouse_move(x, y, window)
+                }
+            }
+
+            fn on_mouse_click(
+                this: *const *const std::os::raw::c_void,
+            ) -> crate::page::FelisAction {
+                unsafe {
+                    let object = crosscom::get_object::<HtmlElementCcw>(this);
+                    (*object).inner.0.on_mouse_click()
+                }
             }
 
             fn display(this: *const *const std::os::raw::c_void) -> crate::style::Display {
@@ -1584,6 +1629,8 @@ macro_rules! ComObject_HtmlElement {
                         get_element_by_id,
                         id,
                         tag,
+                        on_mouse_move,
+                        on_mouse_click,
                     },
                 };
 
@@ -1669,6 +1716,13 @@ pub struct IHtmlHtmlElementVirtualTable {
     pub tag: unsafe extern "system" fn(
         this: *const *const std::os::raw::c_void,
     ) -> *const *const std::os::raw::c_void,
+    pub on_mouse_move: fn(
+        this: *const *const std::os::raw::c_void,
+        x: f64,
+        y: f64,
+        window: &winit::window::Window,
+    ) -> crosscom::Void,
+    pub on_mouse_click: fn(this: *const *const std::os::raw::c_void) -> crate::page::FelisAction,
 }
 
 #[repr(C)]
@@ -1773,6 +1827,20 @@ impl IHtmlHtmlElement {
         unsafe {
             let this = self as *const IHtmlHtmlElement as *const *const std::os::raw::c_void;
             ((*self.vtable).tag)(this).into()
+        }
+    }
+
+    pub fn on_mouse_move(&self, x: f64, y: f64, window: &winit::window::Window) -> crosscom::Void {
+        unsafe {
+            let this = self as *const IHtmlHtmlElement as *const *const std::os::raw::c_void;
+            ((*self.vtable).on_mouse_move)(this, x.into(), y.into(), window.into()).into()
+        }
+    }
+
+    pub fn on_mouse_click(&self) -> crate::page::FelisAction {
+        unsafe {
+            let this = self as *const IHtmlHtmlElement as *const *const std::os::raw::c_void;
+            ((*self.vtable).on_mouse_click)(this).into()
         }
     }
 }
@@ -1925,6 +1993,27 @@ macro_rules! ComObject_HtmlHtmlElement {
                 }
             }
 
+            fn on_mouse_move(
+                this: *const *const std::os::raw::c_void,
+                x: f64,
+                y: f64,
+                window: &winit::window::Window,
+            ) -> crosscom::Void {
+                unsafe {
+                    let object = crosscom::get_object::<HtmlHtmlElementCcw>(this);
+                    (*object).inner.0.on_mouse_move(x, y, window)
+                }
+            }
+
+            fn on_mouse_click(
+                this: *const *const std::os::raw::c_void,
+            ) -> crate::page::FelisAction {
+                unsafe {
+                    let object = crosscom::get_object::<HtmlHtmlElementCcw>(this);
+                    (*object).inner.0.on_mouse_click()
+                }
+            }
+
             unsafe extern "system" fn id(
                 this: *const *const std::os::raw::c_void,
             ) -> *const *const std::os::raw::c_void {
@@ -2005,6 +2094,8 @@ macro_rules! ComObject_HtmlHtmlElement {
                         get_element_by_id,
                         id,
                         tag,
+                        on_mouse_move,
+                        on_mouse_click,
                     },
                 };
 
@@ -2091,6 +2182,13 @@ pub struct IHtmlScriptElementVirtualTable {
     pub tag: unsafe extern "system" fn(
         this: *const *const std::os::raw::c_void,
     ) -> *const *const std::os::raw::c_void,
+    pub on_mouse_move: fn(
+        this: *const *const std::os::raw::c_void,
+        x: f64,
+        y: f64,
+        window: &winit::window::Window,
+    ) -> crosscom::Void,
+    pub on_mouse_click: fn(this: *const *const std::os::raw::c_void) -> crate::page::FelisAction,
     pub text: unsafe extern "system" fn(
         this: *const *const std::os::raw::c_void,
     ) -> *const *const std::os::raw::c_void,
@@ -2198,6 +2296,20 @@ impl IHtmlScriptElement {
         unsafe {
             let this = self as *const IHtmlScriptElement as *const *const std::os::raw::c_void;
             ((*self.vtable).tag)(this).into()
+        }
+    }
+
+    pub fn on_mouse_move(&self, x: f64, y: f64, window: &winit::window::Window) -> crosscom::Void {
+        unsafe {
+            let this = self as *const IHtmlScriptElement as *const *const std::os::raw::c_void;
+            ((*self.vtable).on_mouse_move)(this, x.into(), y.into(), window.into()).into()
+        }
+    }
+
+    pub fn on_mouse_click(&self) -> crate::page::FelisAction {
+        unsafe {
+            let this = self as *const IHtmlScriptElement as *const *const std::os::raw::c_void;
+            ((*self.vtable).on_mouse_click)(this).into()
         }
     }
 
@@ -2326,6 +2438,27 @@ macro_rules! ComObject_HtmlScriptElement {
                 (*object).inner.0.text().into()
             }
 
+            fn on_mouse_move(
+                this: *const *const std::os::raw::c_void,
+                x: f64,
+                y: f64,
+                window: &winit::window::Window,
+            ) -> crosscom::Void {
+                unsafe {
+                    let object = crosscom::get_object::<HtmlScriptElementCcw>(this);
+                    (*object).inner.0.on_mouse_move(x, y, window)
+                }
+            }
+
+            fn on_mouse_click(
+                this: *const *const std::os::raw::c_void,
+            ) -> crate::page::FelisAction {
+                unsafe {
+                    let object = crosscom::get_object::<HtmlScriptElementCcw>(this);
+                    (*object).inner.0.on_mouse_click()
+                }
+            }
+
             unsafe extern "system" fn id(
                 this: *const *const std::os::raw::c_void,
             ) -> *const *const std::os::raw::c_void {
@@ -2406,6 +2539,8 @@ macro_rules! ComObject_HtmlScriptElement {
                         get_element_by_id,
                         id,
                         tag,
+                        on_mouse_move,
+                        on_mouse_click,
                         text,
                     },
                 };
@@ -2474,6 +2609,13 @@ pub struct IHtmlHeadElementVirtualTable {
     pub tag: unsafe extern "system" fn(
         this: *const *const std::os::raw::c_void,
     ) -> *const *const std::os::raw::c_void,
+    pub on_mouse_move: fn(
+        this: *const *const std::os::raw::c_void,
+        x: f64,
+        y: f64,
+        window: &winit::window::Window,
+    ) -> crosscom::Void,
+    pub on_mouse_click: fn(this: *const *const std::os::raw::c_void) -> crate::page::FelisAction,
 }
 
 #[repr(C)]
@@ -2578,6 +2720,20 @@ impl IHtmlHeadElement {
         unsafe {
             let this = self as *const IHtmlHeadElement as *const *const std::os::raw::c_void;
             ((*self.vtable).tag)(this).into()
+        }
+    }
+
+    pub fn on_mouse_move(&self, x: f64, y: f64, window: &winit::window::Window) -> crosscom::Void {
+        unsafe {
+            let this = self as *const IHtmlHeadElement as *const *const std::os::raw::c_void;
+            ((*self.vtable).on_mouse_move)(this, x.into(), y.into(), window.into()).into()
+        }
+    }
+
+    pub fn on_mouse_click(&self) -> crate::page::FelisAction {
+        unsafe {
+            let this = self as *const IHtmlHeadElement as *const *const std::os::raw::c_void;
+            ((*self.vtable).on_mouse_click)(this).into()
         }
     }
 }
@@ -2730,6 +2886,27 @@ macro_rules! ComObject_HtmlHeadElement {
                 }
             }
 
+            fn on_mouse_move(
+                this: *const *const std::os::raw::c_void,
+                x: f64,
+                y: f64,
+                window: &winit::window::Window,
+            ) -> crosscom::Void {
+                unsafe {
+                    let object = crosscom::get_object::<HtmlHeadElementCcw>(this);
+                    (*object).inner.0.on_mouse_move(x, y, window)
+                }
+            }
+
+            fn on_mouse_click(
+                this: *const *const std::os::raw::c_void,
+            ) -> crate::page::FelisAction {
+                unsafe {
+                    let object = crosscom::get_object::<HtmlHeadElementCcw>(this);
+                    (*object).inner.0.on_mouse_click()
+                }
+            }
+
             unsafe extern "system" fn id(
                 this: *const *const std::os::raw::c_void,
             ) -> *const *const std::os::raw::c_void {
@@ -2810,6 +2987,8 @@ macro_rules! ComObject_HtmlHeadElement {
                         get_element_by_id,
                         id,
                         tag,
+                        on_mouse_move,
+                        on_mouse_click,
                     },
                 };
 
@@ -2896,6 +3075,13 @@ pub struct IHtmlBodyElementVirtualTable {
     pub tag: unsafe extern "system" fn(
         this: *const *const std::os::raw::c_void,
     ) -> *const *const std::os::raw::c_void,
+    pub on_mouse_move: fn(
+        this: *const *const std::os::raw::c_void,
+        x: f64,
+        y: f64,
+        window: &winit::window::Window,
+    ) -> crosscom::Void,
+    pub on_mouse_click: fn(this: *const *const std::os::raw::c_void) -> crate::page::FelisAction,
 }
 
 #[repr(C)]
@@ -3000,6 +3186,20 @@ impl IHtmlBodyElement {
         unsafe {
             let this = self as *const IHtmlBodyElement as *const *const std::os::raw::c_void;
             ((*self.vtable).tag)(this).into()
+        }
+    }
+
+    pub fn on_mouse_move(&self, x: f64, y: f64, window: &winit::window::Window) -> crosscom::Void {
+        unsafe {
+            let this = self as *const IHtmlBodyElement as *const *const std::os::raw::c_void;
+            ((*self.vtable).on_mouse_move)(this, x.into(), y.into(), window.into()).into()
+        }
+    }
+
+    pub fn on_mouse_click(&self) -> crate::page::FelisAction {
+        unsafe {
+            let this = self as *const IHtmlBodyElement as *const *const std::os::raw::c_void;
+            ((*self.vtable).on_mouse_click)(this).into()
         }
     }
 }
@@ -3152,6 +3352,27 @@ macro_rules! ComObject_HtmlBodyElement {
                 }
             }
 
+            fn on_mouse_move(
+                this: *const *const std::os::raw::c_void,
+                x: f64,
+                y: f64,
+                window: &winit::window::Window,
+            ) -> crosscom::Void {
+                unsafe {
+                    let object = crosscom::get_object::<HtmlBodyElementCcw>(this);
+                    (*object).inner.0.on_mouse_move(x, y, window)
+                }
+            }
+
+            fn on_mouse_click(
+                this: *const *const std::os::raw::c_void,
+            ) -> crate::page::FelisAction {
+                unsafe {
+                    let object = crosscom::get_object::<HtmlBodyElementCcw>(this);
+                    (*object).inner.0.on_mouse_click()
+                }
+            }
+
             unsafe extern "system" fn id(
                 this: *const *const std::os::raw::c_void,
             ) -> *const *const std::os::raw::c_void {
@@ -3232,6 +3453,8 @@ macro_rules! ComObject_HtmlBodyElement {
                         get_element_by_id,
                         id,
                         tag,
+                        on_mouse_move,
+                        on_mouse_click,
                     },
                 };
 
@@ -3318,6 +3541,13 @@ pub struct IHtmlParagraphElementVirtualTable {
     pub tag: unsafe extern "system" fn(
         this: *const *const std::os::raw::c_void,
     ) -> *const *const std::os::raw::c_void,
+    pub on_mouse_move: fn(
+        this: *const *const std::os::raw::c_void,
+        x: f64,
+        y: f64,
+        window: &winit::window::Window,
+    ) -> crosscom::Void,
+    pub on_mouse_click: fn(this: *const *const std::os::raw::c_void) -> crate::page::FelisAction,
 }
 
 #[repr(C)]
@@ -3422,6 +3652,20 @@ impl IHtmlParagraphElement {
         unsafe {
             let this = self as *const IHtmlParagraphElement as *const *const std::os::raw::c_void;
             ((*self.vtable).tag)(this).into()
+        }
+    }
+
+    pub fn on_mouse_move(&self, x: f64, y: f64, window: &winit::window::Window) -> crosscom::Void {
+        unsafe {
+            let this = self as *const IHtmlParagraphElement as *const *const std::os::raw::c_void;
+            ((*self.vtable).on_mouse_move)(this, x.into(), y.into(), window.into()).into()
+        }
+    }
+
+    pub fn on_mouse_click(&self) -> crate::page::FelisAction {
+        unsafe {
+            let this = self as *const IHtmlParagraphElement as *const *const std::os::raw::c_void;
+            ((*self.vtable).on_mouse_click)(this).into()
         }
     }
 }
@@ -3574,6 +3818,27 @@ macro_rules! ComObject_HtmlParagraphElement {
                 }
             }
 
+            fn on_mouse_move(
+                this: *const *const std::os::raw::c_void,
+                x: f64,
+                y: f64,
+                window: &winit::window::Window,
+            ) -> crosscom::Void {
+                unsafe {
+                    let object = crosscom::get_object::<HtmlParagraphElementCcw>(this);
+                    (*object).inner.0.on_mouse_move(x, y, window)
+                }
+            }
+
+            fn on_mouse_click(
+                this: *const *const std::os::raw::c_void,
+            ) -> crate::page::FelisAction {
+                unsafe {
+                    let object = crosscom::get_object::<HtmlParagraphElementCcw>(this);
+                    (*object).inner.0.on_mouse_click()
+                }
+            }
+
             unsafe extern "system" fn id(
                 this: *const *const std::os::raw::c_void,
             ) -> *const *const std::os::raw::c_void {
@@ -3654,6 +3919,8 @@ macro_rules! ComObject_HtmlParagraphElement {
                         get_element_by_id,
                         id,
                         tag,
+                        on_mouse_move,
+                        on_mouse_click,
                     },
                 };
 
@@ -3740,6 +4007,13 @@ pub struct IHtmlDivElementVirtualTable {
     pub tag: unsafe extern "system" fn(
         this: *const *const std::os::raw::c_void,
     ) -> *const *const std::os::raw::c_void,
+    pub on_mouse_move: fn(
+        this: *const *const std::os::raw::c_void,
+        x: f64,
+        y: f64,
+        window: &winit::window::Window,
+    ) -> crosscom::Void,
+    pub on_mouse_click: fn(this: *const *const std::os::raw::c_void) -> crate::page::FelisAction,
 }
 
 #[repr(C)]
@@ -3844,6 +4118,20 @@ impl IHtmlDivElement {
         unsafe {
             let this = self as *const IHtmlDivElement as *const *const std::os::raw::c_void;
             ((*self.vtable).tag)(this).into()
+        }
+    }
+
+    pub fn on_mouse_move(&self, x: f64, y: f64, window: &winit::window::Window) -> crosscom::Void {
+        unsafe {
+            let this = self as *const IHtmlDivElement as *const *const std::os::raw::c_void;
+            ((*self.vtable).on_mouse_move)(this, x.into(), y.into(), window.into()).into()
+        }
+    }
+
+    pub fn on_mouse_click(&self) -> crate::page::FelisAction {
+        unsafe {
+            let this = self as *const IHtmlDivElement as *const *const std::os::raw::c_void;
+            ((*self.vtable).on_mouse_click)(this).into()
         }
     }
 }
@@ -3996,6 +4284,27 @@ macro_rules! ComObject_HtmlDivElement {
                 }
             }
 
+            fn on_mouse_move(
+                this: *const *const std::os::raw::c_void,
+                x: f64,
+                y: f64,
+                window: &winit::window::Window,
+            ) -> crosscom::Void {
+                unsafe {
+                    let object = crosscom::get_object::<HtmlDivElementCcw>(this);
+                    (*object).inner.0.on_mouse_move(x, y, window)
+                }
+            }
+
+            fn on_mouse_click(
+                this: *const *const std::os::raw::c_void,
+            ) -> crate::page::FelisAction {
+                unsafe {
+                    let object = crosscom::get_object::<HtmlDivElementCcw>(this);
+                    (*object).inner.0.on_mouse_click()
+                }
+            }
+
             unsafe extern "system" fn id(
                 this: *const *const std::os::raw::c_void,
             ) -> *const *const std::os::raw::c_void {
@@ -4076,6 +4385,8 @@ macro_rules! ComObject_HtmlDivElement {
                         get_element_by_id,
                         id,
                         tag,
+                        on_mouse_move,
+                        on_mouse_click,
                     },
                 };
 

@@ -1,12 +1,19 @@
 use crosscom::ComRc;
+use winit::window::Window;
 
 use crate::{
     common::Rectangle,
-    defs::{INode, IRenderable},
+    defs::{IHtmlElement, INode, IRenderable},
     dom::html::HtmlDom,
     rendering::cairo::CairoRenderer,
     style::Style,
 };
+
+#[derive(Clone, PartialEq)]
+pub enum FelisAction {
+    None,
+    RequestLoadPage(String),
+}
 
 pub struct Page {
     dom: HtmlDom,
@@ -49,5 +56,19 @@ impl Page {
         root.query_interface::<IRenderable>()
             .unwrap()
             .paint(renderer, &self.style);
+    }
+
+    pub fn on_mouse_move(&self, x: f64, y: f64, window: &Window) {
+        if let Some(element) = self.dom.root().unwrap().query_interface::<IHtmlElement>() {
+            element.on_mouse_move(x, y, window);
+        }
+    }
+
+    pub fn on_mouse_click(&self) -> FelisAction {
+        if let Some(element) = self.dom.root().unwrap().query_interface::<IHtmlElement>() {
+            element.on_mouse_click()
+        } else {
+            FelisAction::None
+        }
     }
 }

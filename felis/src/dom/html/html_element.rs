@@ -1,18 +1,21 @@
-use std::collections::HashMap;
+use std::{cell::RefCell, collections::HashMap};
 
 use crosscom::ComRc;
+use winit::window::CursorIcon;
 use xcdt::XcDataType;
 
 use crate::{
-    common::Color,
+    common::{Color, Rectangle},
     defs::{
-        ComObject_HtmlElement, IDomString, IHtmlElementImpl, INode, INodeImpl, IRenderableImpl,
+        ComObject_HtmlElement, IDomString, IElementImpl, IHtmlElement, IHtmlElementImpl, INode,
+        INodeImpl, IRenderableImpl,
     },
     dom::core::{
         element::{CoreElement, CoreElementBase, ElementProps},
         node::{layout_children, paint_children, NodeProps, NodeType},
         string::DomString,
     },
+    page::FelisAction,
     style::{Display, FontStyle, Style, TextDecorationLine},
 };
 
@@ -31,6 +34,9 @@ pub type Attributes = HashMap<String, Option<String>>;
 pub struct HtmlElementProps {
     title: ComRc<IDomString>,
     style: Style,
+    boundary: RefCell<Rectangle>,
+    hover: RefCell<bool>,
+    attributes: Attributes,
 }
 
 impl HtmlElementProps {
@@ -45,11 +51,60 @@ impl HtmlElementProps {
         } else {
             default_style
         };
-        Self { title, style }
+        Self {
+            title,
+            style,
+            boundary: RefCell::new(Rectangle::new(0, 0, 0, 0)),
+            hover: RefCell::new(false),
+            attributes,
+        }
     }
 }
 
-impl<T: 'static + XcDataType> IHtmlElementImpl for CoreHtmlElementBase<T> {}
+impl<T: 'static + XcDataType> IHtmlElementImpl for CoreHtmlElementBase<T> {
+    fn on_mouse_move(&self, x: f64, y: f64, window: &winit::window::Window) -> crosscom::Void {
+        if self.HtmlElementProps().boundary.borrow().point_in(x, y) {
+            if self.tag().str() == "a" {
+                window.set_cursor_icon(CursorIcon::Hand);
+                *self.HtmlElementProps().hover.borrow_mut() = true;
+            } else {
+                window.set_cursor_icon(CursorIcon::Arrow);
+                *self.HtmlElementProps().hover.borrow_mut() = false;
+            }
+        } else {
+            *self.HtmlElementProps().hover.borrow_mut() = false;
+        }
+
+        for i in 0..self.children().len() {
+            let node = self.children().get(i);
+            let element = node.query_interface::<IHtmlElement>();
+            if let Some(element) = element {
+                element.on_mouse_move(x, y, window);
+            }
+        }
+    }
+
+    fn on_mouse_click(&self) -> FelisAction {
+        if *self.HtmlElementProps().hover.borrow() == true && self.tag().str() == "a" {
+            if let Some(&Some(href)) = self.HtmlElementProps().attributes.get("href").as_ref() {
+                return FelisAction::RequestLoadPage(href.to_string());
+            }
+        }
+
+        for i in 0..self.children().len() {
+            let node = self.children().get(i);
+            let element = node.query_interface::<IHtmlElement>();
+            if let Some(element) = element {
+                let ret = element.on_mouse_click();
+                if ret != FelisAction::None {
+                    return ret;
+                }
+            }
+        }
+
+        FelisAction::None
+    }
+}
 
 impl<T: 'static + XcDataType> IRenderableImpl for CoreHtmlElementBase<T> {
     default fn layout(
@@ -59,12 +114,14 @@ impl<T: 'static + XcDataType> IRenderableImpl for CoreHtmlElementBase<T> {
         content_boundary: crate::common::Rectangle,
     ) -> crate::common::Rectangle {
         let style_computed = Style::merge(&self.HtmlElementProps().style, style_computed);
-        layout_children(
+        *self.HtmlElementProps().boundary.borrow_mut() = layout_children(
             self.children(),
             pango_context,
             &style_computed,
             content_boundary,
-        )
+        );
+
+        self.HtmlElementProps().boundary.borrow().clone()
     }
 
     default fn display(&self) -> Display {

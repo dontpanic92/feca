@@ -24,6 +24,10 @@ impl TimerQueue {
     pub fn pop(&mut self) -> Option<JsValue> {
         self.heap.pop().map(|t| t.value)
     }
+
+    pub fn clear(&mut self) {
+        self.heap.clear();
+    }
 }
 
 struct TimerObject {

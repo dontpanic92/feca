@@ -3,6 +3,7 @@
 
 pub use crate::rendering::cairo::CairoRenderer;
 pub use dom::core::string::DomString;
+pub use page::FelisAction;
 pub use page::Page;
 
 mod common;

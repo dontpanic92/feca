@@ -16,6 +16,8 @@ pub mod element;
 pub mod timer_queue;
 
 pub fn setup_js_runtime(interpreter: &mut Interpreter, document: ComRc<INode>) {
+    TIMER_QUEUE.with(|q| q.borrow_mut().clear());
+
     let globals = interpreter.global_symbols();
     let object = globals.get("Object").unwrap().clone();
     let function = globals.get("Function").unwrap().clone();

@@ -100,4 +100,11 @@ impl Rectangle {
     pub fn width(&self) -> i32 {
         self.width
     }
+
+    pub fn point_in(&self, x: f64, y: f64) -> bool {
+        x >= self.left as f64
+            && x <= self.right() as f64
+            && y >= self.top as f64
+            && y <= self.bottom() as f64
+    }
 }

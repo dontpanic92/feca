@@ -58,6 +58,10 @@ class Text: IText, IRenderable {}
 
 [uuid(2be9cc09-3c60-45b9-9084-e4e50ab94ad2)]
 interface IHtmlElement: IElement {
+    [internal(), rust()]
+    crosscom::Void on_mouse_move(f64 x, f64 y, &winit::window::Window window);
+    [internal(), rust()]
+    crate::page::FelisAction on_mouse_click();
 }
 
 [uuid(7f94e172-38d8-4e57-9824-485b70b0b824), rust_inner_field(0)]

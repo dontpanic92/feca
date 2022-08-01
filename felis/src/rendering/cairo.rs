@@ -1,4 +1,7 @@
-use cairo::{Context, FontFace, Win32Surface};
+use std::io::Cursor;
+
+use cairo::{Context, FontFace, ImageSurface, Pattern, Win32Surface};
+use image::RgbaImage;
 use raw_window_handle::{HasRawWindowHandle, Win32WindowHandle};
 use winapi::shared::windef::HWND;
 
@@ -46,6 +49,40 @@ impl CairoRenderer {
         self.context.restore().unwrap();
     }
 
+    pub fn render_png(&self, boundary: &Rectangle, mut img: RgbaImage) {
+        self.context.save().unwrap();
+
+        let width = img.width();
+        let height = img.height();
+        let buf = img.as_mut_ptr();
+        {
+            let img = unsafe {
+                cairo::ImageSurface::create_for_data_unsafe(
+                    buf,
+                    cairo::Format::ARgb32,
+                    width as i32,
+                    height as i32,
+                    (width * 4) as i32,
+                )
+                .unwrap()
+            };
+
+            self.context
+                .set_source_surface(&img, boundary.left as f64, boundary.top as f64)
+                .unwrap();
+            self.context.rectangle(
+                boundary.left as f64,
+                boundary.top as f64,
+                boundary.width as f64,
+                boundary.height as f64,
+            );
+            self.context.fill().unwrap();
+            self.flush();
+        }
+
+        self.context.restore().unwrap();
+    }
+
     pub fn context(&self) -> &Context {
         &self.context
     }
@@ -56,6 +93,10 @@ impl CairoRenderer {
 
     pub fn canvas_size(&self) -> (i32, i32) {
         (self.canvas_width as i32, self.canvas_height as i32)
+    }
+
+    pub fn flush(&self) {
+        self._surface.flush();
     }
 
     fn create_surface_from_winit(window: &winit::window::Window) -> Win32Surface {

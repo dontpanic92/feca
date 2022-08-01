@@ -110,3 +110,9 @@ interface IHtmlDivElement: IHtmlElement {
 [uuid(6fb4f5d0-10e1-4f6c-b794-fdeacc63bd1e), rust_inner_field(0)]
 class HtmlDivElement: IHtmlDivElement, IRenderable {}
 
+[uuid(066ad66a-267b-46e7-87ed-4d094635ab91)]
+interface IHtmlImageElement: IHtmlElement {
+}
+
+[uuid(ed25b169-eb06-4abc-b235-94e8e2cd0f49), rust_inner_field(0)]
+class HtmlImageElement: IHtmlImageElement, IRenderable {}

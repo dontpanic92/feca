@@ -82,6 +82,7 @@ impl View {
                 } if window_id == self.window.id() => *control_flow = ControlFlow::Exit,
                 Event::RedrawRequested(_) => {
                     if let Some(page) = &mut self.page {
+                        self.renderer = CairoRenderer::new_from_winit(&self.window);
                         page.layout(self.renderer.pango_context(), self.renderer.canvas_size());
                         page.paint(&self.renderer);
                     }

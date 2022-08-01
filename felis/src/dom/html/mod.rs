@@ -11,6 +11,7 @@ pub mod div;
 pub mod head;
 pub mod html;
 pub mod html_element;
+pub mod img;
 pub mod paragraph;
 pub mod script;
 
@@ -78,6 +79,7 @@ impl HtmlDom {
                     "h1" => Some(html_element::new_h1_element(children, id, attributes)),
                     "script" => Some(script::new_core_script(children, id, attributes)),
                     "div" => Some(div::new_div(children, id, attributes)),
+                    "img" => Some(img::new_image(children, id, attributes)),
                     _ => None,
                 }
             }

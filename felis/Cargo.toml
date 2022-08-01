@@ -17,10 +17,11 @@ crosscom = { path = "../crosscom/runtime/rust" }
 linkme = "0.2"
 uuid = "0.8"
 nom = "7.1.1"
+image = "0.24"
 
 [dependencies.cairo-rs]
 version = "0.15"
-features = ["win32-surface"]
+features = ["win32-surface", "png"]
 
 [target.'cfg(windows)'.dependencies]
 winapi = { version = "0.3", features = ["winuser"] }

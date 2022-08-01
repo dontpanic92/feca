@@ -59,6 +59,14 @@ impl HtmlElementProps {
             attributes,
         }
     }
+
+    pub fn boundary(&self) -> Rectangle {
+        self.boundary.borrow().clone()
+    }
+
+    pub fn set_boundary(&self, boundary: Rectangle) {
+        *self.boundary.borrow_mut() = boundary;
+    }
 }
 
 impl<T: 'static + XcDataType> IHtmlElementImpl for CoreHtmlElementBase<T> {

@@ -21,7 +21,7 @@ image = "0.24"
 
 [dependencies.cairo-rs]
 version = "0.15"
-features = ["win32-surface", "png"]
+features = ["win32-surface"]
 
 [target.'cfg(windows)'.dependencies]
 winapi = { version = "0.3", features = ["winuser"] }

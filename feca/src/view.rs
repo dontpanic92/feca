@@ -27,7 +27,7 @@ impl View {
     pub fn new() -> Self {
         let event_loop = Some(EventLoopBuilder::<FecaEvent>::with_user_event().build());
         let window = WindowBuilder::new()
-            .with_title("Fica")
+            .with_title("Feca")
             .build(event_loop.as_ref().unwrap())
             .unwrap();
         let renderer = CairoRenderer::new_from_winit(&window);

@@ -6,7 +6,7 @@ A web browser prototype.
 
 Feca is my part-time project aiming to practice ideas about web page rendering. It is just a prototype and can load and render extremely trival web pages for now.
 
-![](https://user-images.githubusercontent.com/1056013/182201620-919594c7-d8a6-48f5-87ff-f2a8fe62bc5b.png)
+![](https://user-images.githubusercontent.com/1056013/182268670-d674dcb5-8f31-4991-b21d-4a445339caa4.png)
 
 Feca consists of 2 sub components:
 

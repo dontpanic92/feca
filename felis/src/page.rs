@@ -39,7 +39,11 @@ impl Page {
     }
 
     pub fn style(&mut self) {
-
+        if let Some(root) = &self.dom.root() {
+            if let Some(root) = root.query_interface::<IHtmlElement>() {
+                self.style_element(root);
+            }
+        }
     }
 
     pub fn layout(&mut self, pango_context: &pango::Context, canvas_size: (i32, i32)) {
@@ -66,6 +70,12 @@ impl Page {
             .paint(renderer, &self.style);
     }
 
+    pub fn render(&mut self, renderer: &CairoRenderer) {
+        self.style();
+        self.layout(renderer.pango_context(), renderer.canvas_size());
+        self.paint(renderer);
+    }
+
     pub fn on_mouse_move(&self, x: f64, y: f64, window: &Window) {
         if let Some(element) = self.dom.root().unwrap().query_interface::<IHtmlElement>() {
             element.on_mouse_move(x, y, window);
@@ -81,14 +91,29 @@ impl Page {
     }
 
     fn style_element(&mut self, element: ComRc<IHtmlElement>) {
+        for block in &self.styles {
+            for selector in &block.selectors {
+                if selector.match_element(element.clone()) {
+                    element.merge_style(&block.style);
+                }
+            }
+        }
 
+        for child in element.children().raw() {
+            if let Some(element) = child.query_interface::<IHtmlElement>() {
+                self.style_element(element)
+            }
+        }
     }
 
     fn parse_style_block(dom: &HtmlDom) -> Vec<StyleBlock> {
-        let style_elements = dom
-            .root()
-            .unwrap()
-            .get_elements_by_tag_name(crate::dom::core::string::DomString::new("style".to_string()));
+        let style_elements =
+            dom.root()
+                .unwrap()
+                .get_elements_by_tag_name(crate::dom::core::string::DomString::new(
+                    "style".to_string(),
+                ));
+
         let mut blocks = vec![];
         for element in style_elements.raw() {
             let node = element.query_interface::<INode>().unwrap();

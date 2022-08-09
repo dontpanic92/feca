@@ -251,6 +251,7 @@ use crate::defs::IHtmlBodyElementImpl;
 use crate::defs::IHtmlParagraphElementImpl;
 use crate::defs::IHtmlDivElementImpl;
 use crate::defs::IHtmlImageElementImpl;
+use crate::defs::IHtmlStyleElementImpl;
 
 
     #[repr(C)]
@@ -1019,6 +1020,7 @@ use crate::defs::IHtmlBodyElementImpl;
 use crate::defs::IHtmlParagraphElementImpl;
 use crate::defs::IHtmlDivElementImpl;
 use crate::defs::IHtmlImageElementImpl;
+use crate::defs::IHtmlStyleElementImpl;
 
 
     #[repr(C)]
@@ -1276,6 +1278,10 @@ y: f64,
 window: &winit::window::Window, 
 ) -> crosscom::Void
 ,    pub on_mouse_click: fn (this: *const *const std::os::raw::c_void, ) -> crate::page::FelisAction
+,    pub merge_style: fn (this: *const *const std::os::raw::c_void, style: &crate::style::Style, 
+) -> crosscom::Void
+,    pub get_attribute: fn (this: *const *const std::os::raw::c_void, key: &str, 
+) -> Option<Option<String>>
 ,}
 
 
@@ -1426,6 +1432,26 @@ pub fn on_mouse_click (&self, ) -> crate::page::FelisAction
 }
 
 
+pub fn merge_style (&self, style: &crate::style::Style, 
+) -> crosscom::Void
+ {
+    unsafe {
+        let this = self as *const IHtmlElement as *const *const std::os::raw::c_void;
+        ((*self.vtable).merge_style)(this, style.into()).into()
+    }
+}
+
+
+pub fn get_attribute (&self, key: &str, 
+) -> Option<Option<String>>
+ {
+    unsafe {
+        let this = self as *const IHtmlElement as *const *const std::os::raw::c_void;
+        ((*self.vtable).get_attribute)(this, key.into()).into()
+    }
+}
+
+
 }
 
 pub trait IHtmlElementImpl {
@@ -1435,6 +1461,12 @@ window: &winit::window::Window,
 ) -> crosscom::Void
 ;
 fn on_mouse_click (&self, ) -> crate::page::FelisAction
+;
+fn merge_style (&self, style: &crate::style::Style, 
+) -> crosscom::Void
+;
+fn get_attribute (&self, key: &str, 
+) -> Option<Option<String>>
 ;
 }
 
@@ -1470,6 +1502,7 @@ use crate::defs::IHtmlBodyElementImpl;
 use crate::defs::IHtmlParagraphElementImpl;
 use crate::defs::IHtmlDivElementImpl;
 use crate::defs::IHtmlImageElementImpl;
+use crate::defs::IHtmlStyleElementImpl;
 
 
     #[repr(C)]
@@ -1563,6 +1596,26 @@ window: &winit::window::Window,
         unsafe {
             let object = crosscom::get_object::<HtmlElementCcw>(this);
             (*object).inner.0.on_mouse_click()
+        }
+    }
+    
+
+
+    fn merge_style (this: *const *const std::os::raw::c_void, style: &crate::style::Style, 
+) -> crosscom::Void {
+        unsafe {
+            let object = crosscom::get_object::<HtmlElementCcw>(this);
+            (*object).inner.0.merge_style(style)
+        }
+    }
+    
+
+
+    fn get_attribute (this: *const *const std::os::raw::c_void, key: &str, 
+) -> Option<Option<String>> {
+        unsafe {
+            let object = crosscom::get_object::<HtmlElementCcw>(this);
+            (*object).inner.0.get_attribute(key)
         }
     }
     
@@ -1680,6 +1733,8 @@ id,
 tag,
 on_mouse_move,
 on_mouse_click,
+merge_style,
+get_attribute,
 
     },
 };
@@ -1758,6 +1813,10 @@ y: f64,
 window: &winit::window::Window, 
 ) -> crosscom::Void
 ,    pub on_mouse_click: fn (this: *const *const std::os::raw::c_void, ) -> crate::page::FelisAction
+,    pub merge_style: fn (this: *const *const std::os::raw::c_void, style: &crate::style::Style, 
+) -> crosscom::Void
+,    pub get_attribute: fn (this: *const *const std::os::raw::c_void, key: &str, 
+) -> Option<Option<String>>
 ,}
 
 
@@ -1908,6 +1967,26 @@ pub fn on_mouse_click (&self, ) -> crate::page::FelisAction
 }
 
 
+pub fn merge_style (&self, style: &crate::style::Style, 
+) -> crosscom::Void
+ {
+    unsafe {
+        let this = self as *const IHtmlHtmlElement as *const *const std::os::raw::c_void;
+        ((*self.vtable).merge_style)(this, style.into()).into()
+    }
+}
+
+
+pub fn get_attribute (&self, key: &str, 
+) -> Option<Option<String>>
+ {
+    unsafe {
+        let this = self as *const IHtmlHtmlElement as *const *const std::os::raw::c_void;
+        ((*self.vtable).get_attribute)(this, key.into()).into()
+    }
+}
+
+
 }
 
 pub trait IHtmlHtmlElementImpl {
@@ -1945,6 +2024,7 @@ use crate::defs::IHtmlBodyElementImpl;
 use crate::defs::IHtmlParagraphElementImpl;
 use crate::defs::IHtmlDivElementImpl;
 use crate::defs::IHtmlImageElementImpl;
+use crate::defs::IHtmlStyleElementImpl;
 
 
     #[repr(C)]
@@ -2082,6 +2162,26 @@ window: &winit::window::Window,
     
 
 
+    fn merge_style (this: *const *const std::os::raw::c_void, style: &crate::style::Style, 
+) -> crosscom::Void {
+        unsafe {
+            let object = crosscom::get_object::<HtmlHtmlElementCcw>(this);
+            (*object).inner.0.merge_style(style)
+        }
+    }
+    
+
+
+    fn get_attribute (this: *const *const std::os::raw::c_void, key: &str, 
+) -> Option<Option<String>> {
+        unsafe {
+            let object = crosscom::get_object::<HtmlHtmlElementCcw>(this);
+            (*object).inner.0.get_attribute(key)
+        }
+    }
+    
+
+
     unsafe extern "system" fn id (this: *const *const std::os::raw::c_void, ) -> *const *const std::os::raw::c_void {
         let object = crosscom::get_object::<HtmlHtmlElementCcw>(this);
         (*object).inner.0.id().into()
@@ -2162,6 +2262,8 @@ id,
 tag,
 on_mouse_move,
 on_mouse_click,
+merge_style,
+get_attribute,
 
     },
 };
@@ -2240,6 +2342,10 @@ y: f64,
 window: &winit::window::Window, 
 ) -> crosscom::Void
 ,    pub on_mouse_click: fn (this: *const *const std::os::raw::c_void, ) -> crate::page::FelisAction
+,    pub merge_style: fn (this: *const *const std::os::raw::c_void, style: &crate::style::Style, 
+) -> crosscom::Void
+,    pub get_attribute: fn (this: *const *const std::os::raw::c_void, key: &str, 
+) -> Option<Option<String>>
 ,    pub text: unsafe extern "system" fn (this: *const *const std::os::raw::c_void, ) -> *const *const std::os::raw::c_void
 ,}
 
@@ -2391,6 +2497,26 @@ pub fn on_mouse_click (&self, ) -> crate::page::FelisAction
 }
 
 
+pub fn merge_style (&self, style: &crate::style::Style, 
+) -> crosscom::Void
+ {
+    unsafe {
+        let this = self as *const IHtmlScriptElement as *const *const std::os::raw::c_void;
+        ((*self.vtable).merge_style)(this, style.into()).into()
+    }
+}
+
+
+pub fn get_attribute (&self, key: &str, 
+) -> Option<Option<String>>
+ {
+    unsafe {
+        let this = self as *const IHtmlScriptElement as *const *const std::os::raw::c_void;
+        ((*self.vtable).get_attribute)(this, key.into()).into()
+    }
+}
+
+
 pub fn text (&self, ) -> crosscom::ComRc<IDomString>
  {
     unsafe {
@@ -2439,6 +2565,7 @@ use crate::defs::IHtmlBodyElementImpl;
 use crate::defs::IHtmlParagraphElementImpl;
 use crate::defs::IHtmlDivElementImpl;
 use crate::defs::IHtmlImageElementImpl;
+use crate::defs::IHtmlStyleElementImpl;
 
 
     #[repr(C)]
@@ -2543,6 +2670,26 @@ window: &winit::window::Window,
     
 
 
+    fn merge_style (this: *const *const std::os::raw::c_void, style: &crate::style::Style, 
+) -> crosscom::Void {
+        unsafe {
+            let object = crosscom::get_object::<HtmlScriptElementCcw>(this);
+            (*object).inner.0.merge_style(style)
+        }
+    }
+    
+
+
+    fn get_attribute (this: *const *const std::os::raw::c_void, key: &str, 
+) -> Option<Option<String>> {
+        unsafe {
+            let object = crosscom::get_object::<HtmlScriptElementCcw>(this);
+            (*object).inner.0.get_attribute(key)
+        }
+    }
+    
+
+
     unsafe extern "system" fn id (this: *const *const std::os::raw::c_void, ) -> *const *const std::os::raw::c_void {
         let object = crosscom::get_object::<HtmlScriptElementCcw>(this);
         (*object).inner.0.id().into()
@@ -2623,6 +2770,8 @@ id,
 tag,
 on_mouse_move,
 on_mouse_click,
+merge_style,
+get_attribute,
 text,
 
     },
@@ -2680,6 +2829,10 @@ y: f64,
 window: &winit::window::Window, 
 ) -> crosscom::Void
 ,    pub on_mouse_click: fn (this: *const *const std::os::raw::c_void, ) -> crate::page::FelisAction
+,    pub merge_style: fn (this: *const *const std::os::raw::c_void, style: &crate::style::Style, 
+) -> crosscom::Void
+,    pub get_attribute: fn (this: *const *const std::os::raw::c_void, key: &str, 
+) -> Option<Option<String>>
 ,}
 
 
@@ -2830,6 +2983,26 @@ pub fn on_mouse_click (&self, ) -> crate::page::FelisAction
 }
 
 
+pub fn merge_style (&self, style: &crate::style::Style, 
+) -> crosscom::Void
+ {
+    unsafe {
+        let this = self as *const IHtmlHeadElement as *const *const std::os::raw::c_void;
+        ((*self.vtable).merge_style)(this, style.into()).into()
+    }
+}
+
+
+pub fn get_attribute (&self, key: &str, 
+) -> Option<Option<String>>
+ {
+    unsafe {
+        let this = self as *const IHtmlHeadElement as *const *const std::os::raw::c_void;
+        ((*self.vtable).get_attribute)(this, key.into()).into()
+    }
+}
+
+
 }
 
 pub trait IHtmlHeadElementImpl {
@@ -2867,6 +3040,7 @@ use crate::defs::IHtmlBodyElementImpl;
 use crate::defs::IHtmlParagraphElementImpl;
 use crate::defs::IHtmlDivElementImpl;
 use crate::defs::IHtmlImageElementImpl;
+use crate::defs::IHtmlStyleElementImpl;
 
 
     #[repr(C)]
@@ -3004,6 +3178,26 @@ window: &winit::window::Window,
     
 
 
+    fn merge_style (this: *const *const std::os::raw::c_void, style: &crate::style::Style, 
+) -> crosscom::Void {
+        unsafe {
+            let object = crosscom::get_object::<HtmlHeadElementCcw>(this);
+            (*object).inner.0.merge_style(style)
+        }
+    }
+    
+
+
+    fn get_attribute (this: *const *const std::os::raw::c_void, key: &str, 
+) -> Option<Option<String>> {
+        unsafe {
+            let object = crosscom::get_object::<HtmlHeadElementCcw>(this);
+            (*object).inner.0.get_attribute(key)
+        }
+    }
+    
+
+
     unsafe extern "system" fn id (this: *const *const std::os::raw::c_void, ) -> *const *const std::os::raw::c_void {
         let object = crosscom::get_object::<HtmlHeadElementCcw>(this);
         (*object).inner.0.id().into()
@@ -3084,6 +3278,8 @@ id,
 tag,
 on_mouse_move,
 on_mouse_click,
+merge_style,
+get_attribute,
 
     },
 };
@@ -3162,6 +3358,10 @@ y: f64,
 window: &winit::window::Window, 
 ) -> crosscom::Void
 ,    pub on_mouse_click: fn (this: *const *const std::os::raw::c_void, ) -> crate::page::FelisAction
+,    pub merge_style: fn (this: *const *const std::os::raw::c_void, style: &crate::style::Style, 
+) -> crosscom::Void
+,    pub get_attribute: fn (this: *const *const std::os::raw::c_void, key: &str, 
+) -> Option<Option<String>>
 ,}
 
 
@@ -3312,6 +3512,26 @@ pub fn on_mouse_click (&self, ) -> crate::page::FelisAction
 }
 
 
+pub fn merge_style (&self, style: &crate::style::Style, 
+) -> crosscom::Void
+ {
+    unsafe {
+        let this = self as *const IHtmlBodyElement as *const *const std::os::raw::c_void;
+        ((*self.vtable).merge_style)(this, style.into()).into()
+    }
+}
+
+
+pub fn get_attribute (&self, key: &str, 
+) -> Option<Option<String>>
+ {
+    unsafe {
+        let this = self as *const IHtmlBodyElement as *const *const std::os::raw::c_void;
+        ((*self.vtable).get_attribute)(this, key.into()).into()
+    }
+}
+
+
 }
 
 pub trait IHtmlBodyElementImpl {
@@ -3349,6 +3569,7 @@ use crate::defs::IHtmlBodyElementImpl;
 use crate::defs::IHtmlParagraphElementImpl;
 use crate::defs::IHtmlDivElementImpl;
 use crate::defs::IHtmlImageElementImpl;
+use crate::defs::IHtmlStyleElementImpl;
 
 
     #[repr(C)]
@@ -3486,6 +3707,26 @@ window: &winit::window::Window,
     
 
 
+    fn merge_style (this: *const *const std::os::raw::c_void, style: &crate::style::Style, 
+) -> crosscom::Void {
+        unsafe {
+            let object = crosscom::get_object::<HtmlBodyElementCcw>(this);
+            (*object).inner.0.merge_style(style)
+        }
+    }
+    
+
+
+    fn get_attribute (this: *const *const std::os::raw::c_void, key: &str, 
+) -> Option<Option<String>> {
+        unsafe {
+            let object = crosscom::get_object::<HtmlBodyElementCcw>(this);
+            (*object).inner.0.get_attribute(key)
+        }
+    }
+    
+
+
     unsafe extern "system" fn id (this: *const *const std::os::raw::c_void, ) -> *const *const std::os::raw::c_void {
         let object = crosscom::get_object::<HtmlBodyElementCcw>(this);
         (*object).inner.0.id().into()
@@ -3566,6 +3807,8 @@ id,
 tag,
 on_mouse_move,
 on_mouse_click,
+merge_style,
+get_attribute,
 
     },
 };
@@ -3644,6 +3887,10 @@ y: f64,
 window: &winit::window::Window, 
 ) -> crosscom::Void
 ,    pub on_mouse_click: fn (this: *const *const std::os::raw::c_void, ) -> crate::page::FelisAction
+,    pub merge_style: fn (this: *const *const std::os::raw::c_void, style: &crate::style::Style, 
+) -> crosscom::Void
+,    pub get_attribute: fn (this: *const *const std::os::raw::c_void, key: &str, 
+) -> Option<Option<String>>
 ,}
 
 
@@ -3794,6 +4041,26 @@ pub fn on_mouse_click (&self, ) -> crate::page::FelisAction
 }
 
 
+pub fn merge_style (&self, style: &crate::style::Style, 
+) -> crosscom::Void
+ {
+    unsafe {
+        let this = self as *const IHtmlParagraphElement as *const *const std::os::raw::c_void;
+        ((*self.vtable).merge_style)(this, style.into()).into()
+    }
+}
+
+
+pub fn get_attribute (&self, key: &str, 
+) -> Option<Option<String>>
+ {
+    unsafe {
+        let this = self as *const IHtmlParagraphElement as *const *const std::os::raw::c_void;
+        ((*self.vtable).get_attribute)(this, key.into()).into()
+    }
+}
+
+
 }
 
 pub trait IHtmlParagraphElementImpl {
@@ -3831,6 +4098,7 @@ use crate::defs::IHtmlBodyElementImpl;
 use crate::defs::IHtmlParagraphElementImpl;
 use crate::defs::IHtmlDivElementImpl;
 use crate::defs::IHtmlImageElementImpl;
+use crate::defs::IHtmlStyleElementImpl;
 
 
     #[repr(C)]
@@ -3968,6 +4236,26 @@ window: &winit::window::Window,
     
 
 
+    fn merge_style (this: *const *const std::os::raw::c_void, style: &crate::style::Style, 
+) -> crosscom::Void {
+        unsafe {
+            let object = crosscom::get_object::<HtmlParagraphElementCcw>(this);
+            (*object).inner.0.merge_style(style)
+        }
+    }
+    
+
+
+    fn get_attribute (this: *const *const std::os::raw::c_void, key: &str, 
+) -> Option<Option<String>> {
+        unsafe {
+            let object = crosscom::get_object::<HtmlParagraphElementCcw>(this);
+            (*object).inner.0.get_attribute(key)
+        }
+    }
+    
+
+
     unsafe extern "system" fn id (this: *const *const std::os::raw::c_void, ) -> *const *const std::os::raw::c_void {
         let object = crosscom::get_object::<HtmlParagraphElementCcw>(this);
         (*object).inner.0.id().into()
@@ -4048,6 +4336,8 @@ id,
 tag,
 on_mouse_move,
 on_mouse_click,
+merge_style,
+get_attribute,
 
     },
 };
@@ -4126,6 +4416,10 @@ y: f64,
 window: &winit::window::Window, 
 ) -> crosscom::Void
 ,    pub on_mouse_click: fn (this: *const *const std::os::raw::c_void, ) -> crate::page::FelisAction
+,    pub merge_style: fn (this: *const *const std::os::raw::c_void, style: &crate::style::Style, 
+) -> crosscom::Void
+,    pub get_attribute: fn (this: *const *const std::os::raw::c_void, key: &str, 
+) -> Option<Option<String>>
 ,}
 
 
@@ -4276,6 +4570,26 @@ pub fn on_mouse_click (&self, ) -> crate::page::FelisAction
 }
 
 
+pub fn merge_style (&self, style: &crate::style::Style, 
+) -> crosscom::Void
+ {
+    unsafe {
+        let this = self as *const IHtmlDivElement as *const *const std::os::raw::c_void;
+        ((*self.vtable).merge_style)(this, style.into()).into()
+    }
+}
+
+
+pub fn get_attribute (&self, key: &str, 
+) -> Option<Option<String>>
+ {
+    unsafe {
+        let this = self as *const IHtmlDivElement as *const *const std::os::raw::c_void;
+        ((*self.vtable).get_attribute)(this, key.into()).into()
+    }
+}
+
+
 }
 
 pub trait IHtmlDivElementImpl {
@@ -4313,6 +4627,7 @@ use crate::defs::IHtmlBodyElementImpl;
 use crate::defs::IHtmlParagraphElementImpl;
 use crate::defs::IHtmlDivElementImpl;
 use crate::defs::IHtmlImageElementImpl;
+use crate::defs::IHtmlStyleElementImpl;
 
 
     #[repr(C)]
@@ -4450,6 +4765,26 @@ window: &winit::window::Window,
     
 
 
+    fn merge_style (this: *const *const std::os::raw::c_void, style: &crate::style::Style, 
+) -> crosscom::Void {
+        unsafe {
+            let object = crosscom::get_object::<HtmlDivElementCcw>(this);
+            (*object).inner.0.merge_style(style)
+        }
+    }
+    
+
+
+    fn get_attribute (this: *const *const std::os::raw::c_void, key: &str, 
+) -> Option<Option<String>> {
+        unsafe {
+            let object = crosscom::get_object::<HtmlDivElementCcw>(this);
+            (*object).inner.0.get_attribute(key)
+        }
+    }
+    
+
+
     unsafe extern "system" fn id (this: *const *const std::os::raw::c_void, ) -> *const *const std::os::raw::c_void {
         let object = crosscom::get_object::<HtmlDivElementCcw>(this);
         (*object).inner.0.id().into()
@@ -4530,6 +4865,8 @@ id,
 tag,
 on_mouse_move,
 on_mouse_click,
+merge_style,
+get_attribute,
 
     },
 };
@@ -4608,6 +4945,10 @@ y: f64,
 window: &winit::window::Window, 
 ) -> crosscom::Void
 ,    pub on_mouse_click: fn (this: *const *const std::os::raw::c_void, ) -> crate::page::FelisAction
+,    pub merge_style: fn (this: *const *const std::os::raw::c_void, style: &crate::style::Style, 
+) -> crosscom::Void
+,    pub get_attribute: fn (this: *const *const std::os::raw::c_void, key: &str, 
+) -> Option<Option<String>>
 ,}
 
 
@@ -4758,6 +5099,26 @@ pub fn on_mouse_click (&self, ) -> crate::page::FelisAction
 }
 
 
+pub fn merge_style (&self, style: &crate::style::Style, 
+) -> crosscom::Void
+ {
+    unsafe {
+        let this = self as *const IHtmlImageElement as *const *const std::os::raw::c_void;
+        ((*self.vtable).merge_style)(this, style.into()).into()
+    }
+}
+
+
+pub fn get_attribute (&self, key: &str, 
+) -> Option<Option<String>>
+ {
+    unsafe {
+        let this = self as *const IHtmlImageElement as *const *const std::os::raw::c_void;
+        ((*self.vtable).get_attribute)(this, key.into()).into()
+    }
+}
+
+
 }
 
 pub trait IHtmlImageElementImpl {
@@ -4795,6 +5156,7 @@ use crate::defs::IHtmlBodyElementImpl;
 use crate::defs::IHtmlParagraphElementImpl;
 use crate::defs::IHtmlDivElementImpl;
 use crate::defs::IHtmlImageElementImpl;
+use crate::defs::IHtmlStyleElementImpl;
 
 
     #[repr(C)]
@@ -4932,6 +5294,26 @@ window: &winit::window::Window,
     
 
 
+    fn merge_style (this: *const *const std::os::raw::c_void, style: &crate::style::Style, 
+) -> crosscom::Void {
+        unsafe {
+            let object = crosscom::get_object::<HtmlImageElementCcw>(this);
+            (*object).inner.0.merge_style(style)
+        }
+    }
+    
+
+
+    fn get_attribute (this: *const *const std::os::raw::c_void, key: &str, 
+) -> Option<Option<String>> {
+        unsafe {
+            let object = crosscom::get_object::<HtmlImageElementCcw>(this);
+            (*object).inner.0.get_attribute(key)
+        }
+    }
+    
+
+
     unsafe extern "system" fn id (this: *const *const std::os::raw::c_void, ) -> *const *const std::os::raw::c_void {
         let object = crosscom::get_object::<HtmlImageElementCcw>(this);
         (*object).inner.0.id().into()
@@ -5012,6 +5394,8 @@ id,
 tag,
 on_mouse_move,
 on_mouse_click,
+merge_style,
+get_attribute,
 
     },
 };
@@ -5062,4 +5446,471 @@ IRenderable: crate::defs::IRenderable {
 }
 
 pub(crate) use ComObject_HtmlImageElement;
+
+// Interface IHtmlStyleElement
+
+#[repr(C)]
+#[allow(non_snake_case)]
+pub struct IHtmlStyleElementVirtualTable {
+
+    pub query_interface: unsafe extern "system" fn (this: *const *const std::os::raw::c_void, guid: uuid::Uuid, 
+retval: &mut *const *const std::os::raw::c_void, 
+) -> std::os::raw::c_long
+,    pub add_ref: unsafe extern "system" fn (this: *const *const std::os::raw::c_void, ) -> std::os::raw::c_long
+,    pub release: unsafe extern "system" fn (this: *const *const std::os::raw::c_void, ) -> std::os::raw::c_long
+,    pub children: unsafe extern "system" fn (this: *const *const std::os::raw::c_void, ) -> *const *const std::os::raw::c_void
+,    pub inner_html: unsafe extern "system" fn (this: *const *const std::os::raw::c_void, ) -> *const *const std::os::raw::c_void
+,    pub outer_html: unsafe extern "system" fn (this: *const *const std::os::raw::c_void, ) -> *const *const std::os::raw::c_void
+,    pub set_inner_html: unsafe extern "system" fn (this: *const *const std::os::raw::c_void, html: *const *const std::os::raw::c_void, 
+) -> ()
+,    pub get_elements_by_tag_name: unsafe extern "system" fn (this: *const *const std::os::raw::c_void, tag: *const *const std::os::raw::c_void, 
+) -> *const *const std::os::raw::c_void
+,    pub get_element_by_id: unsafe extern "system" fn (this: *const *const std::os::raw::c_void, id: *const *const std::os::raw::c_void, 
+) -> crosscom::RawPointer
+,    pub id: unsafe extern "system" fn (this: *const *const std::os::raw::c_void, ) -> *const *const std::os::raw::c_void
+,    pub tag: unsafe extern "system" fn (this: *const *const std::os::raw::c_void, ) -> *const *const std::os::raw::c_void
+,    pub on_mouse_move: fn (this: *const *const std::os::raw::c_void, x: f64, 
+y: f64, 
+window: &winit::window::Window, 
+) -> crosscom::Void
+,    pub on_mouse_click: fn (this: *const *const std::os::raw::c_void, ) -> crate::page::FelisAction
+,    pub merge_style: fn (this: *const *const std::os::raw::c_void, style: &crate::style::Style, 
+) -> crosscom::Void
+,    pub get_attribute: fn (this: *const *const std::os::raw::c_void, key: &str, 
+) -> Option<Option<String>>
+,}
+
+
+#[repr(C)]
+#[allow(dead_code)]
+pub struct IHtmlStyleElementVirtualTableCcw {
+    pub offset: isize,
+    pub vtable: IHtmlStyleElementVirtualTable,
+}
+
+
+
+#[repr(C)]
+#[allow(dead_code)]
+pub struct IHtmlStyleElement {
+    pub vtable: *const IHtmlStyleElementVirtualTable,
+}
+
+#[allow(dead_code)]
+#[allow(non_snake_case)]
+#[allow(unused)]
+impl IHtmlStyleElement {
+    
+pub fn query_interface<T: crosscom::ComInterface>(&self) -> Option<crosscom::ComRc<T>> {
+    let this = self as *const IHtmlStyleElement as *const *const std::os::raw::c_void;
+    let mut raw = 0 as *const *const std::os::raw::c_void;
+    let guid = uuid::Uuid::from_bytes(T::INTERFACE_ID);
+    let ret_val = unsafe { ((*self.vtable).query_interface)(this, guid, &mut raw) };
+    if ret_val != 0 {
+        None
+    } else {
+        Some(unsafe { crosscom::ComRc::<T>::from_raw_pointer(raw) })
+    }
+}
+
+
+pub fn add_ref (&self, ) -> i32
+ {
+    unsafe {
+        let this = self as *const IHtmlStyleElement as *const *const std::os::raw::c_void;
+        ((*self.vtable).add_ref)(this, ).into()
+    }
+}
+
+
+pub fn release (&self, ) -> i32
+ {
+    unsafe {
+        let this = self as *const IHtmlStyleElement as *const *const std::os::raw::c_void;
+        ((*self.vtable).release)(this, ).into()
+    }
+}
+
+
+pub fn children (&self, ) -> crosscom::ObjectArray<crate::defs::INode>
+ {
+    unsafe {
+        let this = self as *const IHtmlStyleElement as *const *const std::os::raw::c_void;
+        ((*self.vtable).children)(this, ).into()
+    }
+}
+
+
+pub fn inner_html (&self, ) -> crosscom::ComRc<IDomString>
+ {
+    unsafe {
+        let this = self as *const IHtmlStyleElement as *const *const std::os::raw::c_void;
+        ((*self.vtable).inner_html)(this, ).into()
+    }
+}
+
+
+pub fn outer_html (&self, ) -> crosscom::ComRc<IDomString>
+ {
+    unsafe {
+        let this = self as *const IHtmlStyleElement as *const *const std::os::raw::c_void;
+        ((*self.vtable).outer_html)(this, ).into()
+    }
+}
+
+
+pub fn set_inner_html (&self, html: crosscom::ComRc<IDomString>, 
+) -> ()
+ {
+    unsafe {
+        let this = self as *const IHtmlStyleElement as *const *const std::os::raw::c_void;
+        ((*self.vtable).set_inner_html)(this, html.into()).into()
+    }
+}
+
+
+pub fn get_elements_by_tag_name (&self, tag: crosscom::ComRc<IDomString>, 
+) -> crosscom::ObjectArray<crate::defs::IElement>
+ {
+    unsafe {
+        let this = self as *const IHtmlStyleElement as *const *const std::os::raw::c_void;
+        ((*self.vtable).get_elements_by_tag_name)(this, tag.into()).into()
+    }
+}
+
+
+pub fn get_element_by_id (&self, id: crosscom::ComRc<IDomString>, 
+) -> Option<crosscom::ComRc<crate::defs::IElement>>
+ {
+    unsafe {
+        let this = self as *const IHtmlStyleElement as *const *const std::os::raw::c_void;
+        ((*self.vtable).get_element_by_id)(this, id.into()).into()
+    }
+}
+
+
+pub fn id (&self, ) -> crosscom::ComRc<IDomString>
+ {
+    unsafe {
+        let this = self as *const IHtmlStyleElement as *const *const std::os::raw::c_void;
+        ((*self.vtable).id)(this, ).into()
+    }
+}
+
+
+pub fn tag (&self, ) -> crosscom::ComRc<IDomString>
+ {
+    unsafe {
+        let this = self as *const IHtmlStyleElement as *const *const std::os::raw::c_void;
+        ((*self.vtable).tag)(this, ).into()
+    }
+}
+
+
+pub fn on_mouse_move (&self, x: f64, 
+y: f64, 
+window: &winit::window::Window, 
+) -> crosscom::Void
+ {
+    unsafe {
+        let this = self as *const IHtmlStyleElement as *const *const std::os::raw::c_void;
+        ((*self.vtable).on_mouse_move)(this, x.into(),y.into(),window.into()).into()
+    }
+}
+
+
+pub fn on_mouse_click (&self, ) -> crate::page::FelisAction
+ {
+    unsafe {
+        let this = self as *const IHtmlStyleElement as *const *const std::os::raw::c_void;
+        ((*self.vtable).on_mouse_click)(this, ).into()
+    }
+}
+
+
+pub fn merge_style (&self, style: &crate::style::Style, 
+) -> crosscom::Void
+ {
+    unsafe {
+        let this = self as *const IHtmlStyleElement as *const *const std::os::raw::c_void;
+        ((*self.vtable).merge_style)(this, style.into()).into()
+    }
+}
+
+
+pub fn get_attribute (&self, key: &str, 
+) -> Option<Option<String>>
+ {
+    unsafe {
+        let this = self as *const IHtmlStyleElement as *const *const std::os::raw::c_void;
+        ((*self.vtable).get_attribute)(this, key.into()).into()
+    }
+}
+
+
+}
+
+pub trait IHtmlStyleElementImpl {
+}
+
+impl crosscom::ComInterface for IHtmlStyleElement {
+            
+    // e6665467-847f-4aef-91f7-cfdc5e59ff8f
+    const INTERFACE_ID: [u8; 16] = [230u8,102u8,84u8,103u8,132u8,127u8,74u8,239u8,145u8,247u8,207u8,220u8,94u8,89u8,255u8,143u8];
+}
+
+
+// Class HtmlStyleElement
+
+#[allow(unused)]
+macro_rules! ComObject_HtmlStyleElement {
+    ($impl_type: ty) => {
+
+#[allow(dead_code)]
+#[allow(non_snake_case)]
+#[allow(unused)]
+mod HtmlStyleElement_crosscom_impl {
+    use crosscom::ComInterface;
+use crate::defs::IRenderableImpl;
+use crate::defs::IDomStringImpl;
+use crate::defs::INodeImpl;
+use crate::defs::IElementImpl;
+use crate::defs::ICharacterDataImpl;
+use crate::defs::ITextImpl;
+use crate::defs::IHtmlElementImpl;
+use crate::defs::IHtmlHtmlElementImpl;
+use crate::defs::IHtmlScriptElementImpl;
+use crate::defs::IHtmlHeadElementImpl;
+use crate::defs::IHtmlBodyElementImpl;
+use crate::defs::IHtmlParagraphElementImpl;
+use crate::defs::IHtmlDivElementImpl;
+use crate::defs::IHtmlImageElementImpl;
+use crate::defs::IHtmlStyleElementImpl;
+
+
+    #[repr(C)]
+    pub struct HtmlStyleElementCcw {
+        IHtmlStyleElement: crate::defs::IHtmlStyleElement,
+
+        ref_count: std::sync::atomic::AtomicU32,
+        pub inner: $impl_type,
+    }
+
+    unsafe extern "system" fn query_interface(
+        this: *const *const std::os::raw::c_void,
+        guid: uuid::Uuid,
+        retval: &mut *const *const std::os::raw::c_void,
+    ) -> std::os::raw::c_long {
+        let object = crosscom::get_object::<HtmlStyleElementCcw>(this);
+        match guid.as_bytes() {
+            
+&crosscom::IUnknown::INTERFACE_ID => {
+    *retval = (object as *const *const std::os::raw::c_void).offset(0);
+    add_ref(object as *const *const std::os::raw::c_void);
+    crosscom::ResultCode::Ok as i32
+}
+
+
+&crate::defs::INode::INTERFACE_ID => {
+    *retval = (object as *const *const std::os::raw::c_void).offset(0);
+    add_ref(object as *const *const std::os::raw::c_void);
+    crosscom::ResultCode::Ok as i32
+}
+
+
+&crate::defs::IElement::INTERFACE_ID => {
+    *retval = (object as *const *const std::os::raw::c_void).offset(0);
+    add_ref(object as *const *const std::os::raw::c_void);
+    crosscom::ResultCode::Ok as i32
+}
+
+
+&crate::defs::IHtmlElement::INTERFACE_ID => {
+    *retval = (object as *const *const std::os::raw::c_void).offset(0);
+    add_ref(object as *const *const std::os::raw::c_void);
+    crosscom::ResultCode::Ok as i32
+}
+
+
+&crate::defs::IHtmlStyleElement::INTERFACE_ID => {
+    *retval = (object as *const *const std::os::raw::c_void).offset(0);
+    add_ref(object as *const *const std::os::raw::c_void);
+    crosscom::ResultCode::Ok as i32
+}
+
+
+            _ => crosscom::ResultCode::ENoInterface as i32,
+        }
+    }
+
+    unsafe extern "system" fn add_ref(this: *const *const std::os::raw::c_void) -> std::os::raw::c_long {
+        let object = crosscom::get_object::<HtmlStyleElementCcw>(this);
+        let previous = (*object).ref_count.fetch_add(1, std::sync::atomic::Ordering::SeqCst);
+        (previous + 1) as std::os::raw::c_long
+    }
+
+    unsafe extern "system" fn release(this: *const *const std::os::raw::c_void) -> std::os::raw::c_long {
+        let object = crosscom::get_object::<HtmlStyleElementCcw>(this);
+
+        let previous = (*object).ref_count.fetch_sub(1, std::sync::atomic::Ordering::SeqCst);
+        if previous - 1 == 0 {
+            Box::from_raw(object as *mut HtmlStyleElementCcw);
+        }
+
+        (previous - 1) as std::os::raw::c_long
+    }
+
+
+    
+    fn on_mouse_move (this: *const *const std::os::raw::c_void, x: f64, 
+y: f64, 
+window: &winit::window::Window, 
+) -> crosscom::Void {
+        unsafe {
+            let object = crosscom::get_object::<HtmlStyleElementCcw>(this);
+            (*object).inner.0.on_mouse_move(x,y,window)
+        }
+    }
+    
+
+
+    fn on_mouse_click (this: *const *const std::os::raw::c_void, ) -> crate::page::FelisAction {
+        unsafe {
+            let object = crosscom::get_object::<HtmlStyleElementCcw>(this);
+            (*object).inner.0.on_mouse_click()
+        }
+    }
+    
+
+
+    fn merge_style (this: *const *const std::os::raw::c_void, style: &crate::style::Style, 
+) -> crosscom::Void {
+        unsafe {
+            let object = crosscom::get_object::<HtmlStyleElementCcw>(this);
+            (*object).inner.0.merge_style(style)
+        }
+    }
+    
+
+
+    fn get_attribute (this: *const *const std::os::raw::c_void, key: &str, 
+) -> Option<Option<String>> {
+        unsafe {
+            let object = crosscom::get_object::<HtmlStyleElementCcw>(this);
+            (*object).inner.0.get_attribute(key)
+        }
+    }
+    
+
+
+    unsafe extern "system" fn id (this: *const *const std::os::raw::c_void, ) -> *const *const std::os::raw::c_void {
+        let object = crosscom::get_object::<HtmlStyleElementCcw>(this);
+        (*object).inner.0.id().into()
+    }
+    
+
+
+    unsafe extern "system" fn tag (this: *const *const std::os::raw::c_void, ) -> *const *const std::os::raw::c_void {
+        let object = crosscom::get_object::<HtmlStyleElementCcw>(this);
+        (*object).inner.0.tag().into()
+    }
+    
+
+
+    unsafe extern "system" fn children (this: *const *const std::os::raw::c_void, ) -> *const *const std::os::raw::c_void {
+        let object = crosscom::get_object::<HtmlStyleElementCcw>(this);
+        (*object).inner.0.children().into()
+    }
+    
+
+
+    unsafe extern "system" fn inner_html (this: *const *const std::os::raw::c_void, ) -> *const *const std::os::raw::c_void {
+        let object = crosscom::get_object::<HtmlStyleElementCcw>(this);
+        (*object).inner.0.inner_html().into()
+    }
+    
+
+
+    unsafe extern "system" fn outer_html (this: *const *const std::os::raw::c_void, ) -> *const *const std::os::raw::c_void {
+        let object = crosscom::get_object::<HtmlStyleElementCcw>(this);
+        (*object).inner.0.outer_html().into()
+    }
+    
+
+
+    unsafe extern "system" fn set_inner_html (this: *const *const std::os::raw::c_void, html: *const *const std::os::raw::c_void, 
+) -> () {
+        let object = crosscom::get_object::<HtmlStyleElementCcw>(this);
+        (*object).inner.0.set_inner_html(html.into()).into()
+    }
+    
+
+
+    unsafe extern "system" fn get_elements_by_tag_name (this: *const *const std::os::raw::c_void, tag: *const *const std::os::raw::c_void, 
+) -> *const *const std::os::raw::c_void {
+        let object = crosscom::get_object::<HtmlStyleElementCcw>(this);
+        (*object).inner.0.get_elements_by_tag_name(tag.into()).into()
+    }
+    
+
+
+    unsafe extern "system" fn get_element_by_id (this: *const *const std::os::raw::c_void, id: *const *const std::os::raw::c_void, 
+) -> crosscom::RawPointer {
+        let object = crosscom::get_object::<HtmlStyleElementCcw>(this);
+        (*object).inner.0.get_element_by_id(id.into()).into()
+    }
+    
+
+
+
+
+    
+#[allow(non_upper_case_globals)]
+pub const GLOBAL_IHtmlStyleElementVirtualTable_CCW_FOR_HtmlStyleElement: crate::defs::IHtmlStyleElementVirtualTableCcw 
+    = crate::defs::IHtmlStyleElementVirtualTableCcw {
+    offset: 0,
+    vtable: crate::defs::IHtmlStyleElementVirtualTable {
+        query_interface,
+add_ref,
+release,
+children,
+inner_html,
+outer_html,
+set_inner_html,
+get_elements_by_tag_name,
+get_element_by_id,
+id,
+tag,
+on_mouse_move,
+on_mouse_click,
+merge_style,
+get_attribute,
+
+    },
+};
+
+
+
+
+    impl crosscom::ComObject for $impl_type {
+        type CcwType = HtmlStyleElementCcw;
+
+        fn create_ccw(self) -> Self::CcwType {
+            Self::CcwType {
+                
+IHtmlStyleElement: crate::defs::IHtmlStyleElement {
+    vtable: &GLOBAL_IHtmlStyleElementVirtualTable_CCW_FOR_HtmlStyleElement.vtable
+        as *const crate::defs::IHtmlStyleElementVirtualTable,
+},
+
+                ref_count: std::sync::atomic::AtomicU32::new(0),
+                inner: self,
+            }
+        }
+    }
+}
+    }
+}
+
+pub(crate) use ComObject_HtmlStyleElement;
 

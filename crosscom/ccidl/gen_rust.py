@@ -445,7 +445,6 @@ impl {self.crosscom_module_name}::ComInterface for {i.name} {{
     def __map_raw_type(self, idl_ty: str, attrs: list[str] = None) -> str:
         is_out = attrs is not None and 'out' in attrs
 
-        print(idl_ty)
         if idl_ty.endswith('[]'):
             # TODO
             inner_ty = self.__map_raw_type(idl_ty[0:-2])

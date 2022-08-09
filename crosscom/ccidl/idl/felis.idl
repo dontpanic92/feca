@@ -60,8 +60,15 @@ class Text: IText, IRenderable {}
 interface IHtmlElement: IElement {
     [internal(), rust()]
     crosscom::Void on_mouse_move(f64 x, f64 y, &winit::window::Window window);
+
     [internal(), rust()]
     crate::page::FelisAction on_mouse_click();
+
+    [internal(), rust()]
+    crosscom::Void merge_style(&crate::style::Style style);
+    
+    [internal(), rust()]
+    Option<Option<String>> get_attribute(&str key);
 }
 
 [uuid(7f94e172-38d8-4e57-9824-485b70b0b824), rust_inner_field(0)]
@@ -116,3 +123,10 @@ interface IHtmlImageElement: IHtmlElement {
 
 [uuid(ed25b169-eb06-4abc-b235-94e8e2cd0f49), rust_inner_field(0)]
 class HtmlImageElement: IHtmlImageElement, IRenderable {}
+
+[uuid(e6665467-847f-4aef-91f7-cfdc5e59ff8f)]
+interface IHtmlStyleElement: IHtmlElement {
+}
+
+[uuid(ea1f3f2b-aff5-422b-9e21-7fc9aefb2bca), rust_inner_field(0)]
+class HtmlStyleElement: IHtmlStyleElement {}

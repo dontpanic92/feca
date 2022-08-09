@@ -33,7 +33,7 @@ pub type Attributes = HashMap<String, Option<String>>;
 
 pub struct HtmlElementProps {
     title: ComRc<IDomString>,
-    style: Style,
+    style: RefCell<Style>,
     boundary: RefCell<Rectangle>,
     hover: RefCell<bool>,
     attributes: Attributes,
@@ -53,7 +53,7 @@ impl HtmlElementProps {
         };
         Self {
             title,
-            style,
+            style: RefCell::new(style),
             boundary: RefCell::new(Rectangle::new(0, 0, 0, 0)),
             hover: RefCell::new(false),
             attributes,
@@ -112,6 +112,18 @@ impl<T: 'static + XcDataType> IHtmlElementImpl for CoreHtmlElementBase<T> {
 
         FelisAction::None
     }
+
+    fn merge_style(&self, style: &crate::style::Style) -> crosscom::Void {
+        let mut s = self.HtmlElementProps().style.borrow_mut();
+        *s = Style::merge(style, &s);
+    }
+
+    fn get_attribute(&self, key: &str) -> Option<Option<String>> {
+        self.HtmlElementProps()
+            .attributes
+            .get(key)
+            .map(|s| s.clone())
+    }
 }
 
 impl<T: 'static + XcDataType> IRenderableImpl for CoreHtmlElementBase<T> {
@@ -121,7 +133,7 @@ impl<T: 'static + XcDataType> IRenderableImpl for CoreHtmlElementBase<T> {
         style_computed: &Style,
         content_boundary: crate::common::Rectangle,
     ) -> crate::common::Rectangle {
-        let style_computed = Style::merge(&self.HtmlElementProps().style, style_computed);
+        let style_computed = Style::merge(&self.HtmlElementProps().style.borrow(), style_computed);
         *self.HtmlElementProps().boundary.borrow_mut() = layout_children(
             self.children(),
             pango_context,
@@ -133,7 +145,7 @@ impl<T: 'static + XcDataType> IRenderableImpl for CoreHtmlElementBase<T> {
     }
 
     default fn display(&self) -> Display {
-        self.HtmlElementProps().style.display
+        self.HtmlElementProps().style.borrow().display
     }
 
     default fn paint(
@@ -141,7 +153,7 @@ impl<T: 'static + XcDataType> IRenderableImpl for CoreHtmlElementBase<T> {
         renderer: &crate::rendering::cairo::CairoRenderer,
         style_computed: &Style,
     ) {
-        let style_computed = Style::merge(&self.HtmlElementProps().style, style_computed);
+        let style_computed = Style::merge(&self.HtmlElementProps().style.borrow(), style_computed);
         paint_children(self.children(), renderer, &style_computed)
     }
 }

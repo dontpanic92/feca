@@ -43,7 +43,7 @@ impl HtmlElementProps {
     pub fn new(title: ComRc<IDomString>, default_style: Style, attributes: Attributes) -> Self {
         let inline_style = attributes
             .get("style")
-            .map(|style| crate::style::parser::parse(style.as_deref().unwrap_or("")).ok())
+            .map(|style| crate::style::parser::parse_inline(style.as_deref().unwrap_or("")).ok())
             .flatten()
             .unwrap_or_default();
         let style = if inline_style.0.len() == 0 {

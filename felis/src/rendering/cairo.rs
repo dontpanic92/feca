@@ -77,7 +77,6 @@ impl CairoRenderer {
                 boundary.height as f64,
             );
             self.context.fill().unwrap();
-            self.flush();
         }
 
         self.context.restore().unwrap();

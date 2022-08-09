@@ -9,7 +9,11 @@ use nom::{
     IResult,
 };
 
-use super::Style;
+use super::{
+    block::StyleBlock,
+    selector::{ClassSelector, IdSelector, TagSelector, TrivalSelector},
+    Style,
+};
 
 fn w<'a, F: 'a, O, E: ParseError<&'a str>>(
     inner: F,
@@ -29,8 +33,8 @@ where
     delimited(multispace0, inner, multispace0)
 }
 
-pub fn parse(input: &str) -> IResult<&str, Style> {
-    style(input)
+pub fn parse_inline(input: &str) -> IResult<&str, Style> {
+    style_inline(input)
 }
 
 fn key(input: &str) -> IResult<&str, &str> {
@@ -38,6 +42,10 @@ fn key(input: &str) -> IResult<&str, &str> {
         alt((alpha1, tag("-"))),
         many0_count(alt((alphanumeric1, tag("-")))),
     )))(input)
+}
+
+fn identifier(input: &str) -> IResult<&str, &str> {
+    recognize(pair(alpha1, many0_count(alt((alphanumeric1, tag("-"))))))(input)
 }
 
 fn value(input: &str) -> IResult<&str, &str> {
@@ -55,7 +63,7 @@ fn item(input: &str) -> IResult<&str, (&str, &str)> {
     Ok((input, (key, value)))
 }
 
-fn style(input: &str) -> IResult<&str, Style> {
+fn style_inline(input: &str) -> IResult<&str, Style> {
     // let (input, _) = w(tag("{"))(input)?;
     // let (input, _) = multispace0(input)?;
     let (input, items) = many0(item)(input)?;
@@ -64,4 +72,58 @@ fn style(input: &str) -> IResult<&str, Style> {
     println!("{:?}", &items);
     println!("{}", input);
     return Ok((input, Style::from_key_value_list(&items)));
+}
+
+fn class_selector(input: &str) -> IResult<&str, TrivalSelector> {
+    let (input, _) = w(tag("."))(input)?;
+    let (input, identifier) = identifier(input)?;
+
+    Ok((
+        input,
+        TrivalSelector::ClassSelector(ClassSelector {
+            0: identifier.to_string(),
+        }),
+    ))
+}
+
+fn tag_selector(input: &str) -> IResult<&str, TrivalSelector> {
+    let (input, identifier) = identifier(input)?;
+
+    Ok((
+        input,
+        TrivalSelector::TagSelector(TagSelector {
+            0: identifier.to_string(),
+        }),
+    ))
+}
+
+fn id_selector(input: &str) -> IResult<&str, TrivalSelector> {
+    let (input, _) = w(tag("#"))(input)?;
+    let (input, identifier) = identifier(input)?;
+
+    Ok((
+        input,
+        TrivalSelector::IdSelector(IdSelector {
+            0: identifier.to_string(),
+        }),
+    ))
+}
+
+fn selector(input: &str) -> IResult<&str, TrivalSelector> {
+    let (input, selector) = alt((class_selector, id_selector, tag_selector))(input)?;
+
+    Ok((input, selector))
+}
+
+fn parse_block(input: &str) -> IResult<&str, StyleBlock> {
+    let (input, selectors) = many1(w(selector))(input)?;
+    let (input, _) = w2(tag("{"))(input)?;
+    let (input, style) = parse_inline(input)?;
+    let (input, _) = w2(tag("}"))(input)?;
+
+    Ok((input, StyleBlock { selectors, style }))
+}
+
+pub fn parse_style(input: &str) -> IResult<&str, Vec<StyleBlock>> {
+    many0(parse_block)(input)
 }

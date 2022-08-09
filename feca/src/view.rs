@@ -85,6 +85,7 @@ impl View {
                         self.renderer = CairoRenderer::new_from_winit(&self.window);
                         page.layout(self.renderer.pango_context(), self.renderer.canvas_size());
                         page.paint(&self.renderer);
+                        self.renderer.flush();
                     }
                 }
                 Event::WindowEvent {

@@ -178,52 +178,34 @@ pub fn new_core_html_element(
     })
 }
 
-pub fn new_i_element(
-    children: Vec<ComRc<INode>>,
-    id: ComRc<IDomString>,
-    attributes: Attributes,
-) -> ComRc<INode> {
-    new_core_html_element(
-        children,
-        id,
-        "i",
-        Style {
-            font_style: Some(FontStyle::Italic),
-            display: Display::Inline,
-            ..Style::default()
-        },
-        attributes,
-    )
-}
-
-pub fn new_a_element(
-    children: Vec<ComRc<INode>>,
-    id: ComRc<IDomString>,
-    attributes: Attributes,
-) -> ComRc<INode> {
-    new_core_html_element(
-        children,
-        id,
-        "a",
-        Style {
-            text_color: Some(Color::BLUE),
-            text_decoration_line: Some(TextDecorationLine::Underline),
-            display: Display::Inline,
-            ..Style::default()
-        },
-        attributes,
-    )
-}
-
 macro_rules! new_element {
     ($name: ident, $style: expr) => {
         paste::paste! {
-            pub fn [<new_ $name _element>](children: Vec<ComRc<INode>>, id: ComRc<IDomString>, attributes: Attributes) -> ComRc<INode> {
+            pub fn [<new_ $name>](children: Vec<ComRc<INode>>, id: ComRc<IDomString>, attributes: Attributes) -> ComRc<INode> {
                 new_core_html_element(children, id, stringify!($name), $style, attributes)
             }
         }
     };
 }
+
+new_element!(
+    i,
+    Style {
+        font_style: Some(FontStyle::Italic),
+        display: Display::Inline,
+        ..Style::default()
+    }
+);
+
+new_element!(
+    a,
+    Style {
+        text_color: Some(Color::BLUE),
+        text_decoration_line: Some(TextDecorationLine::Underline),
+        display: Display::Inline,
+        ..Style::default()
+    }
+);
 
 new_element!(
     h1,

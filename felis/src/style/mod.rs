@@ -12,6 +12,7 @@ pub struct Style {
     pub font_size: Option<String>,
     pub font_weight: Option<String>,
     pub text_decoration_line: Option<TextDecorationLine>,
+    pub background_color: Option<Color>,
     pub display: Display,
     pub justify_content: Option<JustifyContent>,
 }
@@ -82,6 +83,7 @@ impl Style {
         merge_style!(font_size);
         merge_style!(font_weight);
         merge_style!(text_decoration_line);
+        merge_style!(background_color);
         merge_style_inherit2!(display, Display);
         merge_style!(justify_content);
 

@@ -25,7 +25,7 @@ impl BodyProps {
     }
 }
 
-pub fn new_core_body(
+pub fn new_body(
     children: Vec<ComRc<INode>>,
     id: ComRc<IDomString>,
     attributes: Attributes,

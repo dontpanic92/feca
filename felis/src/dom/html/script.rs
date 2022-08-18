@@ -51,7 +51,7 @@ impl<T: 'static + XcDataType> IHtmlScriptElementImpl for CoreScriptBase<T> {
     }
 }
 
-pub fn new_core_script(
+pub fn new_script(
     children: Vec<ComRc<INode>>,
     id: ComRc<IDomString>,
     attributes: Attributes,

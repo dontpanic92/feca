@@ -25,7 +25,7 @@ impl HeadProps {
     }
 }
 
-pub fn new_core_head(
+pub fn new_head(
     children: Vec<ComRc<INode>>,
     id: ComRc<IDomString>,
     attributes: Attributes,

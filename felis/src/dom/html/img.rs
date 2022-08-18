@@ -58,7 +58,7 @@ impl IRenderableImpl for CoreImage {
     }
 }
 
-pub fn new_image(
+pub fn new_img(
     children: Vec<ComRc<INode>>,
     id: ComRc<IDomString>,
     attributes: Attributes,

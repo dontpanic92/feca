@@ -30,7 +30,7 @@ impl ParagraphProps {
     }
 }
 
-pub fn new_core_paragraph(
+pub fn new_p(
     children: Vec<ComRc<INode>>,
     id: ComRc<IDomString>,
     attributes: Attributes,

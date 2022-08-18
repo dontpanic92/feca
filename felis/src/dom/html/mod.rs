@@ -1,8 +1,12 @@
 use std::collections::HashMap;
 
 use crosscom::ComRc;
+use dashmap::DashMap;
 
-use crate::defs::INode;
+use crate::{
+    defs::{IDomString, INode},
+    dom::html::html_element::Attributes,
+};
 
 use super::core::{string::DomString, text};
 
@@ -15,6 +19,45 @@ pub mod img;
 pub mod paragraph;
 pub mod script;
 pub mod style;
+
+lazy_static::lazy_static! {
+    static ref TAG_CTOR_MAP: DashMap<String, fn(
+        Vec<ComRc<INode>>,
+        ComRc<IDomString>,
+        Attributes,
+    ) -> ComRc<INode>> = {
+        let map = DashMap::new();
+        map.insert("html".to_string(), html::new_core_html as fn(
+            Vec<ComRc<INode>>,
+            ComRc<IDomString>,
+            Attributes,
+        ) -> ComRc<INode>);
+
+        macro_rules! tag {
+            ($name: ident) => {
+                tag!($name, $name);
+            };
+
+            ($name: ident, $module: ident) => {
+                paste::paste! {
+                    map.insert(stringify!($name).to_string(), $module::[<new_ $name >]);
+                }
+            };
+        }
+        tag!(head);
+        tag!(body);
+        tag!(p, paragraph);
+        tag!(i, html_element);
+        tag!(a, html_element);
+        tag!(b, html_element);
+        tag!(h1, html_element);
+        tag!(script);
+        tag!(style);
+        tag!(div);
+        tag!(img);
+        map
+    };
+}
 
 pub(crate) struct HtmlDom {
     root: Option<ComRc<INode>>,
@@ -57,20 +100,11 @@ impl HtmlDom {
                     .map(|attr| (attr.0.into_owned(), attr.1.map(|str| str.into_owned())))
                     .collect::<HashMap<String, Option<String>>>();
 
-                match t.name().as_utf8_str().to_lowercase().as_str() {
-                    "html" => Some(html::new_core_html(children, id, attributes)),
-                    "head" => Some(head::new_core_head(children, id, attributes)),
-                    "body" => Some(body::new_core_body(children, id, attributes)),
-                    "p" => Some(paragraph::new_core_paragraph(children, id, attributes)),
-                    "i" => Some(html_element::new_i_element(children, id, attributes)),
-                    "a" => Some(html_element::new_a_element(children, id, attributes)),
-                    "b" => Some(html_element::new_b_element(children, id, attributes)),
-                    "h1" => Some(html_element::new_h1_element(children, id, attributes)),
-                    "script" => Some(script::new_core_script(children, id, attributes)),
-                    "style" => Some(style::new_style(children, id, attributes)),
-                    "div" => Some(div::new_div(children, id, attributes)),
-                    "img" => Some(img::new_image(children, id, attributes)),
-                    _ => None,
+                let tag_name = t.name().as_utf8_str().to_lowercase();
+                if let Some(ctor) = TAG_CTOR_MAP.get(tag_name.as_str()) {
+                    Some(ctor(children, id, attributes))
+                } else {
+                    None
                 }
             }
             tl::Node::Raw(b) => {

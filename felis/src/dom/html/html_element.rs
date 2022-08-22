@@ -145,7 +145,7 @@ impl<T: 'static + XcDataType> IRenderableImpl for CoreHtmlElementBase<T> {
     }
 
     default fn display(&self) -> Display {
-        self.HtmlElementProps().style.borrow().display
+        self.HtmlElementProps().style.borrow().display.unwrap_or(Display::Inherit)
     }
 
     default fn paint(
@@ -192,7 +192,7 @@ new_element!(
     i,
     Style {
         font_style: Some(FontStyle::Italic),
-        display: Display::Inline,
+        display: Some(Display::Inline),
         ..Style::default()
     }
 );
@@ -200,9 +200,9 @@ new_element!(
 new_element!(
     a,
     Style {
-        text_color: Some(Color::BLUE),
+        color: Some(Color::BLUE),
         text_decoration_line: Some(TextDecorationLine::Underline),
-        display: Display::Inline,
+        display: Some(Display::Inline),
         ..Style::default()
     }
 );
@@ -220,7 +220,7 @@ new_element!(
     b,
     Style {
         font_weight: Some("700".to_string()),
-        display: Display::Inline,
+        display: Some(Display::Inline),
         ..Style::default()
     }
 );

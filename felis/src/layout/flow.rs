@@ -14,7 +14,7 @@ impl FlowLayout {
         content_boundary: Rectangle,
         children: &[ComRc<IRenderable>],
     ) -> Rectangle {
-        if style_computed.display == Display::Flex {
+        if style_computed.display.unwrap() == Display::Flex {
             Self::flex(pango_context, style_computed, content_boundary, children)
         } else {
             Self::flow(pango_context, style_computed, content_boundary, children)
@@ -250,12 +250,12 @@ impl FlowLayout {
             width: 0,
         };
 
-        let mut last_display = style_computed.display;
+        let mut last_display = style_computed.display.unwrap();
         let mut max_right = 0;
 
         for child in children {
             let display = if child.display() == Display::Inherit {
-                style_computed.display
+                style_computed.display.unwrap()
             } else if child.display() == Display::FelisText {
                 last_display
             } else {
@@ -291,8 +291,8 @@ impl FlowLayout {
         }
 
         let width = match style_computed.display {
-            Display::Block => content_boundary.width,
-            Display::Inline => max_right - content_boundary.left,
+            Some(Display::Block) => content_boundary.width,
+            Some(Display::Inline) => max_right - content_boundary.left,
             _ => content_boundary.width,
         };
 

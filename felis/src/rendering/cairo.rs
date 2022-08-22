@@ -36,7 +36,7 @@ impl CairoRenderer {
         let layout = layout.get_layout();
 
         self.context.save().unwrap();
-        if let Some(color) = style_computed.text_color.as_ref() {
+        if let Some(color) = style_computed.color.as_ref() {
             let color_f = color.to_color_f();
             self.context
                 .set_source_rgba(color_f.r, color_f.g, color_f.b, color_f.a);

@@ -37,7 +37,7 @@ pub fn new_core_html(
             .with(HtmlElementProps::new(
                 DomString::new("".to_string()),
                 Style {
-                    display: Display::Block,
+                    display: Some(Display::Block),
                     ..Style::default()
                 },
                 attributes,

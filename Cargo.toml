@@ -3,6 +3,7 @@ members = [
     "xcdt",
     "crosscom/runtime/rust",
     "felis",
+    "felis-macros",
     "catus",
     "feca",
 ]

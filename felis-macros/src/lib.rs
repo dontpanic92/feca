@@ -58,6 +58,14 @@ pub fn style(input: TokenStream) -> TokenStream {
 
             style
         }
+
+        pub fn merge(child: &Style, parent: &Style) -> Self {
+            let mut ret = Style::default();
+
+            #( ret. #field_name= child. #field_name .clone().or_else(|| parent. #field_name .clone()); )*
+
+            ret
+        }
     }
     };
 
@@ -85,7 +93,8 @@ pub fn felis_default(input: TokenStream) -> TokenStream {
             .next()
             .expect("No item marked as default"),
         _ => panic!("Cannot be used in types other than enums"),
-    };
+    }
+    .ident;
 
     let output = quote! {
     impl ::core::default::Default for #ident {

@@ -1,3 +1,5 @@
+use std::str::FromStr;
+
 #[derive(Clone, Copy)]
 pub struct Position {
     pub x: i32,
@@ -39,6 +41,20 @@ impl Color {
             b: self.b as f64 / 1.,
             a: self.a as f64 / 1.,
         }
+    }
+}
+
+impl Default for Color {
+    fn default() -> Self {
+        Self::BLACK
+    }
+}
+
+impl FromStr for Color {
+    type Err = ();
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        todo!()
     }
 }
 

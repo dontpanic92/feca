@@ -145,7 +145,11 @@ impl<T: 'static + XcDataType> IRenderableImpl for CoreHtmlElementBase<T> {
     }
 
     default fn display(&self) -> Display {
-        self.HtmlElementProps().style.borrow().display.unwrap_or(Display::Inherit)
+        self.HtmlElementProps()
+            .style
+            .borrow()
+            .display
+            .unwrap_or(Display::Inherit)
     }
 
     default fn paint(

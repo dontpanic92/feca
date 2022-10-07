@@ -122,17 +122,17 @@ Virtual methods are achived by using the nightly feature `min_specialization`, w
 
 Just mark the implementation with `default`, then we will have a chance to overwrite it in our derived types:
 
-```
+```rust
 impl<T: 'static + XcDataType> Layoutable for CoreNodeBase<T> {
     default fn layout(&self) {
-        // ...
+        // ... Implementation in Base type
     }
 }
 
 // In derived types..
 impl<T: 'static + XcDataType> Layoutable for CoreElementBase<T> {
     default fn layout(&self) {
-        // ...
+        // ... Override parent's implementation
     }
 }
 ```

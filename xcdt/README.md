@@ -1,6 +1,6 @@
 # eXtensible Chained Data Type
 
-Brings Chaos into Rust.
+Brings Chaos into Rust. Well, just for fun.
 
 ## About
 
@@ -70,7 +70,7 @@ impl<T: 'static + XcDataType> INode for CoreNodeBase<T> {
 
 Then all the dervied types will automatically implement the same trait, which is just like what other OO-languages do.
 
-Or if you don't want it to be inherited by derived types, implement the trait for `CoreNode`:
+Or, if you don't want it to be inherited by derived types, implement the trait for `CoreNode`:
 
 ```rust
 impl INode for CoreNode {
@@ -137,4 +137,4 @@ impl<T: 'static + XcDataType> Layoutable for CoreElementBase<T> {
 }
 ```
 
-Call to `layout` will be dispatched to the correct impelementation, according to what the concrete data type is.
+Any call to `layout` will be dispatched to the correct implementation, according to what the concrete data type is.

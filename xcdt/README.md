@@ -1,6 +1,6 @@
 # eXtensible Chained Data Type
 
-Brings Chaos into Rust.
+Brings Chaos into Rust. Well, just for fun.
 
 ## About
 
@@ -26,7 +26,7 @@ The above call to `declare_xcdt` will do the following things for you:
 - Create a Type named `CoreNode`, which is the derived type.
 - Data member of `CoreNode` is defined as `NodeProps`, in which you can add your own data members.
 - `CoreNode` will inherit data and behaviors from `Object`. Object is the base type for all the xcdt types.
-- Well, the last `CoreNodeBase` is a bit duplicated with the third parameter `CoreNode`. Maybe we can refine the macro definition a little bit to eliminate this redundant param, though I'm not sure.
+- Well, the last `ObjectBase` is a bit duplicated with the third parameter `Object`. Maybe we can refine the macro definition a little bit to eliminate this redundant param, though I'm not sure.
 
 Now, CoreNode will be the type containing both data from base type and derived type. Let's see how to make an instance of CoreNode.
 
@@ -70,7 +70,7 @@ impl<T: 'static + XcDataType> INode for CoreNodeBase<T> {
 
 Then all the dervied types will automatically implement the same trait, which is just like what other OO-languages do.
 
-Or if you don't want it to be inherited by derived types, implement the trait for `CoreNode`:
+Or, if you don't want it to be inherited by derived types, implement the trait for `CoreNode`:
 
 ```rust
 impl INode for CoreNode {
@@ -122,19 +122,19 @@ Virtual methods are achived by using the nightly feature `min_specialization`, w
 
 Just mark the implementation with `default`, then we will have a chance to overwrite it in our derived types:
 
-```
+```rust
 impl<T: 'static + XcDataType> Layoutable for CoreNodeBase<T> {
     default fn layout(&self) {
-        // ...
+        // ... Implementation in Base type
     }
 }
 
 // In derived types..
 impl<T: 'static + XcDataType> Layoutable for CoreElementBase<T> {
     default fn layout(&self) {
-        // ...
+        // ... Override parent's implementation
     }
 }
 ```
 
-Call to `layout` will be dispatched to the correct impelementation, according to what the concrete data type is.
+Any call to `layout` will be dispatched to the correct implementation, according to what the concrete data type is.

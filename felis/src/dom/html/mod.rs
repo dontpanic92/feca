@@ -16,6 +16,7 @@ pub mod head;
 pub mod html;
 pub mod html_element;
 pub mod img;
+pub mod link;
 pub mod paragraph;
 pub mod script;
 pub mod style;
@@ -55,6 +56,7 @@ lazy_static::lazy_static! {
         tag!(style);
         tag!(div);
         tag!(img);
+        tag!(link);
         map
     };
 }

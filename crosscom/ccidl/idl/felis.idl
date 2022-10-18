@@ -96,6 +96,14 @@ interface IHtmlHeadElement: IHtmlElement {
 [uuid(3dc6c7c3-4a4d-4b78-80e2-1814f3e342d9), rust_inner_field(0)]
 class HtmlHeadElement: IHtmlHeadElement, IRenderable {}
 
+
+[uuid(850ed2e0-99a4-4e2c-b9ea-86259daba13c)]
+interface IHtmlLinkElement: IHtmlElement {
+}
+
+[uuid(a9bacdbd-d2de-4a4c-82de-13914014b15e), rust_inner_field(0)]
+class HtmlLinkElement: IHtmlLinkElement, IRenderable {}
+
 [uuid(622e1b69-cb5a-442a-afd3-e8fa7d43cfeb)]
 interface IHtmlBodyElement: IHtmlElement {
 }

@@ -282,12 +282,12 @@ impl FlowLayout {
             };
 
             last_boundary = child.layout(pango_context, style_computed, boundary);
-            last_display = child.display();
+            last_display = display;
             max_right = if last_boundary.right() > max_right {
                 last_boundary.right()
             } else {
                 max_right
-            }
+            };
         }
 
         let width = match style_computed.display {

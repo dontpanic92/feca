@@ -4,6 +4,7 @@ use winit::window::Window;
 use crate::{
     common::Rectangle,
     defs::{IHtmlElement, INode, IRenderable},
+    dom::core::string::DomString,
     dom::html::HtmlDom,
     rendering::cairo::CairoRenderer,
     style::{block::StyleBlock, parser::parse_style, Style},
@@ -107,12 +108,15 @@ impl Page {
     }
 
     fn parse_style_block(dom: &HtmlDom) -> Vec<StyleBlock> {
-        let style_elements =
-            dom.root()
-                .unwrap()
-                .get_elements_by_tag_name(crate::dom::core::string::DomString::new(
-                    "style".to_string(),
-                ));
+        let style_elements = dom
+            .root()
+            .unwrap()
+            .get_elements_by_tag_name(DomString::new("style".to_string()));
+
+        let link_elements = dom
+            .root()
+            .unwrap()
+            .get_elements_by_tag_name(DomString::new("link".to_string()));
 
         let mut blocks = vec![];
         for element in style_elements.raw() {
@@ -120,6 +124,19 @@ impl Page {
             let css_text = node.inner_html().str();
             let css_blocks = parse_style(css_text).unwrap();
             blocks.extend(css_blocks.1);
+        }
+
+        for element in link_elements.raw() {
+            let node = element.query_interface::<IHtmlElement>().unwrap();
+            let href = node.get_attribute("href").flatten();
+            if let Some(href) = href {
+                let content = std::fs::read_to_string(href);
+                if let Ok(css_text) = content {
+                    let css_blocks = parse_style(&css_text).unwrap();
+                    println!("{}", &css_blocks.0[0..10]);
+                    blocks.extend(css_blocks.1);
+                }
+            }
         }
 
         blocks

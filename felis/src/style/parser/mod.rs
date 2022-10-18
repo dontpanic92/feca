@@ -1,3 +1,8 @@
+use std::{
+    borrow::Borrow,
+    cell::{RefCell, RefMut},
+};
+
 use nom::{
     branch::alt,
     bytes::complete::tag,
@@ -35,6 +40,13 @@ where
 
 pub fn parse_inline(input: &str) -> IResult<&str, Style> {
     style_inline(input)
+}
+
+pub fn parse_style(input: &str) -> IResult<&str, Vec<StyleBlock>> {
+    let parser = Parser::new(input);
+    parser.style()
+    /*ret.and_then(|ret| Ok((ret.0, ret.1)))
+    .or_else(|err| Err(err.map(|e| nom::error::Error::new(e.input, e.code))))*/
 }
 
 fn key(input: &str) -> IResult<&str, &str> {
@@ -115,15 +127,75 @@ fn selector(input: &str) -> IResult<&str, TrivalSelector> {
     Ok((input, selector))
 }
 
-fn parse_block(input: &str) -> IResult<&str, StyleBlock> {
-    let (input, selectors) = many1(w(selector))(input)?;
-    let (input, _) = w2(tag("{"))(input)?;
-    let (input, style) = parse_inline(input)?;
-    let (input, _) = w2(tag("}"))(input)?;
-
-    Ok((input, StyleBlock { selectors, style }))
+fn at_tag(input: &str) -> IResult<&str, &str> {
+    recognize(alt((tag("charset"), tag("media"))))(input)
 }
 
-pub fn parse_style(input: &str) -> IResult<&str, Vec<StyleBlock>> {
-    many0(parse_block)(input)
+struct ParserContext {
+    charset: String,
 }
+
+impl ParserContext {
+    pub fn new() -> Self {
+        Self {
+            charset: "utf-8".to_string(),
+        }
+    }
+}
+
+struct Parser<'a> {
+    raw_input: &'a str,
+    context: RefCell<ParserContext>,
+}
+
+impl<'a> Parser<'a> {
+    fn new(input: &'a str) -> Self {
+        Self {
+            raw_input: input,
+            context: RefCell::new(ParserContext::new()),
+        }
+    }
+
+    fn regular_at_rule(input: &'a str) -> IResult<&'a str, ()> {
+        let (input, at_tag) = preceded(tag("@"), at_tag)(input)?;
+        Ok((input, ()))
+    }
+
+    fn parse_block(&self, input: &'a str) -> IResult<&'a str, StyleBlock> {
+        let (input, selectors) = many1(selector)(input)?;
+        let (input, _) = w2(tag("{"))(input)?;
+        let (input, style) = parse_inline(input)?;
+        let (input, _) = w2(tag("}"))(input)?;
+
+        Ok((input, StyleBlock { selectors, style }))
+    }
+
+    fn style(&self) -> IResult<&'a str, Vec<StyleBlock>> {
+        let (input, ret) = many0(self.bind(Self::parse_block))(self.raw_input)?;
+        Ok((input, ret))
+    }
+
+    fn bind<'s, R, F: 's + Fn(&Self, &'a str) -> IResult<&'a str, R>>(
+        &'s self,
+        func: F,
+    ) -> impl 's + Fn(&'a str) -> IResult<&'a str, R> {
+        move |s: &'a str| func(self, s)
+    }
+}
+
+/*
+fn bind<'a, 'b, R, F: 'b + Fn(&'a str, &'b ParseContext) -> IResult<&'a str, R>>(func: F, context: &'b ParseContext) -> impl 'b + Fn(&'a str)  -> IResult<&'a str, R> {
+    move |s: &'a str| { func(s, context) }
+}
+*/
+
+/*struct ParseInput<'a, 'b> {
+    pub source: &'a str,
+    pub context: &'b mut ParseContext,
+}
+
+impl<'a, 'b> ParseInput<'a, 'b> {
+    fn new(source: &'a str, context: &'b mut ParseContext) -> Self {
+        Self { source, context }
+    }
+}*/

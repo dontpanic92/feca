@@ -1,42 +1,23 @@
-use std::{
-    borrow::Borrow,
-    cell::{RefCell, RefMut},
-};
+mod tokenizer;
+
+use std::cell::RefCell;
 
 use nom::{
     branch::alt,
     bytes::complete::tag,
-    character::complete::{alpha1, alphanumeric1, multispace0},
+    character::complete::{alpha1, alphanumeric1},
     combinator::recognize,
-    error::ParseError,
     multi::{many0, many0_count, many1, many1_count},
-    sequence::{delimited, pair, preceded},
+    sequence::{delimited, pair},
     IResult,
 };
+use parser_utils::{parse_string, w, w2};
 
 use super::{
     block::StyleBlock,
     selector::{ClassSelector, IdSelector, TagSelector, TrivalSelector},
     Style,
 };
-
-fn w<'a, F: 'a, O, E: ParseError<&'a str>>(
-    inner: F,
-) -> impl FnMut(&'a str) -> IResult<&'a str, O, E>
-where
-    F: FnMut(&'a str) -> IResult<&'a str, O, E>,
-{
-    preceded(multispace0, inner)
-}
-
-fn w2<'a, F: 'a, O, E: ParseError<&'a str>>(
-    inner: F,
-) -> impl FnMut(&'a str) -> IResult<&'a str, O, E>
-where
-    F: FnMut(&'a str) -> IResult<&'a str, O, E>,
-{
-    delimited(multispace0, inner, multispace0)
-}
 
 pub fn parse_inline(input: &str) -> IResult<&str, Style> {
     style_inline(input)
@@ -127,10 +108,6 @@ fn selector(input: &str) -> IResult<&str, TrivalSelector> {
     Ok((input, selector))
 }
 
-fn at_tag(input: &str) -> IResult<&str, &str> {
-    recognize(alt((tag("charset"), tag("media"))))(input)
-}
-
 struct ParserContext {
     charset: String,
 }
@@ -156,23 +133,35 @@ impl<'a> Parser<'a> {
         }
     }
 
-    fn regular_at_rule(input: &'a str) -> IResult<&'a str, ()> {
-        let (input, at_tag) = preceded(tag("@"), at_tag)(input)?;
+    fn regulat_at_rule_charset(input: &'a str) -> IResult<&'a str, ()> {
+        let (input, _) = w(tag("@charset "))(input)?;
+        let (input, _) = w(parse_string)(input)?;
+        let (input, _) = w(tag(";"))(input)?;
+
         Ok((input, ()))
     }
 
-    fn parse_block(&self, input: &'a str) -> IResult<&'a str, StyleBlock> {
+    fn regular_at_rule(&self, input: &'a str) -> IResult<&'a str, Option<StyleBlock>> {
+        let (input, _) = Self::regulat_at_rule_charset(input)?;
+        Ok((input, None))
+    }
+
+    fn parse_block(&self, input: &'a str) -> IResult<&'a str, Option<StyleBlock>> {
         let (input, selectors) = many1(selector)(input)?;
         let (input, _) = w2(tag("{"))(input)?;
         let (input, style) = parse_inline(input)?;
         let (input, _) = w2(tag("}"))(input)?;
 
-        Ok((input, StyleBlock { selectors, style }))
+        Ok((input, Some(StyleBlock { selectors, style })))
     }
 
     fn style(&self) -> IResult<&'a str, Vec<StyleBlock>> {
-        let (input, ret) = many0(self.bind(Self::parse_block))(self.raw_input)?;
-        Ok((input, ret))
+        let (input, ret) = many0(alt((
+            self.bind(Self::regular_at_rule),
+            self.bind(Self::parse_block),
+        )))(self.raw_input)?;
+
+        Ok((input, ret.into_iter().flatten().collect()))
     }
 
     fn bind<'s, R, F: 's + Fn(&Self, &'a str) -> IResult<&'a str, R>>(
@@ -188,14 +177,3 @@ fn bind<'a, 'b, R, F: 'b + Fn(&'a str, &'b ParseContext) -> IResult<&'a str, R>>
     move |s: &'a str| { func(s, context) }
 }
 */
-
-/*struct ParseInput<'a, 'b> {
-    pub source: &'a str,
-    pub context: &'b mut ParseContext,
-}
-
-impl<'a, 'b> ParseInput<'a, 'b> {
-    fn new(source: &'a str, context: &'b mut ParseContext) -> Self {
-        Self { source, context }
-    }
-}*/

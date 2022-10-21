@@ -15,6 +15,7 @@ paste = "1.0"
 xcdt = { path = "../xcdt" }
 crosscom = { path = "../crosscom/runtime/rust" }
 felis-macros = { path = "../felis-macros" }
+parser-utils = { path = "../parser-utils" }
 linkme = "0.2"
 uuid = "0.8"
 nom = "7.1.1"

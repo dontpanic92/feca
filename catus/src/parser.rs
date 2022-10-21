@@ -1,14 +1,14 @@
 use nom::{
     branch::alt,
-    bytes::complete::{escaped, is_not, tag, take, take_while_m_n},
-    character::complete::{alpha1, alphanumeric1, char, hex_digit1, multispace0, one_of},
-    combinator::{consumed, map, opt, peek, recognize},
-    error::ParseError,
+    bytes::complete::{escaped, is_not, tag, take_while_m_n},
+    character::complete::{alpha1, alphanumeric1, hex_digit1, multispace0, one_of},
+    combinator::{map, opt, peek, recognize},
     multi::{many0_count, many1, separated_list0, separated_list1},
-    number::{self, complete::double},
-    sequence::{delimited, pair, preceded, separated_pair, terminated, tuple},
+    number::complete::double,
+    sequence::{delimited, pair, preceded, terminated, tuple},
     IResult,
 };
+use parser_utils::{boxed, make_vec, to_string, w, w2};
 
 use crate::ast::{
     ArgumentList, AssignmentExpression, BindingElement, CallExpression, Declaration, Expression,
@@ -51,48 +51,6 @@ macro_rules! p2 {
             } $ret(val);
         }
     };
-}
-
-fn w<'a, F: 'a, O, E: ParseError<&'a str>>(
-    inner: F,
-) -> impl FnMut(&'a str) -> IResult<&'a str, O, E>
-where
-    F: FnMut(&'a str) -> IResult<&'a str, O, E>,
-{
-    preceded(multispace0, inner)
-}
-
-fn w2<'a, F: 'a, O, E: ParseError<&'a str>>(
-    inner: F,
-) -> impl FnMut(&'a str) -> IResult<&'a str, O, E>
-where
-    F: FnMut(&'a str) -> IResult<&'a str, O, E>,
-{
-    delimited(multispace0, inner, multispace0)
-}
-
-fn boxed<'a, F: 'a, O, I, E: ParseError<I>>(inner: F) -> impl FnMut(I) -> IResult<I, Box<O>, E>
-where
-    F: FnMut(I) -> IResult<I, O, E>,
-{
-    map(inner, |x| Box::new(x))
-}
-
-fn make_vec<'a, F: 'a, O, U, I, E: ParseError<I>>(
-    inner: F,
-) -> impl FnMut(I) -> IResult<I, Vec<U>, E>
-where
-    F: FnMut(I) -> IResult<I, O, E>,
-{
-    map(inner, |x| vec![])
-}
-
-fn to_string<'a, F: 'a, O, I, E: ParseError<I>>(inner: F) -> impl FnMut(I) -> IResult<I, String, E>
-where
-    O: Into<String>,
-    F: FnMut(I) -> IResult<I, O, E>,
-{
-    map(inner, |x| x.into())
 }
 
 // Lexical Grammar

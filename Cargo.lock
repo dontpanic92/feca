@@ -126,6 +126,7 @@ name = "catus"
 version = "0.1.0"
 dependencies = [
  "nom",
+ "parser-utils",
  "regex",
 ]
 
@@ -507,6 +508,7 @@ dependencies = [
  "nom",
  "pango",
  "pangocairo",
+ "parser-utils",
  "paste",
  "raw-window-handle",
  "strum",
@@ -1243,6 +1245,13 @@ dependencies = [
  "redox_syscall",
  "smallvec",
  "windows-sys",
+]
+
+[[package]]
+name = "parser-utils"
+version = "0.1.0"
+dependencies = [
+ "nom",
 ]
 
 [[package]]

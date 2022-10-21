@@ -2,6 +2,7 @@
 members = [
     "xcdt",
     "crosscom/runtime/rust",
+    "parser-utils",
     "felis",
     "felis-macros",
     "catus",

@@ -1,9 +1,10 @@
 use nom::{
     branch::alt,
     bytes::complete::tag,
-    character::complete::{alpha1, alphanumeric1},
+    character::complete::{alphanumeric1, multispace0},
     combinator::recognize,
-    multi::{many0, many0_count},
+    error::ParseError,
+    multi::many0_count,
     sequence::pair,
     IResult, InputIter, InputLength, InputTake,
 };
@@ -101,17 +102,30 @@ pub enum Token {
     StringLiteral(String),
     LeftBrace,
     RightBrace,
+    LeftParen,
+    RightParen,
+    LeftBracket,
+    RightBracket,
     Colon,
     SemiColon,
+    Comma,
     Comment,
+    Star,
     Dot,
+    Plus,
     Hash,
+    Gt,
+    Lt,
+    Equal,
+    Tilde,
+    Slash,
+    Caret,
+    EOF,
 }
 
 macro_rules! token {
     ($name: ident, $ret: expr, $parser: expr $(,)?) => {
         fn $name(input: &str) -> IResult<&str, Token> {
-            // println!("entering {}", stringify!($name));
             let (input, _) = w($parser)(input)?;
 
             // println!("leaving {}: {}", stringify!($name), input);
@@ -120,38 +134,97 @@ macro_rules! token {
     };
 }
 
-pub fn tokenize(input: &str) -> IResult<&str, Vec<Token>> {
-    many0(alt((
-        identifier,
-        left_brace,
-        right_brace,
-        colon,
-        comment,
-        semicolon,
-        dot,
-        hash,
-        string_literal,
-    )))(input)
+pub fn tokenize(mut input: &str) -> IResult<&str, Vec<Token>> {
+    let mut tokens = vec![];
+    loop {
+        let (remaining, token) = alt((
+            alt((
+                identifier,
+                left_brace,
+                right_brace,
+                left_paren,
+                right_paren,
+                left_bracket,
+                right_bracket,
+                gt,
+                lt,
+                colon,
+                comment,
+                semicolon,
+                dot,
+                hash,
+                string_literal,
+                star,
+                plus,
+                equal,
+                comma,
+                tilde,
+            )),
+            alt((caret, slash, eof)),
+        ))(input)?;
+        input = remaining;
+
+        if token == Token::EOF {
+            break;
+        }
+
+        tokens.push(token);
+    }
+
+    Ok((input, tokens))
 }
 
 fn identifier(input: &str) -> IResult<&str, Token> {
     let (input, ident) = w(recognize(pair(
-        alt((alpha1, tag("_"), tag("-"), tag("@"))),
-        many0_count(alt((alphanumeric1, tag("-")))),
+        alt((
+            alphanumeric1,
+            tag("_"),
+            tag("-"),
+            tag("@"),
+            tag("."),
+            tag("#"),
+            tag("!"),
+        )),
+        many0_count(alt((alphanumeric1, tag("-"), tag("%")))),
     )))(input)?;
 
     Ok((input, Token::Identifier(ident.to_string())))
 }
 
 fn string_literal(input: &str) -> IResult<&str, Token> {
-    let (input, s) = parse_string(input)?;
+    let (input, s) = w(parse_string)(input)?;
     Ok((input, Token::StringLiteral(s)))
+}
+
+fn eof(input: &str) -> IResult<&str, Token> {
+    let (input, _) = multispace0(input)?;
+    if input.len() == 0 {
+        Ok((input, Token::EOF))
+    } else {
+        Err(nom::Err::Error(nom::error::Error::from_error_kind(
+            input,
+            nom::error::ErrorKind::Tag,
+        )))
+    }
 }
 
 token!(left_brace, Token::LeftBrace, tag("{"));
 token!(right_brace, Token::RightBrace, tag("}"));
+token!(left_paren, Token::LeftParen, tag("("));
+token!(right_paren, Token::RightParen, tag(")"));
+token!(left_bracket, Token::LeftBracket, tag("["));
+token!(right_bracket, Token::RightBracket, tag("]"));
+token!(gt, Token::Gt, tag(">"));
+token!(lt, Token::Lt, tag("<"));
 token!(colon, Token::Colon, tag(":"));
 token!(dot, Token::Dot, tag("."));
 token!(semicolon, Token::SemiColon, tag(";"));
 token!(hash, Token::Hash, tag("#"));
+token!(comma, Token::Comma, tag(","));
+token!(star, Token::Star, tag("*"));
+token!(plus, Token::Plus, tag("+"));
+token!(equal, Token::Equal, tag("="));
+token!(tilde, Token::Tilde, tag("~"));
+token!(slash, Token::Slash, tag("/"));
+token!(caret, Token::Caret, tag("^"));
 token!(comment, Token::Comment, parse_c_style_comment);

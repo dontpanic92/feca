@@ -19,23 +19,78 @@ use super::{
     Style,
 };
 
+#[derive(Debug)]
 pub enum ParsingError {
-    LexerError,
-    ParserError,
+    LexerError(String),
+    ParserError(Token),
+    ParserError2,
+}
+
+impl ParsingError {
+    pub fn short_print_err(&self) {
+        match self {
+            Self::LexerError(e) => println!("Lexer Error {}", e),
+            Self::ParserError(e) => println!("Parser Error {:?}", e),
+            Self::ParserError2 => println!("errr2"),
+        }
+    }
 }
 
 pub fn parse_style(input: &str) -> Result<Vec<StyleBlock>, ParsingError> {
-    let (input, tokens) = tokenize(input).map_err(|err| ParsingError::LexerError)?;
-    if input.len() != 0 {
-        return Err(ParsingError::LexerError);
+    let (input, tokens) = tokenize(input).map_err(|err| {
+        println!("after tokenize: {:?}", err);
+        match err {
+            nom::Err::Error(e) => ParsingError::LexerError(e.input.to_string()),
+            nom::Err::Failure(e) => ParsingError::LexerError(e.input.to_string()),
+            nom::Err::Incomplete(_) => ParsingError::LexerError("".to_string()),
+        }
+    })?;
+
+    if input.trim().len() != 0 {
+        return Err(ParsingError::LexerError(input.to_string()));
     }
 
-    let (remaining, blocks) = parse_style_from_tokens(Tokens::new(&tokens)).map_err(|err| ParsingError::ParserError)?;
+    let (remaining, blocks) =
+        parse_style_from_tokens(Tokens::new(&tokens)).map_err(|err| match err {
+            nom::Err::Error(e) => ParsingError::ParserError(e.input.first().unwrap().clone()),
+            nom::Err::Failure(e) => ParsingError::ParserError(e.input.first().unwrap().clone()),
+            _ => ParsingError::ParserError2,
+        })?;
+
     if remaining.count > 0 {
-        return Err(ParsingError::ParserError);
+        return Err(ParsingError::ParserError(
+            remaining.first().unwrap().clone(),
+        ));
     }
 
     Ok(blocks)
+}
+
+pub fn parse_inline(input: &str) -> Result<Style, ParsingError> {
+    let (input, tokens) = tokenize(input).map_err(|err| match err {
+        nom::Err::Error(e) => ParsingError::LexerError(e.input.to_string()),
+        nom::Err::Failure(e) => ParsingError::LexerError(e.input.to_string()),
+        _ => ParsingError::LexerError("".to_string()),
+    })?;
+
+    if input.len() != 0 {
+        return Err(ParsingError::LexerError(input.to_string()));
+    }
+
+    let (remaining, style) =
+        parse_inline_from_tokens(Tokens::new(&tokens)).map_err(|err| match err {
+            nom::Err::Error(e) => ParsingError::ParserError(e.input.first().unwrap().clone()),
+            nom::Err::Failure(e) => ParsingError::ParserError(e.input.first().unwrap().clone()),
+            _ => ParsingError::ParserError2,
+        })?;
+
+    if remaining.count > 0 {
+        return Err(ParsingError::ParserError(
+            remaining.first().unwrap().clone(),
+        ));
+    }
+
+    Ok(style)
 }
 
 pub fn parse_inline_from_tokens(input: Tokens) -> IResult<Tokens, Style> {
@@ -43,8 +98,8 @@ pub fn parse_inline_from_tokens(input: Tokens) -> IResult<Tokens, Style> {
 }
 
 pub fn parse_style_from_tokens(input: Tokens) -> IResult<Tokens, Vec<StyleBlock>> {
-    let parser = Parser::new(input);
-    parser.style()
+    let parser = Parser::new();
+    parser.style(input)
     /*ret.and_then(|ret| Ok((ret.0, ret.1)))
     .or_else(|err| Err(err.map(|e| nom::error::Error::new(e.input, e.code))))*/
 }
@@ -132,8 +187,6 @@ fn style_inline(input: Tokens) -> IResult<Tokens, Style> {
 
     // println!("{:?}", &items);
     // println!("{}", input);
-    let a: String;
-    let s: &str = a.as_ref();
     return Ok((input, Style::from_key_value_list(&items)));
 }
 
@@ -186,20 +239,18 @@ impl ParserContext {
     }
 }
 
-struct Parser<'a> {
-    tokens: Tokens<'a>,
+struct Parser {
     context: RefCell<ParserContext>,
 }
 
-impl<'a> Parser<'a> {
-    fn new(tokens: Tokens) -> Self {
+impl Parser {
+    fn new() -> Self {
         Self {
-            tokens,
             context: RefCell::new(ParserContext::new()),
         }
     }
 
-    fn regulat_at_rule_charset(input: Tokens) -> IResult<Tokens, ()> {
+    fn regulat_at_rule_charset<'a>(input: Tokens<'a>) -> IResult<Tokens<'a>, ()> {
         let (input, _) = tag_ident("@charset", input)?;
         let (input, _) = string_literal(input)?;
         let (input, _) = tag_semicolon(input)?;
@@ -207,12 +258,12 @@ impl<'a> Parser<'a> {
         Ok((input, ()))
     }
 
-    fn regular_at_rule(&self, input: Tokens) -> IResult<Tokens, Option<StyleBlock>> {
+    fn regular_at_rule<'a>(&self, input: Tokens<'a>) -> IResult<Tokens<'a>, Option<StyleBlock>> {
         let (input, _) = Self::regulat_at_rule_charset(input)?;
         Ok((input, None))
     }
 
-    fn parse_block(&self, input: Tokens) -> IResult<Tokens, Option<StyleBlock>> {
+    fn parse_block<'a>(&self, input: Tokens<'a>) -> IResult<Tokens<'a>, Option<StyleBlock>> {
         let (input, selectors) = many1(selector)(input)?;
         let (input, _) = tag_lbrace(input)?;
         let (input, style) = parse_inline_from_tokens(input)?;
@@ -221,16 +272,16 @@ impl<'a> Parser<'a> {
         Ok((input, Some(StyleBlock { selectors, style })))
     }
 
-    fn style(&self) -> IResult<Tokens, Vec<StyleBlock>> {
+    fn style<'a>(&self, tokens: Tokens<'a>) -> IResult<Tokens<'a>, Vec<StyleBlock>> {
         let (input, ret) = many0(alt((
             self.bind(Self::regular_at_rule),
             self.bind(Self::parse_block),
-        )))(self.tokens)?;
+        )))(tokens)?;
 
         Ok((input, ret.into_iter().flatten().collect()))
     }
 
-    fn bind<'s, R, F: 's + Fn(&Self, Tokens<'a>) -> IResult<Tokens<'a>, R>>(
+    fn bind<'s, 'a, R, F: 's + Fn(&Self, Tokens<'a>) -> IResult<Tokens<'a>, R>>(
         &'s self,
         func: F,
     ) -> impl 's + Fn(Tokens<'a>) -> IResult<Tokens<'a>, R> {

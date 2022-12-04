@@ -123,7 +123,7 @@ impl Page {
             let node = element.query_interface::<INode>().unwrap();
             let css_text = node.inner_html().str();
             let css_blocks = parse_style(css_text).unwrap();
-            blocks.extend(css_blocks.1);
+            blocks.extend(css_blocks);
         }
 
         for element in link_elements.raw() {
@@ -132,9 +132,11 @@ impl Page {
             if let Some(href) = href {
                 let content = std::fs::read_to_string(href);
                 if let Ok(css_text) = content {
-                    let css_blocks = parse_style(&css_text).unwrap();
-                    println!("{}", &css_blocks.0[0..10]);
-                    blocks.extend(css_blocks.1);
+                    let css_blocks = parse_style(&css_text);
+                    match css_blocks {
+                        Ok(b) => blocks.extend(b),
+                        Err(e) => e.short_print_err(),
+                    }
                 }
             }
         }

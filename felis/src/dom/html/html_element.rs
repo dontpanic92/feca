@@ -46,11 +46,8 @@ impl HtmlElementProps {
             .map(|style| crate::style::parser::parse_inline(style.as_deref().unwrap_or("")).ok())
             .flatten()
             .unwrap_or_default();
-        let style = if inline_style.0.len() == 0 {
-            Style::merge(&default_style, &inline_style.1)
-        } else {
-            default_style
-        };
+        let style = Style::merge(&default_style, &inline_style);
+
         Self {
             title,
             style: RefCell::new(style),

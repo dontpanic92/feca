@@ -1,8 +1,8 @@
-mod string;
 mod comment;
+mod string;
 
-pub use string::*;
 pub use comment::*;
+pub use string::*;
 
 use nom::{
     character::complete::multispace0,

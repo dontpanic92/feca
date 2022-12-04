@@ -46,14 +46,16 @@ pub fn style(input: TokenStream) -> TokenStream {
 
     let output = quote! {
     impl #ident {
-        pub fn from_key_value_list(list: &[(&str, &str)]) -> Self {
+        pub fn from_key_value_list<P: AsRef<str>>(list: &[(P, P)]) -> Self {
             let mut style = Self {
                 ..Default::default()
             };
 
             for (key, value) in list {
-                match *key {
-                    #( #prop_name => style. #field_name = Some((*value).parse().unwrap_or_default()) ,)*
+                let key: &str = (*key).as_ref();
+                let value: &str = (*value).as_ref();
+                match key {
+                    #( #prop_name => style. #field_name = Some(value.parse().unwrap_or_default()) ,)*
                     _ => {}
                 }
             }

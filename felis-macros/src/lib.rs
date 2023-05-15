@@ -63,6 +63,21 @@ pub fn style(input: TokenStream) -> TokenStream {
             style
         }
 
+        pub fn from_property_list(list: &[crate::style::parser::Property]) -> Self {
+            let mut style = Self {
+                ..Default::default()
+            };
+
+            for property in list {
+                match property.key.as_str() {
+                    #( #prop_name => style. #field_name = Some(property.into()) ,)*
+                    _ => {}
+                }
+            }
+
+            style
+        }
+
         pub fn merge(child: &Style, parent: &Style) -> Self {
             let mut ret = Style::default();
 

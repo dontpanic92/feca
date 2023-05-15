@@ -1,7 +1,7 @@
-use super::{selector::TrivalSelector, Style};
+use super::{selector::SelectorCombinator, Style};
 
 #[derive(Debug)]
 pub struct StyleBlock {
-    pub selectors: Vec<TrivalSelector>,
+    pub selectors: Vec<SelectorCombinator>,
     pub style: Style,
 }

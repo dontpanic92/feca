@@ -16,7 +16,7 @@ use crate::{
         string::DomString,
     },
     page::FelisAction,
-    style::{Display, FontStyle, Style, TextDecorationLine},
+    style::{Display, FontStyle, Style, TextDecorationLine, FontWeight, FontSize},
 };
 
 xcdt::declare_xcdt!(
@@ -211,8 +211,8 @@ new_element!(
 new_element!(
     h1,
     Style {
-        font_size: Some("20px".to_string()),
-        font_weight: Some("700".to_string()),
+        font_size: Some(FontSize::new("20px")),
+        font_weight: Some(FontWeight::new("700")),
         ..Style::default()
     }
 );
@@ -220,7 +220,7 @@ new_element!(
 new_element!(
     b,
     Style {
-        font_weight: Some("700".to_string()),
+        font_weight: Some(FontWeight::new("700")),
         display: Some(Display::Inline),
         ..Style::default()
     }

@@ -53,12 +53,12 @@ impl TextLayout {
         }
 
         if let Some(size) = style_computed.font_size.as_ref() {
-            let size_i = Self::css_size_to_int(size).or(Some(12)).unwrap() * pango::SCALE;
+            let size_i = Self::css_size_to_int(size.desc()).or(Some(12)).unwrap() * pango::SCALE;
             desc.set_size(size_i);
         }
 
         if let Some(weight) = style_computed.font_weight.as_ref() {
-            let pango_weight = Self::css_weight_to_pango(weight).unwrap();
+            let pango_weight = Self::css_weight_to_pango(weight.desc()).unwrap();
             desc.set_weight(pango_weight);
         }
 

@@ -1,12 +1,12 @@
 use nom::{
     branch::alt,
     bytes::complete::tag,
-    character::complete::{alphanumeric1, multispace0},
+    character::complete::{alpha1, alphanumeric1, digit1, multispace0},
     combinator::recognize,
     error::ParseError,
-    multi::many0_count,
+    multi::{many0_count, many1, many1_count},
     sequence::pair,
-    IResult, InputIter, InputLength, InputTake,
+    IResult, InputIter, InputLength, InputTake, InputTakeAtPosition, FindSubstring,
 };
 use parser_utils::{parse_c_style_comment, parse_string, w};
 
@@ -32,6 +32,14 @@ impl<'a> Tokens<'a> {
         } else {
             None
         }
+    }
+
+    pub fn print_debug(&self, count: usize) {
+        println!("{:?}", &self.tokens[0..count]);
+    }
+
+    pub fn print_debug2(&self, desc: &str, count: usize) {
+        println!("{} {:?}", desc, &self.tokens[0..count]);
     }
 }
 
@@ -107,12 +115,14 @@ pub enum Token {
     LeftBracket,
     RightBracket,
     Colon,
+    DoubleColon,
     SemiColon,
     Comma,
     Comment,
     Star,
     Dot,
     Plus,
+    Minus,
     Hash,
     Gt,
     Lt,
@@ -156,11 +166,11 @@ pub fn tokenize(mut input: &str) -> IResult<&str, Vec<Token>> {
                 string_literal,
                 star,
                 plus,
+                minus,
                 equal,
                 comma,
-                tilde,
             )),
-            alt((caret, slash, eof)),
+            alt((tilde, caret, slash, eof)),
         ))(input)?;
         input = remaining;
 
@@ -168,25 +178,35 @@ pub fn tokenize(mut input: &str) -> IResult<&str, Vec<Token>> {
             break;
         }
 
-        tokens.push(token);
+        if token != Token::Comment {
+            tokens.push(token);
+        }
     }
 
     Ok((input, tokens))
 }
 
 fn identifier(input: &str) -> IResult<&str, Token> {
-    let (input, ident) = w(recognize(pair(
-        alt((
-            alphanumeric1,
-            tag("_"),
-            tag("-"),
-            tag("@"),
-            tag("."),
-            tag("#"),
-            tag("!"),
-        )),
-        many0_count(alt((alphanumeric1, tag("-"), tag("%")))),
-    )))(input)?;
+    let (input, ident) = w(recognize(alt((
+        pair(
+            alt((
+                tag("_"),
+                tag("-"),
+                tag("@"),
+                tag("."),
+                tag("#"),
+                tag("!"),
+                tag("::"),
+                tag(":"),
+            )),
+            many1_count(alt((alphanumeric1, tag("-"), tag("."), tag("%")))),
+        ),
+        pair(alpha1, many0_count(alt((alphanumeric1, tag("-"))))),
+        pair(
+            digit1,
+            many0_count(alt((alphanumeric1, tag("."), tag("%")))),
+        ),
+    ))))(input)?;
 
     Ok((input, Token::Identifier(ident.to_string())))
 }
@@ -216,6 +236,7 @@ token!(left_bracket, Token::LeftBracket, tag("["));
 token!(right_bracket, Token::RightBracket, tag("]"));
 token!(gt, Token::Gt, tag(">"));
 token!(lt, Token::Lt, tag("<"));
+token!(double_colon, Token::DoubleColon, tag("::"));
 token!(colon, Token::Colon, tag(":"));
 token!(dot, Token::Dot, tag("."));
 token!(semicolon, Token::SemiColon, tag(";"));
@@ -223,6 +244,7 @@ token!(hash, Token::Hash, tag("#"));
 token!(comma, Token::Comma, tag(","));
 token!(star, Token::Star, tag("*"));
 token!(plus, Token::Plus, tag("+"));
+token!(minus, Token::Minus, tag("-"));
 token!(equal, Token::Equal, tag("="));
 token!(tilde, Token::Tilde, tag("~"));
 token!(slash, Token::Slash, tag("/"));

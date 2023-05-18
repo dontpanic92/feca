@@ -1,7 +1,8 @@
 use std::time::Instant;
 
 use catus::interpreter::Interpreter;
-use felis::{CairoRenderer, DomString, FelisAction, Page};
+use felis::page::{FelisAction, Page, PageOptions};
+use felis::{CairoRenderer, DomString};
 use winit::{
     event::{ElementState, Event, WindowEvent},
     event_loop::{ControlFlow, EventLoop, EventLoopBuilder},
@@ -15,8 +16,23 @@ pub enum FecaEvent {
     RequestLoadPage(String),
 }
 
+pub struct ViewOptions {
+    pub enable_javascript: bool,
+    pub enable_css: bool,
+}
+
+impl Default for ViewOptions {
+    fn default() -> Self {
+        Self {
+            enable_javascript: true,
+            enable_css: true,
+        }
+    }
+}
+
 pub struct View {
     event_loop: Option<EventLoop<FecaEvent>>,
+    options: ViewOptions,
     window: Window,
     page: Option<Page>,
     renderer: CairoRenderer,
@@ -24,7 +40,7 @@ pub struct View {
 }
 
 impl View {
-    pub fn new() -> Self {
+    pub fn new(options: ViewOptions) -> Self {
         let event_loop = Some(EventLoopBuilder::<FecaEvent>::with_user_event().build());
         let window = WindowBuilder::new()
             .with_title("Feca")
@@ -38,28 +54,38 @@ impl View {
             page: None,
             renderer,
             interpreter: None,
+            options,
         }
     }
 
     pub fn load_html_string(&mut self, html: &str) {
-        let page = Page::new_from_html_string(html);
-        let document = page.document().unwrap();
-        let mut interpreter = Interpreter::new();
+        let page = Page::new_from_html_string(
+            html,
+            PageOptions {
+                enable_css: self.options.enable_css,
+            },
+        );
 
-        setup_js_runtime(&mut interpreter, document.clone());
+        if self.options.enable_javascript {
+            let document = page.document().unwrap();
+            let mut interpreter = Interpreter::new();
 
-        let elements = document.get_elements_by_tag_name(DomString::new("script".to_string()));
-        for i in 0..elements.len() {
-            let script = catus::parser::parse(elements.get(i).inner_html().str());
-            if let Ok((text, s)) = &script && text.len() == 0 {
+            setup_js_runtime(&mut interpreter, document.clone());
+
+            let elements = document.get_elements_by_tag_name(DomString::new("script".to_string()));
+            for i in 0..elements.len() {
+                let script = catus::parser::parse(elements.get(i).inner_html().str());
+                if let Ok((text, s)) = &script && text.len() == 0 {
                 interpreter.eval(s);
             } else {
                 println!("Unable to parse js: {:?}", script);
             }
+            }
+
+            self.interpreter = Some(interpreter);
         }
 
         self.page = Some(page);
-        self.interpreter = Some(interpreter);
     }
 
     pub fn run(mut self) {
@@ -131,9 +157,12 @@ impl View {
                 let timeout = q.borrow().peek();
                 if let Some(timeout) = timeout {
                     if now > timeout {
-                        let value = q.borrow_mut().pop().unwrap();
-                        self.interpreter.as_mut().unwrap().call(value);
-                        self.window.request_redraw();
+                        if self.options.enable_javascript {
+                            let value = q.borrow_mut().pop().unwrap();
+                            self.interpreter.as_mut().unwrap().call(value);
+                            self.window.request_redraw();
+                        }
+
                         continue;
                     }
                 }

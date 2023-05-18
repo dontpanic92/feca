@@ -1,9 +1,8 @@
-#![feature(generic_associated_types)]
 #![feature(min_specialization)]
 
 use crate::rendering::cairo::CairoRenderer;
-use page::Page;
 
+use page::PageOptions;
 use winit::{
     event::{Event, WindowEvent},
     event_loop::{ControlFlow, EventLoop},
@@ -14,7 +13,8 @@ mod common;
 mod defs;
 mod dom;
 mod layout;
-mod page;
+mod parser;
+pub mod page;
 mod rendering;
 mod style;
 // mod test;
@@ -35,7 +35,7 @@ fn main() {
     let window = WindowBuilder::new().build(&event_loop).unwrap();
     let mut renderer = CairoRenderer::new_from_winit(&window);
 
-    let mut page = Page::new_from_html_string(input);
+    let mut page = page::Page::new_from_html_string(input, PageOptions { enable_css: true });
     page.layout(renderer.pango_context(), renderer.canvas_size());
 
     event_loop.run(move |event, _, control_flow| {

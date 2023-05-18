@@ -11,7 +11,7 @@ use crate::{
         INodeImpl, IRenderableImpl,
     },
     dom::core::{
-        element::{CoreElement, CoreElementBase, ElementProps},
+        element::{CoreElement, CoreElementBase, ElementProps, IsCoreElement},
         node::{layout_children, paint_children, NodeProps, NodeType},
         string::DomString,
     },

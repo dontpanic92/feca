@@ -16,22 +16,32 @@ pub enum FelisAction {
     RequestLoadPage(String),
 }
 
+pub struct PageOptions {
+    pub enable_css: bool,
+}
+
 pub struct Page {
     dom: HtmlDom,
     style: Style,
     styles: Vec<StyleBlock>,
+    options: PageOptions,
 }
 
 impl Page {
-    pub fn new_from_html_string(html: &str) -> Self {
+    pub fn new_from_html_string(html: &str, options: PageOptions) -> Self {
         let tl_dom = tl::parse(html, tl::ParserOptions::default()).unwrap();
         let dom = HtmlDom::from_tl_dom(&tl_dom);
-        let styles = Self::parse_style_block(&dom);
+        let styles = if options.enable_css {
+            Self::parse_style_block(&dom)
+        } else {
+            vec![]
+        };
 
         Self {
             dom,
             style: Style::html_default(),
             styles,
+            options,
         }
     }
 
@@ -72,7 +82,10 @@ impl Page {
     }
 
     pub fn render(&mut self, renderer: &CairoRenderer) {
-        self.style();
+        if self.options.enable_css {
+            self.style();
+        }
+
         self.layout(renderer.pango_context(), renderer.canvas_size());
         self.paint(renderer);
     }

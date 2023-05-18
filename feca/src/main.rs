@@ -1,7 +1,7 @@
 #![feature(let_chains)]
 use std::fs::read_to_string;
 
-use view::View;
+use view::{View, ViewOptions};
 
 mod runtime;
 mod view;
@@ -15,7 +15,10 @@ fn main() {
     };
 
     let html = read_to_string(filename).unwrap();
-    let mut view = View::new();
+    let mut view = View::new(ViewOptions {
+        enable_css: false,
+        enable_javascript: false,
+    });
     view.load_html_string(&html);
 
     view.run();

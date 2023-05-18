@@ -69,15 +69,31 @@ impl HtmlDom {
     pub fn from_tl_dom(tl_dom: &tl::VDom) -> Self {
         let root = {
             let parser = tl_dom.parser();
-            let root = tl_dom.children()[0].get(parser);
+            let root = tl_dom
+                .children()
+                .iter()
+                .find(|n| Self::is_html_node(n.get(parser).unwrap()))
+                .unwrap()
+                .get(parser);
             root.and_then(|r| Self::process_tl_node(r, parser))
         };
 
         Self { root }
     }
 
+    pub fn from_root(root: Option<ComRc<INode>>) -> Self {
+        Self { root }
+    }
+
     pub fn root(&self) -> Option<ComRc<INode>> {
         self.root.clone()
+    }
+
+    fn is_html_node(tl_node: &tl::Node) -> bool {
+        match tl_node {
+            tl::Node::Tag(t) => t.name().as_utf8_str().to_lowercase() == "html",
+            _ => false,
+        }
     }
 
     fn process_tl_node(tl_node: &tl::Node, tl_parser: &tl::Parser) -> Option<ComRc<INode>> {
@@ -103,10 +119,12 @@ impl HtmlDom {
                     .collect::<HashMap<String, Option<String>>>();
 
                 let tag_name = t.name().as_utf8_str().to_lowercase();
+                println!("process tag node: {:?}", tag_name);
                 if let Some(ctor) = TAG_CTOR_MAP.get(tag_name.as_str()) {
                     Some(ctor(children, id, attributes))
                 } else {
-                    None
+                    // None
+                    Some(TAG_CTOR_MAP.get("div").unwrap()(children, id, attributes))
                 }
             }
             tl::Node::Raw(b) => {

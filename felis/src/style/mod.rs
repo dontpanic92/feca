@@ -3,10 +3,14 @@ pub mod block;
 pub mod parser;
 pub mod selector;
 
+use std::str::FromStr;
+
 use felis_macros::{FelisDefault, FelisStyle};
 use strum::EnumString;
 
 use crate::common::Color;
+
+use self::parser::{Property, PropertyValue};
 
 #[derive(Clone, Default, Debug, FelisStyle)]
 pub struct Style {
@@ -20,10 +24,10 @@ pub struct Style {
     pub font_style: Option<FontStyle>,
 
     #[prop]
-    pub font_size: Option<String>,
+    pub font_size: Option<FontSize>,
 
     #[prop]
-    pub font_weight: Option<String>,
+    pub font_weight: Option<FontWeight>,
 
     #[prop]
     pub text_decoration_line: Option<TextDecorationLine>,
@@ -44,10 +48,28 @@ impl Style {
             color: Some(Color::BLACK),
             font_family: Some("Microsoft YaHei".to_string()),
             font_style: Some(FontStyle::Normal),
-            font_size: Some("12px".to_string()),
+            font_size: Some(FontSize::new("12px")),
 
             ..Default::default()
         }
+    }
+}
+
+impl From<&Property> for String {
+    fn from(p: &Property) -> Self {
+        p.value
+            .iter()
+            .map(|v| {
+                v.iter()
+                    .map(|pv| match pv {
+                        PropertyValue::String(s) => s,
+                        PropertyValue::FunctionCall => "",
+                    })
+                    .collect::<Vec<&str>>()
+                    .join(" ")
+            })
+            .collect::<Vec<String>>()
+            .join(",")
     }
 }
 
@@ -62,6 +84,13 @@ pub enum FontStyle {
     Oblique,
 }
 
+impl From<&Property> for FontStyle {
+    fn from(p: &Property) -> Self {
+        let s: String = p.into();
+        s.parse().unwrap_or(FontStyle::Normal)
+    }
+}
+
 #[derive(Clone, Copy, PartialEq, Debug, EnumString, FelisDefault)]
 pub enum TextDecorationLine {
     #[strum(serialize = "none")]
@@ -73,6 +102,13 @@ pub enum TextDecorationLine {
     LineThrough,
     #[strum(serialize = "underline")]
     Underline,
+}
+
+impl From<&Property> for TextDecorationLine {
+    fn from(p: &Property) -> Self {
+        let s: String = p.into();
+        s.parse().unwrap_or(Self::None)
+    }
 }
 
 #[derive(Copy, Clone, PartialEq, Debug, EnumString, FelisDefault)]
@@ -94,6 +130,13 @@ pub enum Display {
     FelisText,
 }
 
+impl From<&Property> for Display {
+    fn from(p: &Property) -> Self {
+        let s: String = p.into();
+        s.parse().unwrap_or(Self::Inherit)
+    }
+}
+
 #[derive(Copy, Clone, PartialEq, Debug, EnumString, FelisDefault)]
 pub enum JustifyContent {
     #[strum(serialize = "flex-start")]
@@ -113,4 +156,77 @@ pub enum JustifyContent {
     SpaceAround,
     #[strum(serialize = "space-evenly")]
     SpaceEvenly,
+}
+
+impl From<&Property> for JustifyContent {
+    fn from(p: &Property) -> Self {
+        let s: String = p.into();
+        s.parse().unwrap_or(Self::FlexStart)
+    }
+}
+
+#[derive(Clone, Debug)]
+pub struct FontSize(String);
+
+impl FontSize {
+    pub fn new(desc: &str) -> Self {
+        Self(desc.to_string())
+    }
+
+    pub fn desc(&self) -> &str {
+        self.0.as_str()
+    }
+}
+
+impl From<&Property> for FontSize {
+    fn from(p: &Property) -> Self {
+        Self { 0: p.into() }
+    }
+}
+
+impl FromStr for FontSize {
+    type Err = ();
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        Ok(Self::new(s))
+    }
+}
+
+impl Default for FontSize {
+    fn default() -> Self {
+        Self::new("12px")
+    }
+}
+
+#[derive(Clone, Debug)]
+pub struct FontWeight(String);
+
+impl FontWeight {
+    pub fn new(desc: &str) -> Self {
+        Self(desc.to_string())
+    }
+
+    pub fn desc(&self) -> &str {
+        self.0.as_str()
+    }
+}
+
+impl From<&Property> for FontWeight {
+    fn from(p: &Property) -> Self {
+        Self { 0: p.into() }
+    }
+}
+
+impl FromStr for FontWeight {
+    type Err = ();
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        Ok(Self { 0: s.into() })
+    }
+}
+
+impl Default for FontWeight {
+    fn default() -> Self {
+        Self::new("400")
+    }
 }

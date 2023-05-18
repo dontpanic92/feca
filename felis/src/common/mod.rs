@@ -1,5 +1,7 @@
 use std::str::FromStr;
 
+use crate::style::parser::Property;
+
 #[derive(Clone, Copy)]
 pub struct Position {
     pub x: i32,
@@ -54,7 +56,13 @@ impl FromStr for Color {
     type Err = ();
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
-        todo!()
+        Ok(Self::BLACK)
+    }
+}
+
+impl From<&Property> for Color {
+    fn from(_: &Property) -> Self {
+        Self::BLACK
     }
 }
 

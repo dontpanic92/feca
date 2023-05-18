@@ -4,18 +4,24 @@ use std::cell::RefCell;
 
 use nom::{
     branch::alt,
-    bytes::complete::take,
+    bytes::complete::{take, take_till, take_until},
+    combinator::{map, opt},
     error::ParseError,
-    multi::{many0, many1},
+    multi::{many0, many1, separated_list0, separated_list1},
     sequence::delimited,
     IResult,
 };
+
+use crate::style::selector::TypeSelector;
 
 use self::tokenizer::{tokenize, Token, Tokens};
 
 use super::{
     block::StyleBlock,
-    selector::{ClassSelector, IdSelector, TagSelector, TrivalSelector},
+    selector::{
+        AttributeSelector, BasicSelector, ClassSelector, IdSelector, PseudoClassSelector,
+        PseudoElementSelector, SelectorCombinator,
+    },
     Style,
 };
 
@@ -38,7 +44,7 @@ impl ParsingError {
 
 pub fn parse_style(input: &str) -> Result<Vec<StyleBlock>, ParsingError> {
     let (input, tokens) = tokenize(input).map_err(|err| {
-        println!("after tokenize: {:?}", err);
+        // println!("after tokenize: {:?}", err);
         match err {
             nom::Err::Error(e) => ParsingError::LexerError(e.input.to_string()),
             nom::Err::Failure(e) => ParsingError::LexerError(e.input.to_string()),
@@ -77,12 +83,11 @@ pub fn parse_inline(input: &str) -> Result<Style, ParsingError> {
         return Err(ParsingError::LexerError(input.to_string()));
     }
 
-    let (remaining, style) =
-        parse_inline_from_tokens(Tokens::new(&tokens)).map_err(|err| match err {
-            nom::Err::Error(e) => ParsingError::ParserError(e.input.first().unwrap().clone()),
-            nom::Err::Failure(e) => ParsingError::ParserError(e.input.first().unwrap().clone()),
-            _ => ParsingError::ParserError2,
-        })?;
+    let (remaining, style) = style_inline(Tokens::new(&tokens)).map_err(|err| match err {
+        nom::Err::Error(e) => ParsingError::ParserError(e.input.first().unwrap().clone()),
+        nom::Err::Failure(e) => ParsingError::ParserError(e.input.first().unwrap().clone()),
+        _ => ParsingError::ParserError2,
+    })?;
 
     if remaining.count > 0 {
         return Err(ParsingError::ParserError(
@@ -93,22 +98,17 @@ pub fn parse_inline(input: &str) -> Result<Style, ParsingError> {
     Ok(style)
 }
 
-pub fn parse_inline_from_tokens(input: Tokens) -> IResult<Tokens, Style> {
-    style_inline(input)
-}
-
 pub fn parse_style_from_tokens(input: Tokens) -> IResult<Tokens, Vec<StyleBlock>> {
     let parser = Parser::new();
     parser.style(input)
-    /*ret.and_then(|ret| Ok((ret.0, ret.1)))
-    .or_else(|err| Err(err.map(|e| nom::error::Error::new(e.input, e.code))))*/
 }
 
 macro_rules! make_tag {
     ($name: ident, $case: expr) => {
         fn $name(input: Tokens) -> IResult<Tokens, Token> {
             // recognize(pair(alpha1, many0_count(alt((alphanumeric1, tag("-"))))))(input)
-            let (ident, input) = take(1usize)(input)?;
+            let (input, ident) = take(1usize)(input)?;
+            // println!("tag {:?} {:?}", &$case, ident.first());
             if Some(&$case) == ident.first() {
                 Ok((input, ident.first().unwrap().clone()))
             } else {
@@ -122,6 +122,7 @@ macro_rules! make_tag {
 }
 
 fn identifier(input: Tokens) -> IResult<Tokens, String> {
+    input.print_debug2("identifier", 3);
     let (input, ident) = take(1usize)(input)?;
     if let Some(Token::Identifier(ident)) = ident.first() {
         Ok((input, ident.clone()))
@@ -135,6 +136,7 @@ fn identifier(input: Tokens) -> IResult<Tokens, String> {
 
 fn tag_ident<'a>(tag: &str, input: Tokens<'a>) -> IResult<Tokens<'a>, String> {
     let (input, ident) = identifier(input)?;
+
     if ident.as_str() == tag {
         Ok((input, ident))
     } else {
@@ -158,73 +160,304 @@ fn string_literal(input: Tokens) -> IResult<Tokens, String> {
 }
 
 make_tag!(tag_colon, Token::Colon);
+make_tag!(tag_double_colon, Token::DoubleColon);
 make_tag!(tag_semicolon, Token::SemiColon);
 make_tag!(tag_hash, Token::Hash);
 make_tag!(tag_dot, Token::Dot);
+make_tag!(tag_plus, Token::Plus);
+make_tag!(tag_comma, Token::Comma);
+make_tag!(tag_star, Token::Star);
+make_tag!(tag_tilde, Token::Tilde);
+make_tag!(tag_lt, Token::Lt);
+make_tag!(tag_gt, Token::Gt);
 make_tag!(tag_lbrace, Token::LeftBrace);
 make_tag!(tag_rbrace, Token::RightBrace);
+make_tag!(tag_lbracket, Token::LeftBracket);
+make_tag!(tag_rbracket, Token::RightBracket);
+make_tag!(tag_lparen, Token::LeftParen);
+make_tag!(tag_rparen, Token::RightParen);
+
+fn _take_until<F: Fn(Option<&Token>) -> bool>(
+    mut input: Tokens,
+    predicate: F,
+) -> IResult<Tokens, ()> {
+    loop {
+        let token = input.first();
+        if predicate(token) {
+            break;
+        }
+
+        let ret = take(1usize)(input)?;
+        input = ret.0;
+    }
+
+    Ok((input, ()))
+}
 
 fn key(input: Tokens) -> IResult<Tokens, String> {
+    input.print_debug2("key", 3);
     identifier(input)
 }
 
-fn value(input: Tokens) -> IResult<Tokens, String> {
-    delimited(tag_colon, identifier, tag_semicolon)(input)
+fn mul_expression(mut input: Tokens) -> IResult<Tokens, ()> {
+    (input, _) = expression(input)?;
+
+    if input.first() == Some(&Token::Star) {
+        (input, _) = take(1usize)(input)?;
+        (input, _) = expression(input)?;
+    }
+
+    Ok((input, ()))
 }
 
-fn item(input: Tokens) -> IResult<Tokens, (String, String)> {
-    let (input, key) = key(input)?;
-    let (input, value) = value(input)?;
+fn add_expression(mut input: Tokens) -> IResult<Tokens, ()> {
+    (input, _) = mul_expression(input)?;
+    if input.first() == Some(&Token::Plus) {
+        (input, _) = take(1usize)(input)?;
+        (input, _) = mul_expression(input)?;
+    }
 
-    Ok((input, (key, value)))
+    Ok((input, ()))
+}
+
+fn eq_expression(mut input: Tokens) -> IResult<Tokens, ()> {
+    (input, _) = identifier(input)?;
+    if input.first() == Some(&Token::Equal) {
+        (input, _) = take(1usize)(input)?;
+        (input, _) = add_expression(input)?;
+    }
+
+    Ok((input, ()))
+}
+
+fn function_argument(input: Tokens) -> IResult<Tokens, ()> {
+    let (input, _) = add_expression(input)?;
+
+    Ok((input, ()))
+}
+
+fn function_call(input: Tokens) -> IResult<Tokens, ()> {
+    let (input, _) = identifier(input)?;
+    let (input, _) = tag_lparen(input)?;
+    let (input, _) = separated_list0(tag_comma, function_argument)(input)?;
+    let (input, _) = tag_rparen(input)?;
+
+    Ok((input, ()))
+}
+
+fn expression(input: Tokens) -> IResult<Tokens, PropertyValue> {
+    input.print_debug2("expression", 3);
+    alt((
+        map(function_call, |value| PropertyValue::FunctionCall),
+        map(identifier, |value| PropertyValue::String(value)),
+        map(string_literal, |value| PropertyValue::String(value)),
+    ))(input)
+}
+
+pub enum PropertyValue {
+    String(String),
+    FunctionCall,
+}
+
+fn property_value_compat(input: Tokens) -> IResult<Tokens, Vec<PropertyValue>> {
+    input.print_debug2("property_value_compat", 3);
+    many1(expression)(input)
+}
+
+fn property_value_list(input: Tokens) -> IResult<Tokens, Vec<Vec<PropertyValue>>> {
+    input.print_debug2("property_value_list", 3);
+    separated_list1(tag_comma, property_value_compat)(input)
+}
+
+pub struct Property {
+    pub key: String,
+    pub value: Vec<Vec<PropertyValue>>,
+}
+
+fn property(input: Tokens) -> IResult<Tokens, Property> {
+    input.print_debug2("property", 3);
+    let (input, key) = key(input)?;
+    let (input, _) = tag_colon(input)?;
+    let (input, value) = property_value_list(input)?;
+    let (input, _) = tag_semicolon(input)?;
+
+    Ok((input, Property { key, value }))
 }
 
 fn style_inline(input: Tokens) -> IResult<Tokens, Style> {
-    // let (input, _) = w(tag("{"))(input)?;
-    // let (input, _) = multispace0(input)?;
-    let (input, items) = many0(item)(input)?;
-    // let (input, _) = w2(tag("}"))(input)?;
-
-    // println!("{:?}", &items);
-    // println!("{}", input);
-    return Ok((input, Style::from_key_value_list(&items)));
+    println!("style inline");
+    input.print_debug(3);
+    let (input, items) = many0(property)(input)?;
+    input.print_debug2("style inline completed", 3);
+    let ret = Ok((input, Style::from_property_list(&items)));
+    input.print_debug2("good completed", 3);
+    ret
 }
 
-fn class_selector(input: Tokens) -> IResult<Tokens, TrivalSelector> {
+fn pseudo_class(input: Tokens) -> IResult<Tokens, BasicSelector> {
+    let (input, ident) = identifier(input)?;
+    if ident.starts_with(":") {
+        if input.first() == Some(&Token::LeftParen) {
+            let (input, _) = tag_lparen(input)?;
+            let (input, _) = basic_selector(input)?;
+            let (input, _) = tag_rparen(input)?;
+            return Ok((
+                input,
+                BasicSelector::PseudoClass(PseudoClassSelector {
+                    0: ident[1..].to_string(),
+                }),
+            ));
+        }
+
+        Ok((
+            input,
+            BasicSelector::PseudoClass(PseudoClassSelector {
+                0: ident[1..].to_string(),
+            }),
+        ))
+    } else {
+        Err(nom::Err::Error(nom::error::Error::from_error_kind(
+            input,
+            nom::error::ErrorKind::Tag,
+        )))
+    }
+}
+
+fn pseudo_element(input: Tokens) -> IResult<Tokens, BasicSelector> {
+    let (input, ident) = identifier(input)?;
+    if ident.starts_with("::") {
+        Ok((
+            input,
+            BasicSelector::PseudoElement(PseudoElementSelector {
+                0: ident[2..].to_string(),
+            }),
+        ))
+    } else {
+        Err(nom::Err::Error(nom::error::Error::from_error_kind(
+            input,
+            nom::error::ErrorKind::Tag,
+        )))
+    }
+}
+
+fn universal_selector(input: Tokens) -> IResult<Tokens, BasicSelector> {
+    let (input, _) = tag_star(input)?;
+
+    Ok((
+        input,
+        BasicSelector::Universal(IdSelector { 0: "".to_string() }),
+    ))
+}
+
+fn class_selector(input: Tokens) -> IResult<Tokens, BasicSelector> {
     let (input, _) = tag_dot(input)?;
     let (input, identifier) = identifier(input)?;
 
-    Ok((
-        input,
-        TrivalSelector::ClassSelector(ClassSelector { 0: identifier }),
-    ))
+    Ok((input, BasicSelector::Class(ClassSelector { 0: identifier })))
 }
 
-fn tag_selector(input: Tokens) -> IResult<Tokens, TrivalSelector> {
+fn type_selector(input: Tokens) -> IResult<Tokens, BasicSelector> {
+    println!("tag selector");
+    input.print_debug(3);
     let (input, identifier) = identifier(input)?;
 
-    Ok((
-        input,
-        TrivalSelector::TagSelector(TagSelector { 0: identifier }),
-    ))
+    Ok((input, BasicSelector::Type(TypeSelector { 0: identifier })))
 }
 
-fn id_selector(input: Tokens) -> IResult<Tokens, TrivalSelector> {
+fn id_selector(input: Tokens) -> IResult<Tokens, BasicSelector> {
     let (input, _) = tag_hash(input)?;
     let (input, identifier) = identifier(input)?;
 
     Ok((
         input,
-        TrivalSelector::IdSelector(IdSelector {
+        BasicSelector::Id(IdSelector {
             0: identifier.to_string(),
         }),
     ))
 }
 
-fn selector(input: Tokens) -> IResult<Tokens, TrivalSelector> {
-    let (input, selector) = alt((class_selector, id_selector, tag_selector))(input)?;
+fn attribute_selector(input: Tokens) -> IResult<Tokens, BasicSelector> {
+    let (input, _) = tag_lbracket(input)?;
+    let (input, _) = eq_expression(input)?;
+    let (input, _) = tag_rbracket(input)?;
 
+    Ok((
+        input,
+        BasicSelector::Attribute(AttributeSelector { 0: "".to_string() }),
+    ))
+}
+
+fn basic_selector(input: Tokens) -> IResult<Tokens, BasicSelector> {
+    input.print_debug2("basic selector", 3);
+    let (input, selector) = alt((
+        universal_selector,
+        class_selector,
+        id_selector,
+        type_selector,
+        attribute_selector,
+        pseudo_class,
+        pseudo_element,
+    ))(input)?;
+
+    println!("selector ok");
     Ok((input, selector))
+}
+
+fn child_combinator(input: Tokens) -> IResult<Tokens, SelectorCombinator> {
+    let (input, basic_selector) = basic_selector(input)?;
+    let (input, _) = tag_gt(input)?;
+    let (input, combinator) = selector_combinator(input)?;
+
+    Ok((
+        input,
+        SelectorCombinator::Child(basic_selector, Box::new(combinator)),
+    ))
+}
+
+fn general_sibling_combinator(input: Tokens) -> IResult<Tokens, SelectorCombinator> {
+    let (input, basic_selector) = basic_selector(input)?;
+    let (input, _) = tag_tilde(input)?;
+    let (input, combinator) = selector_combinator(input)?;
+
+    Ok((
+        input,
+        SelectorCombinator::Child(basic_selector, Box::new(combinator)),
+    ))
+}
+
+fn adjacent_sibling_combinator(input: Tokens) -> IResult<Tokens, SelectorCombinator> {
+    let (input, basic_selector) = basic_selector(input)?;
+    let (input, _) = tag_plus(input)?;
+    let (input, combinator) = selector_combinator(input)?;
+
+    Ok((
+        input,
+        SelectorCombinator::Child(basic_selector, Box::new(combinator)),
+    ))
+}
+
+fn descendant_sibling_combinator(input: Tokens) -> IResult<Tokens, SelectorCombinator> {
+    let (input, basic_selector) = basic_selector(input)?;
+    let (input, combinator) = selector_combinator(input)?;
+
+    Ok((
+        input,
+        SelectorCombinator::Child(basic_selector, Box::new(combinator)),
+    ))
+}
+
+fn selector_combinator(input: Tokens) -> IResult<Tokens, SelectorCombinator> {
+    alt((
+        child_combinator,
+        general_sibling_combinator,
+        adjacent_sibling_combinator,
+        descendant_sibling_combinator,
+        map(basic_selector, |s| SelectorCombinator::Basic(s)),
+    ))(input)
+}
+
+fn selector_list(input: Tokens) -> IResult<Tokens, Vec<SelectorCombinator>> {
+    separated_list1(tag_comma, selector_combinator)(input)
 }
 
 struct ParserContext {
@@ -263,19 +496,48 @@ impl Parser {
         Ok((input, None))
     }
 
-    fn parse_block<'a>(&self, input: Tokens<'a>) -> IResult<Tokens<'a>, Option<StyleBlock>> {
-        let (input, selectors) = many1(selector)(input)?;
-        let (input, _) = tag_lbrace(input)?;
-        let (input, style) = parse_inline_from_tokens(input)?;
+    fn conditional_at_rule_media(input: Tokens) -> IResult<Tokens, ()> {
+        let (mut input, _) = tag_ident("@media", input)?;
+        loop {
+            let token = input.first();
+            if Some(&Token::LeftBrace) == token {
+                let ret = take(1usize)(input)?;
+                input = ret.0;
+                break;
+            }
+
+            let ret = take(1usize)(input)?;
+            input = ret.0;
+        }
+
+        let (input, _) = many0(Self::parse_block)(input)?;
         let (input, _) = tag_rbrace(input)?;
 
+        Ok((input, ()))
+    }
+
+    fn conditional_at_rule(input: Tokens) -> IResult<Tokens, Option<StyleBlock>> {
+        let (input, _) = Self::conditional_at_rule_media(input)?;
+        Ok((input, None))
+    }
+
+    fn parse_block(input: Tokens) -> IResult<Tokens, Option<StyleBlock>> {
+        println!("in parse block");
+        input.print_debug(3);
+        let (input, selectors) = selector_list(input)?;
+        let (input, _) = tag_lbrace(input)?;
+        let (input, style) = style_inline(input)?;
+        let (input, _) = tag_rbrace(input)?;
+
+        input.print_debug2("parse block completed", 3);
         Ok((input, Some(StyleBlock { selectors, style })))
     }
 
     fn style<'a>(&self, tokens: Tokens<'a>) -> IResult<Tokens<'a>, Vec<StyleBlock>> {
         let (input, ret) = many0(alt((
+            Self::conditional_at_rule,
             self.bind(Self::regular_at_rule),
-            self.bind(Self::parse_block),
+            Self::parse_block,
         )))(tokens)?;
 
         Ok((input, ret.into_iter().flatten().collect()))

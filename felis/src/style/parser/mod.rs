@@ -14,7 +14,7 @@ use nom::{
 
 use crate::style::selector::TypeSelector;
 
-use self::tokenizer::{tokenize, Token, Tokens};
+use self::tokenizer::{tokenize, InputDebug, Token, Tokens};
 
 use super::{
     block::StyleBlock,
@@ -122,7 +122,7 @@ macro_rules! make_tag {
 }
 
 fn identifier(input: Tokens) -> IResult<Tokens, String> {
-    input.print_debug2("identifier", 3);
+    let _a = InputDebug::print(&input, "identifier");
     let (input, ident) = take(1usize)(input)?;
     if let Some(Token::Identifier(ident)) = ident.first() {
         Ok((input, ident.clone()))
@@ -165,6 +165,7 @@ make_tag!(tag_semicolon, Token::SemiColon);
 make_tag!(tag_hash, Token::Hash);
 make_tag!(tag_dot, Token::Dot);
 make_tag!(tag_plus, Token::Plus);
+make_tag!(tag_minus, Token::Minus);
 make_tag!(tag_comma, Token::Comma);
 make_tag!(tag_star, Token::Star);
 make_tag!(tag_tilde, Token::Tilde);
@@ -195,24 +196,25 @@ fn _take_until<F: Fn(Option<&Token>) -> bool>(
 }
 
 fn key(input: Tokens) -> IResult<Tokens, String> {
-    input.print_debug2("key", 3);
+    let _a = InputDebug::print(&input, "key");
     identifier(input)
 }
 
 fn mul_expression(mut input: Tokens) -> IResult<Tokens, ()> {
-    (input, _) = expression(input)?;
+    (input, _) = primary_expression(input)?;
 
-    if input.first() == Some(&Token::Star) {
+    while input.first() == Some(&Token::Star) || input.first() == Some(&Token::Slash) {
         (input, _) = take(1usize)(input)?;
-        (input, _) = expression(input)?;
+        (input, _) = priority_expression(input)?;
     }
 
     Ok((input, ()))
 }
 
 fn add_expression(mut input: Tokens) -> IResult<Tokens, ()> {
+    let _a = InputDebug::print(&input, "add_expression");
     (input, _) = mul_expression(input)?;
-    if input.first() == Some(&Token::Plus) {
+    while input.first() == Some(&Token::Plus) || input.first() == Some(&Token::Minus) {
         (input, _) = take(1usize)(input)?;
         (input, _) = mul_expression(input)?;
     }
@@ -220,23 +222,37 @@ fn add_expression(mut input: Tokens) -> IResult<Tokens, ()> {
     Ok((input, ()))
 }
 
-fn eq_expression(mut input: Tokens) -> IResult<Tokens, ()> {
+fn para_expression(input: Tokens) -> IResult<Tokens, ()> {
+    let (input, _) = tag_lparen(input)?;
+    let (input, _) = add_expression(input)?;
+    let (input, _) = tag_rparen(input)?;
+
+    Ok((input, ()))
+}
+
+fn priority_expression(input: Tokens) -> IResult<Tokens, ()> {
+    alt((para_expression, add_expression))(input)
+}
+
+fn assign_expression(mut input: Tokens) -> IResult<Tokens, ()> {
     (input, _) = identifier(input)?;
-    if input.first() == Some(&Token::Equal) {
+    let peek = input.first();
+    if peek == Some(&Token::Assign) || peek == Some(&Token::CaretEqual) {
         (input, _) = take(1usize)(input)?;
-        (input, _) = add_expression(input)?;
+        (input, _) = priority_expression(input)?;
     }
 
     Ok((input, ()))
 }
 
 fn function_argument(input: Tokens) -> IResult<Tokens, ()> {
-    let (input, _) = add_expression(input)?;
-
+    let _a = InputDebug::print(&input, "function_argument");
+    let (input, _) = many1(priority_expression)(input)?;
     Ok((input, ()))
 }
 
 fn function_call(input: Tokens) -> IResult<Tokens, ()> {
+    let _a = InputDebug::print(&input, "functioncall");
     let (input, _) = identifier(input)?;
     let (input, _) = tag_lparen(input)?;
     let (input, _) = separated_list0(tag_comma, function_argument)(input)?;
@@ -245,8 +261,8 @@ fn function_call(input: Tokens) -> IResult<Tokens, ()> {
     Ok((input, ()))
 }
 
-fn expression(input: Tokens) -> IResult<Tokens, PropertyValue> {
-    input.print_debug2("expression", 3);
+fn primary_expression(input: Tokens) -> IResult<Tokens, PropertyValue> {
+    let _a = InputDebug::print(&input, "expression");
     alt((
         map(function_call, |value| PropertyValue::FunctionCall),
         map(identifier, |value| PropertyValue::String(value)),
@@ -260,12 +276,12 @@ pub enum PropertyValue {
 }
 
 fn property_value_compat(input: Tokens) -> IResult<Tokens, Vec<PropertyValue>> {
-    input.print_debug2("property_value_compat", 3);
-    many1(expression)(input)
+    let _a = InputDebug::print(&input, "property_value_compat");
+    many1(primary_expression)(input)
 }
 
 fn property_value_list(input: Tokens) -> IResult<Tokens, Vec<Vec<PropertyValue>>> {
-    input.print_debug2("property_value_list", 3);
+    let _a = InputDebug::print(&input, "property_value_list");
     separated_list1(tag_comma, property_value_compat)(input)
 }
 
@@ -275,69 +291,58 @@ pub struct Property {
 }
 
 fn property(input: Tokens) -> IResult<Tokens, Property> {
-    input.print_debug2("property", 3);
+    let _a = InputDebug::print(&input, "property");
     let (input, key) = key(input)?;
     let (input, _) = tag_colon(input)?;
-    let (input, value) = property_value_list(input)?;
+    let (input, value) = opt(property_value_list)(input)?;
     let (input, _) = tag_semicolon(input)?;
+
+    let value = value.unwrap_or(vec![]);
 
     Ok((input, Property { key, value }))
 }
 
 fn style_inline(input: Tokens) -> IResult<Tokens, Style> {
-    println!("style inline");
-    input.print_debug(3);
     let (input, items) = many0(property)(input)?;
-    input.print_debug2("style inline completed", 3);
     let ret = Ok((input, Style::from_property_list(&items)));
-    input.print_debug2("good completed", 3);
     ret
 }
 
-fn pseudo_class(input: Tokens) -> IResult<Tokens, BasicSelector> {
+fn pseudo_class_single(input: Tokens) -> IResult<Tokens, String> {
+    let _a = InputDebug::print(&input, "pseudo_class_single");
+    let (input, _) = tag_colon(input)?;
     let (input, ident) = identifier(input)?;
-    if ident.starts_with(":") {
-        if input.first() == Some(&Token::LeftParen) {
-            let (input, _) = tag_lparen(input)?;
-            let (input, _) = basic_selector(input)?;
-            let (input, _) = tag_rparen(input)?;
-            return Ok((
-                input,
-                BasicSelector::PseudoClass(PseudoClassSelector {
-                    0: ident[1..].to_string(),
-                }),
-            ));
-        }
-
-        Ok((
-            input,
-            BasicSelector::PseudoClass(PseudoClassSelector {
-                0: ident[1..].to_string(),
-            }),
-        ))
-    } else {
-        Err(nom::Err::Error(nom::error::Error::from_error_kind(
-            input,
-            nom::error::ErrorKind::Tag,
-        )))
+    if input.first() == Some(&Token::LeftParen) {
+        let (input, _) = tag_lparen(input)?;
+        let (input, _) = alt((map(selector_combinator, |_| ()), function_argument))(input)?;
+        let (input, _) = tag_rparen(input)?;
+        return Ok((input, ident[1..].to_string()));
     }
+
+    Ok((input, ident[1..].to_string()))
+}
+
+fn pseudo_class(input: Tokens) -> IResult<Tokens, BasicSelector> {
+    let _a = InputDebug::print(&input, "pseudo_class");
+    let (input, result) = many1(pseudo_class_single)(input)?;
+    Ok((
+        input,
+        BasicSelector::PseudoClass(PseudoClassSelector {
+            0: result[0].clone(),
+        }),
+    ))
 }
 
 fn pseudo_element(input: Tokens) -> IResult<Tokens, BasicSelector> {
+    let (input, _) = tag_double_colon(input)?;
     let (input, ident) = identifier(input)?;
-    if ident.starts_with("::") {
-        Ok((
-            input,
-            BasicSelector::PseudoElement(PseudoElementSelector {
-                0: ident[2..].to_string(),
-            }),
-        ))
-    } else {
-        Err(nom::Err::Error(nom::error::Error::from_error_kind(
-            input,
-            nom::error::ErrorKind::Tag,
-        )))
-    }
+
+    Ok((
+        input,
+        BasicSelector::PseudoElement(PseudoElementSelector {
+            0: ident[2..].to_string(),
+        }),
+    ))
 }
 
 fn universal_selector(input: Tokens) -> IResult<Tokens, BasicSelector> {
@@ -357,8 +362,6 @@ fn class_selector(input: Tokens) -> IResult<Tokens, BasicSelector> {
 }
 
 fn type_selector(input: Tokens) -> IResult<Tokens, BasicSelector> {
-    println!("tag selector");
-    input.print_debug(3);
     let (input, identifier) = identifier(input)?;
 
     Ok((input, BasicSelector::Type(TypeSelector { 0: identifier })))
@@ -378,7 +381,7 @@ fn id_selector(input: Tokens) -> IResult<Tokens, BasicSelector> {
 
 fn attribute_selector(input: Tokens) -> IResult<Tokens, BasicSelector> {
     let (input, _) = tag_lbracket(input)?;
-    let (input, _) = eq_expression(input)?;
+    let (input, _) = assign_expression(input)?;
     let (input, _) = tag_rbracket(input)?;
 
     Ok((
@@ -388,7 +391,7 @@ fn attribute_selector(input: Tokens) -> IResult<Tokens, BasicSelector> {
 }
 
 fn basic_selector(input: Tokens) -> IResult<Tokens, BasicSelector> {
-    input.print_debug2("basic selector", 3);
+    let _a = InputDebug::print(&input, "basic selector");
     let (input, selector) = alt((
         universal_selector,
         class_selector,
@@ -399,7 +402,6 @@ fn basic_selector(input: Tokens) -> IResult<Tokens, BasicSelector> {
         pseudo_element,
     ))(input)?;
 
-    println!("selector ok");
     Ok((input, selector))
 }
 
@@ -421,7 +423,7 @@ fn general_sibling_combinator(input: Tokens) -> IResult<Tokens, SelectorCombinat
 
     Ok((
         input,
-        SelectorCombinator::Child(basic_selector, Box::new(combinator)),
+        SelectorCombinator::GeneralSibling(basic_selector, Box::new(combinator)),
     ))
 }
 
@@ -432,21 +434,23 @@ fn adjacent_sibling_combinator(input: Tokens) -> IResult<Tokens, SelectorCombina
 
     Ok((
         input,
-        SelectorCombinator::Child(basic_selector, Box::new(combinator)),
+        SelectorCombinator::AdjacentSibling(basic_selector, Box::new(combinator)),
     ))
 }
 
 fn descendant_sibling_combinator(input: Tokens) -> IResult<Tokens, SelectorCombinator> {
+    let _a = InputDebug::print(&input, "descendant_sibling_combinator");
     let (input, basic_selector) = basic_selector(input)?;
     let (input, combinator) = selector_combinator(input)?;
 
     Ok((
         input,
-        SelectorCombinator::Child(basic_selector, Box::new(combinator)),
+        SelectorCombinator::Descendant(basic_selector, Box::new(combinator)),
     ))
 }
 
 fn selector_combinator(input: Tokens) -> IResult<Tokens, SelectorCombinator> {
+    let _a = InputDebug::print(&input, "selector_combinator");
     alt((
         child_combinator,
         general_sibling_combinator,
@@ -522,14 +526,12 @@ impl Parser {
     }
 
     fn parse_block(input: Tokens) -> IResult<Tokens, Option<StyleBlock>> {
-        println!("in parse block");
-        input.print_debug(3);
         let (input, selectors) = selector_list(input)?;
         let (input, _) = tag_lbrace(input)?;
         let (input, style) = style_inline(input)?;
         let (input, _) = tag_rbrace(input)?;
 
-        input.print_debug2("parse block completed", 3);
+        let _a = InputDebug::print(&input, "parse block completed");
         Ok((input, Some(StyleBlock { selectors, style })))
     }
 

@@ -16,8 +16,8 @@ fn main() {
 
     let html = read_to_string(filename).unwrap();
     let mut view = View::new(ViewOptions {
-        enable_css: false,
-        enable_javascript: false,
+        enable_css: true,
+        enable_javascript: true,
     });
     view.load_html_string(&html);
 

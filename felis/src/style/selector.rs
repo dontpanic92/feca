@@ -60,7 +60,6 @@ impl IBasicSelector for PseudoClassSelector {
     }
 }
 
-
 #[derive(Debug)]
 pub struct PseudoElementSelector(pub String);
 

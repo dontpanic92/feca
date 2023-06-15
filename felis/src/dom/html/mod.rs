@@ -119,7 +119,6 @@ impl HtmlDom {
                     .collect::<HashMap<String, Option<String>>>();
 
                 let tag_name = t.name().as_utf8_str().to_lowercase();
-                println!("process tag node: {:?}", tag_name);
                 if let Some(ctor) = TAG_CTOR_MAP.get(tag_name.as_str()) {
                     Some(ctor(children, id, attributes))
                 } else {

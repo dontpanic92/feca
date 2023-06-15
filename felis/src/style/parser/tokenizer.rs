@@ -1,3 +1,8 @@
+use std::{
+    fmt::Debug,
+    sync::atomic::{AtomicI32, Ordering},
+};
+
 use nom::{
     branch::alt,
     bytes::complete::tag,
@@ -6,7 +11,7 @@ use nom::{
     error::ParseError,
     multi::{many0_count, many1, many1_count},
     sequence::pair,
-    IResult, InputIter, InputLength, InputTake, InputTakeAtPosition, FindSubstring,
+    FindSubstring, IResult, InputIter, InputLength, InputTake, InputTakeAtPosition,
 };
 use parser_utils::{parse_c_style_comment, parse_string, w};
 
@@ -34,12 +39,29 @@ impl<'a> Tokens<'a> {
         }
     }
 
-    pub fn print_debug(&self, count: usize) {
-        println!("{:?}", &self.tokens[0..count]);
-    }
-
     pub fn print_debug2(&self, desc: &str, count: usize) {
-        println!("{} {:?}", desc, &self.tokens[0..count]);
+        println!("Trying {} for {:?}", desc, &self.tokens[0..count]);
+    }
+}
+
+lazy_static::lazy_static! {
+    static ref DEBUG_IDENT: AtomicI32 = AtomicI32::new(0);
+}
+
+pub struct InputDebug;
+impl InputDebug {
+    pub fn print<'a>(tokens: &Tokens<'a>, desc: &str) -> Self {
+        let v = DEBUG_IDENT.fetch_add(1, Ordering::SeqCst);
+        // print!("{}", "|".repeat(v as usize));
+        // tokens.print_debug2(desc, 3);
+
+        Self
+    }
+}
+
+impl Drop for InputDebug {
+    fn drop(&mut self) {
+        let _ = DEBUG_IDENT.fetch_sub(1, Ordering::SeqCst);
     }
 }
 
@@ -126,10 +148,10 @@ pub enum Token {
     Hash,
     Gt,
     Lt,
-    Equal,
+    Assign,
     Tilde,
     Slash,
-    Caret,
+    CaretEqual,
     EOF,
 }
 
@@ -158,6 +180,7 @@ pub fn tokenize(mut input: &str) -> IResult<&str, Vec<Token>> {
                 right_bracket,
                 gt,
                 lt,
+                double_colon,
                 colon,
                 comment,
                 semicolon,
@@ -170,7 +193,7 @@ pub fn tokenize(mut input: &str) -> IResult<&str, Vec<Token>> {
                 equal,
                 comma,
             )),
-            alt((tilde, caret, slash, eof)),
+            alt((tilde, caret_equal, slash, eof)),
         ))(input)?;
         input = remaining;
 
@@ -189,19 +212,13 @@ pub fn tokenize(mut input: &str) -> IResult<&str, Vec<Token>> {
 fn identifier(input: &str) -> IResult<&str, Token> {
     let (input, ident) = w(recognize(alt((
         pair(
-            alt((
-                tag("_"),
-                tag("-"),
-                tag("@"),
-                tag("."),
-                tag("#"),
-                tag("!"),
-                tag("::"),
-                tag(":"),
-            )),
-            many1_count(alt((alphanumeric1, tag("-"), tag("."), tag("%")))),
+            alt((tag("_"), tag("-"), tag("@"), tag("."), tag("#"), tag("!"))),
+            many1_count(alt((alphanumeric1, tag("-"), tag("."), tag("%"), tag("/")))),
         ),
-        pair(alpha1, many0_count(alt((alphanumeric1, tag("-"))))),
+        pair(
+            alpha1,
+            many0_count(alt((alphanumeric1, tag("-"), tag("/")))),
+        ),
         pair(
             digit1,
             many0_count(alt((alphanumeric1, tag("."), tag("%")))),
@@ -245,8 +262,8 @@ token!(comma, Token::Comma, tag(","));
 token!(star, Token::Star, tag("*"));
 token!(plus, Token::Plus, tag("+"));
 token!(minus, Token::Minus, tag("-"));
-token!(equal, Token::Equal, tag("="));
+token!(equal, Token::Assign, tag("="));
 token!(tilde, Token::Tilde, tag("~"));
 token!(slash, Token::Slash, tag("/"));
-token!(caret, Token::Caret, tag("^"));
+token!(caret_equal, Token::CaretEqual, tag("^="));
 token!(comment, Token::Comment, parse_c_style_comment);

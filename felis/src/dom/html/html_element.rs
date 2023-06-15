@@ -16,7 +16,7 @@ use crate::{
         string::DomString,
     },
     page::FelisAction,
-    style::{Display, FontStyle, Style, TextDecorationLine, FontWeight, FontSize},
+    style::{Display, FontSize, FontStyle, FontWeight, Style, TextDecorationLine},
 };
 
 xcdt::declare_xcdt!(

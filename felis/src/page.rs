@@ -134,9 +134,13 @@ impl Page {
         let mut blocks = vec![];
         for element in style_elements.raw() {
             let node = element.query_interface::<INode>().unwrap();
-            let css_text = node.inner_html().str();
-            let css_blocks = parse_style(css_text).unwrap();
-            blocks.extend(css_blocks);
+            let inner_html = node.inner_html();
+            let css_text = inner_html.str();
+            let css_blocks = parse_style(css_text);
+            match css_blocks {
+                Ok(b) => blocks.extend(b),
+                Err(e) => e.short_print_err(),
+            }
         }
 
         for element in link_elements.raw() {

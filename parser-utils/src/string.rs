@@ -128,15 +128,8 @@ where
     ))(input)
 }
 
-/// Parse a string. Use a loop of parse_fragment and push all of the fragments
-/// into an output string.
-pub fn parse_string<'a, E>(input: &'a str) -> IResult<&'a str, String, E>
-where
-    E: ParseError<&'a str> + FromExternalError<&'a str, std::num::ParseIntError>,
-{
-    // fold_many0 is the equivalent of iterator::fold. It runs a parser in a loop,
-    // and for each output value, calls a folding function on each output value.
-    let build_string = fold_many0(
+fn build_string<'a, E>(input: &'a str) -> IResult<&'a str, String, E> {
+    fold_many0(
         // Our parser function– parses a single string fragment
         parse_fragment,
         // Our init value, an empty string
@@ -151,11 +144,24 @@ where
             }
             string
         },
-    );
+    )(input)
+}
+
+/// Parse a string. Use a loop of parse_fragment and push all of the fragments
+/// into an output string.
+pub fn parse_string<'a, E>(input: &'a str) -> IResult<&'a str, String, E>
+where
+    E: ParseError<&'a str> + FromExternalError<&'a str, std::num::ParseIntError>,
+{
+    // fold_many0 is the equivalent of iterator::fold. It runs a parser in a loop,
+    // and for each output value, calls a folding function on each output value.
 
     // Finally, parse the string. Note that, if `build_string` could accept a raw
     // " character, the closing delimiter " would never match. When using
     // `delimited` with a looping parser (like fold_many0), be sure that the
     // loop won't accidentally match your closing delimiter!
-    delimited(char('"'), build_string, char('"'))(input)
+    alt((
+        delimited(char('"'), build_string, char('"')),
+        delimited(char('\''), build_string, char('\'')),
+    ))(input)
 }

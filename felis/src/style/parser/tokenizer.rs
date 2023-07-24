@@ -223,6 +223,10 @@ fn identifier(input: &str) -> IResult<&str, Token> {
             digit1,
             many0_count(alt((alphanumeric1, tag("."), tag("%")))),
         ),
+        pair(
+            tag("/"),
+            many0_count(alt((alphanumeric1, tag("."), tag("%"), tag("?"), tag("\\"), tag("-"), tag("_"))))
+        ),
     ))))(input)?;
 
     Ok((input, Token::Identifier(ident.to_string())))

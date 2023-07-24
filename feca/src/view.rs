@@ -74,7 +74,8 @@ impl View {
 
             let elements = document.get_elements_by_tag_name(DomString::new("script".to_string()));
             for i in 0..elements.len() {
-                let script = catus::parser::parse(elements.get(i).inner_html().str());
+                let inner_html = elements.get(i).inner_html();
+                let script = catus::parser::parse(inner_html.str());
                 if let Ok((text, s)) = &script && text.len() == 0 {
                 interpreter.eval(s);
             } else {

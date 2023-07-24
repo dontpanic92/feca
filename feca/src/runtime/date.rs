@@ -3,7 +3,7 @@ use catus::{
     symtbl::{JsValue, NativeFunctionProxy, Symbol},
 };
 
-pub fn make_date(object: Symbol, function: Symbol) -> Symbol {
+pub fn make_date(_object: Symbol, function: Symbol) -> Symbol {
     Function::new_native_proxy_function(
         function,
         "Date".to_string(),
@@ -11,7 +11,7 @@ pub fn make_date(object: Symbol, function: Symbol) -> Symbol {
     )
 }
 
-fn date(params: &[JsValue]) -> JsValue {
+fn date(_params: &[JsValue]) -> JsValue {
     JsValue::String(
         chrono::Local::now()
             .format("%a %b %e %Y %T GMT%z (%Z)")

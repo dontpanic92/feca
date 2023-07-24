@@ -2,7 +2,7 @@
 
 use proc_macro::{self, TokenStream};
 use quote::quote;
-use syn::{parse_macro_input, DataEnum, DataUnion, DeriveInput, FieldsNamed, FieldsUnnamed, Lit};
+use syn::{parse_macro_input, DataEnum, DeriveInput, FieldsNamed, Lit};
 
 #[proc_macro_derive(FelisStyle, attributes(prop))]
 pub fn style(input: TokenStream) -> TokenStream {

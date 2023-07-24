@@ -13,7 +13,6 @@ use crate::{
 
 use super::{
     html_element::{Attributes, CoreHtmlElement, CoreHtmlElementBase, HtmlElementProps},
-    HtmlDom,
 };
 
 xcdt::declare_xcdt!(CoreStyle, StyleProps, CoreHtmlElement, CoreHtmlElementBase);

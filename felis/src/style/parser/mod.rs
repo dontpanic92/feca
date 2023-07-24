@@ -4,11 +4,10 @@ use std::cell::RefCell;
 
 use nom::{
     branch::alt,
-    bytes::complete::{take, take_till, take_until},
+    bytes::complete::{take},
     combinator::{map, opt},
     error::ParseError,
     multi::{many0, many1, separated_list0, separated_list1},
-    sequence::delimited,
     IResult,
 };
 
@@ -264,7 +263,7 @@ fn function_call(input: Tokens) -> IResult<Tokens, ()> {
 fn primary_expression(input: Tokens) -> IResult<Tokens, PropertyValue> {
     let _a = InputDebug::print(&input, "expression");
     alt((
-        map(function_call, |value| PropertyValue::FunctionCall),
+        map(function_call, |_value| PropertyValue::FunctionCall),
         map(identifier, |value| PropertyValue::String(value)),
         map(string_literal, |value| PropertyValue::String(value)),
     ))(input)

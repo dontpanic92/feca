@@ -9,9 +9,8 @@ use nom::{
     character::complete::{alpha1, alphanumeric1, digit1, multispace0},
     combinator::recognize,
     error::ParseError,
-    multi::{many0_count, many1, many1_count},
-    sequence::pair,
-    FindSubstring, IResult, InputIter, InputLength, InputTake, InputTakeAtPosition,
+    multi::{many0_count, many1_count},
+    sequence::pair, IResult, InputIter, InputLength, InputTake,
 };
 use parser_utils::{parse_c_style_comment, parse_string, w};
 
@@ -50,8 +49,8 @@ lazy_static::lazy_static! {
 
 pub struct InputDebug;
 impl InputDebug {
-    pub fn print<'a>(tokens: &Tokens<'a>, desc: &str) -> Self {
-        let v = DEBUG_IDENT.fetch_add(1, Ordering::SeqCst);
+    pub fn print<'a>(_tokens: &Tokens<'a>, _desc: &str) -> Self {
+        let _v = DEBUG_IDENT.fetch_add(1, Ordering::SeqCst);
         // print!("{}", "|".repeat(v as usize));
         // tokens.print_debug2(desc, 3);
 

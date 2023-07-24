@@ -10,7 +10,7 @@ use crate::{
     },
     common::{Color, Rectangle},
     dom::core::{
-        element::{CoreElement, CoreElementBase, ElementProps, IsCoreElement},
+        element::{CoreElement, CoreElementBase, ElementProps},
         node::{layout_children, paint_children, NodeProps, NodeType},
         string::DomString,
     },

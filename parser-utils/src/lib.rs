@@ -43,7 +43,7 @@ pub fn make_vec<'a, F: 'a, O, U, I, E: ParseError<I>>(
 where
     F: FnMut(I) -> IResult<I, O, E>,
 {
-    map(inner, |x| vec![])
+    map(inner, |_x| vec![])
 }
 
 pub fn to_string<'a, F: 'a, O, I, E: ParseError<I>>(

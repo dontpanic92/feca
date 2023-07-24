@@ -1,6 +1,6 @@
 use nom::{
     bytes::complete::{tag, take_until},
-    combinator::{recognize, value},
+    combinator::{recognize},
     error::ParseError,
     sequence::tuple,
     IResult,

@@ -38,8 +38,8 @@ impl ImageProps {
 impl IRenderableImpl for CoreImage {
     fn layout(
         &self,
-        pango_context: &pango::Context,
-        style_computed: &Style,
+        _pango_context: &pango::Context,
+        _style_computed: &Style,
         content_boundary: crate::common::Rectangle,
     ) -> crate::common::Rectangle {
         let boundary = Rectangle::new(content_boundary.top, content_boundary.left, 203, 400);
@@ -51,7 +51,7 @@ impl IRenderableImpl for CoreImage {
         crate::style::Display::Block
     }
 
-    fn paint(&self, renderer: &crate::rendering::cairo::CairoRenderer, style_computed: &Style) {
+    fn paint(&self, renderer: &crate::rendering::cairo::CairoRenderer, _style_computed: &Style) {
         if let Some(img) = &self.ImageProps().img {
             renderer.render_png(&self.HtmlElementProps().boundary(), img.clone());
         }

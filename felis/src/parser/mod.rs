@@ -8,6 +8,6 @@ pub(crate) fn parse(input: &str) -> IResult<&str, HtmlDom> {
     Ok((input, HtmlDom::from_root(Some(r))))
 }
 
-fn root(input: &str) -> IResult<&str, ComRc<INode>> {
+fn root(_input: &str) -> IResult<&str, ComRc<INode>> {
     unimplemented!()
 }

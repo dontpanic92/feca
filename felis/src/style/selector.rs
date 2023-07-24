@@ -46,7 +46,7 @@ impl IBasicSelector for ClassSelector {
 pub struct AttributeSelector(pub String);
 
 impl IBasicSelector for AttributeSelector {
-    fn match_element(&self, element: ComRc<IHtmlElement>) -> bool {
+    fn match_element(&self, _element: ComRc<IHtmlElement>) -> bool {
         false
     }
 }
@@ -55,7 +55,7 @@ impl IBasicSelector for AttributeSelector {
 pub struct PseudoClassSelector(pub String);
 
 impl IBasicSelector for PseudoClassSelector {
-    fn match_element(&self, element: ComRc<IHtmlElement>) -> bool {
+    fn match_element(&self, _element: ComRc<IHtmlElement>) -> bool {
         false
     }
 }
@@ -64,7 +64,7 @@ impl IBasicSelector for PseudoClassSelector {
 pub struct PseudoElementSelector(pub String);
 
 impl IBasicSelector for PseudoElementSelector {
-    fn match_element(&self, element: ComRc<IHtmlElement>) -> bool {
+    fn match_element(&self, _element: ComRc<IHtmlElement>) -> bool {
         false
     }
 }

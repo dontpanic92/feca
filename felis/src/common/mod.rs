@@ -55,7 +55,7 @@ impl Default for Color {
 impl FromStr for Color {
     type Err = ();
 
-    fn from_str(s: &str) -> Result<Self, Self::Err> {
+    fn from_str(_s: &str) -> Result<Self, Self::Err> {
         Ok(Self::BLACK)
     }
 }

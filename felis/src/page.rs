@@ -2,8 +2,8 @@ use crosscom::ComRc;
 use winit::window::Window;
 
 use crate::{
+    comdef::{IHtmlElement, INode, IRenderable},
     common::Rectangle,
-    defs::{IHtmlElement, INode, IRenderable},
     dom::core::string::DomString,
     dom::html::HtmlDom,
     rendering::cairo::CairoRenderer,

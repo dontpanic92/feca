@@ -5,11 +5,10 @@ use winit::window::CursorIcon;
 use xcdt::XcDataType;
 
 use crate::{
-    common::{Color, Rectangle},
-    defs::{
-        ComObject_HtmlElement, IDomString, IElementImpl, IHtmlElement, IHtmlElementImpl, INode,
-        INodeImpl, IRenderableImpl,
+    comdef::{
+        IDomString, IElementImpl, IHtmlElement, IHtmlElementImpl, INode, INodeImpl, IRenderableImpl,
     },
+    common::{Color, Rectangle},
     dom::core::{
         element::{CoreElement, CoreElementBase, ElementProps, IsCoreElement},
         node::{layout_children, paint_children, NodeProps, NodeType},
@@ -27,7 +26,7 @@ xcdt::declare_xcdt!(
 );
 
 pub struct HtmlElement(pub CoreHtmlElement);
-ComObject_HtmlElement!(super::HtmlElement);
+crate::ComObject_HtmlElement!(super::HtmlElement);
 
 pub type Attributes = HashMap<String, Option<String>>;
 

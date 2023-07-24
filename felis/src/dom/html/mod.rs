@@ -4,7 +4,7 @@ use crosscom::ComRc;
 use dashmap::DashMap;
 
 use crate::{
-    defs::{IDomString, INode},
+    comdef::{IDomString, INode},
     dom::html::html_element::Attributes,
 };
 

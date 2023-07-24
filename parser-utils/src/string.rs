@@ -128,7 +128,10 @@ where
     ))(input)
 }
 
-fn build_string<'a, E>(input: &'a str) -> IResult<&'a str, String, E> {
+fn build_string<'a, E>(input: &'a str) -> IResult<&'a str, String, E>
+where
+    E: ParseError<&'a str> + FromExternalError<&'a str, std::num::ParseIntError>,
+{
     fold_many0(
         // Our parser function– parses a single string fragment
         parse_fragment,

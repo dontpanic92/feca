@@ -1,7 +1,7 @@
 use crosscom::ComRc;
 use nom::IResult;
 
-use crate::{defs::INode, dom::html::HtmlDom};
+use crate::{comdef::INode, dom::html::HtmlDom};
 
 pub(crate) fn parse(input: &str) -> IResult<&str, HtmlDom> {
     let (input, r) = root(input)?;

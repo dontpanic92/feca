@@ -5,7 +5,7 @@ use catus::{
     symtbl::{JsValue, NativeFunctionProxy, Symbol},
 };
 use crosscom::ComRc;
-use felis::{defs::IElement, DomString};
+use felis::{comdef::IElement, DomString};
 
 pub fn make_element(object: Symbol, function: Symbol, element: ComRc<IElement>) -> Symbol {
     let mut props = HashMap::new();

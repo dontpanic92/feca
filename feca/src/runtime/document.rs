@@ -5,7 +5,7 @@ use catus::{
     symtbl::{JsValue, NativeFunctionProxy, Symbol},
 };
 use crosscom::ComRc;
-use felis::{defs::INode, DomString};
+use felis::{comdef::INode, DomString};
 
 use super::element::make_element;
 

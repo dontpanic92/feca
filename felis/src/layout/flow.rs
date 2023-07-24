@@ -1,8 +1,8 @@
 use crosscom::ComRc;
 
 use crate::{
+    comdef::IRenderable,
     common::Rectangle,
-    defs::IRenderable,
     style::{Display, JustifyContent, Style},
 };
 pub struct FlowLayout;

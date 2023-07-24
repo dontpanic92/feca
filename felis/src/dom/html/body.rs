@@ -1,7 +1,7 @@
 use crosscom::ComRc;
 
 use crate::{
-    defs::{ComObject_HtmlBodyElement, IDomString, INode},
+    comdef::{IDomString, INode},
     dom::core::{
         element::ElementProps,
         node::{NodeProps, NodeType},
@@ -15,7 +15,7 @@ use super::html_element::{Attributes, CoreHtmlElement, CoreHtmlElementBase, Html
 xcdt::declare_xcdt!(CoreBody, BodyProps, CoreHtmlElement, CoreHtmlElementBase);
 
 pub struct HtmlBodyElement(pub CoreBody);
-ComObject_HtmlBodyElement!(super::HtmlBodyElement);
+crate::ComObject_HtmlBodyElement!(super::HtmlBodyElement);
 
 pub struct BodyProps;
 

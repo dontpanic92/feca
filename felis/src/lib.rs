@@ -3,8 +3,8 @@
 pub use crate::rendering::cairo::CairoRenderer;
 pub use dom::core::string::DomString;
 
+pub mod comdef;
 mod common;
-pub mod defs;
 mod dom;
 mod layout;
 pub mod page;

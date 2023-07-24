@@ -5,7 +5,7 @@ use super::{
     node::{CoreNode, CoreNodeBase},
     string::DomString,
 };
-use crate::defs::{ICharacterDataImpl, IDomString};
+use crate::comdef::{ICharacterDataImpl, IDomString};
 
 xcdt::declare_xcdt!(
     CoreCharacterData,

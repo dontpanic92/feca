@@ -1,7 +1,8 @@
 from audioop import cross
+from email import parser
 import io
 import uuid
-from parser import Interface, Class, CrossComIdl, Method, MethodParameter
+from parser import Interface, Class, CrossComIdl, Method, MethodParameter, Module, parse
 
 
 class Writer:
@@ -20,28 +21,60 @@ class Writer:
 
 
 type_map = {
-    'long': ('std::os::raw::c_long', 'i32'),
-    'longlong': ('std::os::raw::c_longlong', 'i64'),
-    'int': ('std::os::raw::c_int', 'i32'),
+    'long': ('std::os::raw::c_long', 'std::os::raw::c_long'),
+    'longlong': ('std::os::raw::c_longlong', 'std::os::raw::c_longlong'),
+    'int': ('std::os::raw::c_int', 'std::os::raw::c_int'),
     'float': ('std::os::raw::c_float', 'f32'),
-    'byte': ('std::os::raw::c_uchar', 'u8'),
+    'byte': ('std::os::raw::c_uchar', 'std::os::raw::c_uchar'),
     'byte*': ('*const std::os::raw::c_uchar', '*const std::os::raw::c_uchar'),
     'UUID': ('uuid::Uuid', 'uuid::Uuid'),
+    'bool': ('std::os::raw::c_int', 'bool', ' != 0'),
     'void': ('()', '()'),
 }
 
 
 class RustGen:
 
-    def __init__(self, unit: CrossComIdl, module_name: str, crosscom_module_name: str = "crosscom"):
+    def __init__(self, unit: CrossComIdl, idl_file_path: str, crosscom_module_name: str = "crosscom"):
         self.unit = unit
-        self.symbols = RustGen.__collect_symbols(unit)
-        self.module_name = module_name
         self.crosscom_module_name = crosscom_module_name
+
+        self.process_imports(idl_file_path, unit)
+        self.symbols = self.__collect_symbols(unit)
+
+    def get_rust_module(self, unit):
+        return next(filter(lambda m: m.module_lang == "rust", unit.modules))
+
+    def get_rust_crate(self):
+        return self.get_rust_module(self.unit).module_name.split("::")[0]
+
+    def process_imports(self, idl_file_path: str, unit: CrossComIdl):
+        import os
+        source_dir = os.path.dirname(idl_file_path)
+
+        for imp in unit.imports:
+            imp_file_path = os.path.join(source_dir, imp.file_name)
+            imp_content = open(imp_file_path, encoding="utf-8").read()
+            imp_unit = parse(imp_content)
+            imp_module = self.get_rust_module(imp_unit)
+
+            # self.process_imports(imp_file_path, imp_unit)
+
+            for imp_item in imp_unit.items:
+                if isinstance(imp_item, Interface):
+
+                    if imp_item.attrs is None:
+                        imp_item.attrs = {}
+
+                    imp_item.attrs["codegen"] = "ignore"
+                    imp_item.module = imp_module
+                    self.unit.items.append(imp_item)
+
 
     def gen(self) -> str:
 
         w = Writer()
+        w.ln(f"use crate as {self.get_rust_crate()};")
 
         for i in self.unit.items:
             if isinstance(i, Class):
@@ -56,9 +89,48 @@ class RustGen:
 
         for p in method.params:
             if method.attrs is not None and 'internal' in method.attrs:
-                w.ln(f'{p.name}: {p.ty}, ')
+                w.ln(f'{p.name}: {self.__map_rust_internal_type(p.ty, method.interface.module)}, ')
             else:
                 w.ln(f'{p.name}: {self.__map_raw_type(p.ty, p.attrs)}, ')
+
+        return w.get_value()
+
+    def __gen_method_param_mapping(self, method: Method):
+        w = Writer()
+
+        for p in method.params:
+            if method.attrs is not None and 'internal' in method.attrs:
+                w.ln(f'{p.name}: {self.__map_rust_internal_type(p.ty, method.interface.module)}, ')
+            else:
+                w.ln(f'let {p.name}: {self.__map_type(p.ty, True)} = {self.__gen_param_ty_convert(p)};')
+
+        return w.get_value()
+
+    def __gen_method_ret_mapping(self, method: Method):
+        w = Writer()
+
+        if method.attrs is not None and 'internal' in method.attrs:
+            w.ln(f'');
+        else:
+            w.ln(f'let ret: {self.__map_type(method.ret_ty, False)} = {self.__gen_ret_ty_convert(method)};')
+
+        return w.get_value()
+
+    def __gen_param_ty_convert(self, p: MethodParameter):
+        w = Writer()
+        if p.ty in type_map and len(type_map[p.ty]) > 2:
+            w.ln(f'{p.name}{type_map[p.ty][2]}')
+        else:
+            w.ln(f'{p.name}.into()')
+
+        return w.get_value()
+
+    def __gen_ret_ty_convert(self, p: Method):
+        w = Writer()
+        if p.ret_ty in type_map and len(type_map[p.ret_ty]) > 2:
+            w.ln(f'ret{type_map[p.ret_ty][2]}')
+        else:
+            w.ln(f'ret.into()')
 
         return w.get_value()
 
@@ -78,12 +150,12 @@ class RustGen:
             if method.attrs is not None and 'internal' in method.attrs:
                 w.ln(f'{p.name}: {p.ty}, ')
             else:
-                w.ln(f'{p.name}: {self.__map_type(p.ty, False)}, ')
+                w.ln(f'{p.name}: {self.__map_type(p.ty, True)}, ')
 
         if method.attrs is not None and 'internal' in method.attrs:
             w.ln(f') -> {method.ret_ty}')
         else:
-            w.ln(f') -> {self.__map_type(method.ret_ty, False)}')
+            w.ln(f') -> {self.__map_type(method.ret_ty, True)}')
 
         return w.get_value()
 
@@ -91,14 +163,15 @@ class RustGen:
         w = Writer()
         w.ln(f'use {self.crosscom_module_name}::ComInterface;')
         for item in self.unit.items:
-            if isinstance(item, Interface) and not item.codegen_ignore():
-                w.ln(f'use {self.module_name}::{item.name}Impl;')
+            if isinstance(item, Interface):
+                w.ln(f'use {item.module.module_name}::{item.name}Impl;')
         return w.get_value()
 
     def __gen_klass_base_field(self, klass: Class) -> str:
         w = Writer()
         for b in klass.bases:
-            w.ln(f'{b}: {self.module_name}::{b},')
+            symbol = self.symbols[b]
+            w.ln(f'{b}: {symbol.module.module_name}::{b},')
         return w.get_value()
 
     def __gen_raw_method_impl(self, klass: Class, method: Method) -> str:
@@ -110,16 +183,17 @@ class RustGen:
             w.ln(f"""
     fn {method.name} (this: *const *const std::os::raw::c_void, {self.__gen_method_raw_param_list(method)}) -> {method.ret_ty} {{
         unsafe {{
-            let object = {self.crosscom_module_name}::get_object::<{klass.name}Ccw>(this);
-            (*object).inner{field_name}.{ method.name }({','.join([p.name for p in method.params])})
+            let __crosscom_object = {self.crosscom_module_name}::get_object::<{klass.name}Ccw>(this);
+            (*__crosscom_object).inner{field_name}.{ method.name }({','.join([p.name for p in method.params])})
         }}
     }}
     """)
         else:
             w.ln(f"""
     unsafe extern "system" fn {method.name} (this: *const *const std::os::raw::c_void, {self.__gen_method_raw_param_list(method)}) -> {self.__map_raw_type(method.ret_ty)} {{
-        let object = {self.crosscom_module_name}::get_object::<{klass.name}Ccw>(this);
-        (*object).inner{field_name}.{ method.name }({','.join([f'{p.name}.into()' for p in method.params])}).into()
+        {self.__gen_method_param_mapping(method)}
+        let __crosscom_object = {self.crosscom_module_name}::get_object::<{klass.name}Ccw>(this);
+        (*__crosscom_object).inner{field_name}.{ method.name }({','.join([f'{p.name}.into()' for p in method.params])}).into()
     }}
     """)
 
@@ -147,7 +221,7 @@ class RustGen:
             if isinstance(interface, Class):
                 raise f'Class type cannot be used as base: {a}'
 
-            if interface.codegen_ignore():
+            if interface.name == "IUnknown":
                 continue
 
             if interface.bases is not None:
@@ -184,17 +258,17 @@ class RustGen:
     def __collect_inherit_chain(self, iname: str) -> list[Method]:
         interface = self.unit.find(iname)
         if interface is None:
-            raise f'Cannot find base type: {iname}'
+            raise Exception(f'Cannot find base type: {iname}')
 
         if isinstance(interface, Class):
-            raise f'Class type cannot be used as base: {iname}'
+            raise Exception(f'Class type cannot be used as base: {iname}')
 
         ifaces = []
         if interface.bases is not None:
             if len(interface.bases) == 1:
                 ifaces = self.__collect_inherit_chain(interface.bases[0])
             elif len(interface.bases) > 1:
-                raise f'Cannot have more than 1 parent for interface: {interface.name}'
+                raise Exception(f'Cannot have more than 1 parent for interface: {interface.name}')
 
         ifaces.append(interface)
 
@@ -212,10 +286,11 @@ class RustGen:
     def __gen_base_struct(self, klass: Class) -> str:
         w = Writer()
         for b in klass.bases:
+            symbol = self.symbols[b]
             w.ln(f"""
-{b}: {self.module_name}::{b} {{
+{b}: {symbol.module.module_name}::{b} {{
     vtable: &GLOBAL_{b}VirtualTable_CCW_FOR_{klass.name}.vtable
-        as *const {self.module_name}::{b}VirtualTable,
+        as *const {symbol.module.module_name}::{b}VirtualTable,
 }},""")
 
         return w.get_value()
@@ -225,12 +300,13 @@ class RustGen:
         offset = 1
         for b in klass.bases:
             offset -= 1
+            symbol = self.symbols[b]
             w.ln(f"""
 #[allow(non_upper_case_globals)]
-pub const GLOBAL_{b}VirtualTable_CCW_FOR_{ klass.name }: {self.module_name}::{b}VirtualTableCcw 
-    = {self.module_name}::{b}VirtualTableCcw {{
+pub const GLOBAL_{b}VirtualTable_CCW_FOR_{ klass.name }: {symbol.module.module_name}::{b}VirtualTableCcw 
+    = {symbol.module.module_name}::{b}VirtualTableCcw {{
     offset: {offset},
-    vtable: {self.module_name}::{b}VirtualTable {{
+    vtable: {symbol.module.module_name}::{b}VirtualTable {{
         {self.__gen_interface_vtbl_methods(b)}
     }},
 }};
@@ -251,12 +327,12 @@ pub const GLOBAL_{b}VirtualTable_CCW_FOR_{ klass.name }: {self.module_name}::{b}
                     continue
 
                 visited.add(interface.name)
-                mod = self.crosscom_module_name if interface.name == 'IUnknown' else self.module_name
+                mod = interface.module.module_name
                 w.ln(f"""
 &{mod}::{interface.name}::INTERFACE_ID => {{
     *retval = (object as *const *const std::os::raw::c_void).offset({offset});
     add_ref(object as *const *const std::os::raw::c_void);
-    {self.crosscom_module_name}::ResultCode::Ok as i32
+    {self.crosscom_module_name}::ResultCode::Ok as std::os::raw::c_long
 }}
 """)
 
@@ -268,6 +344,7 @@ pub const GLOBAL_{b}VirtualTable_CCW_FOR_{ klass.name }: {self.module_name}::{b}
 // Class {klass.name}
 
 #[allow(unused)]
+#[macro_export]
 macro_rules! ComObject_{klass.name} {{
     ($impl_type: ty) => {{
 
@@ -275,6 +352,7 @@ macro_rules! ComObject_{klass.name} {{
 #[allow(non_snake_case)]
 #[allow(unused)]
 mod {klass.name}_crosscom_impl {{
+    use crate as {self.get_rust_crate()};
     {self.__gen_trait_use()}
 
     #[repr(C)]
@@ -292,7 +370,7 @@ mod {klass.name}_crosscom_impl {{
         let object = {self.crosscom_module_name}::get_object::<{klass.name}Ccw>(this);
         match guid.as_bytes() {{
             {self.__gen_query_interface_branches(klass)}
-            _ => {self.crosscom_module_name}::ResultCode::ENoInterface as i32,
+            _ => {self.crosscom_module_name}::ResultCode::ENoInterface as std::os::raw::c_long,
         }}
     }}
 
@@ -329,12 +407,20 @@ mod {klass.name}_crosscom_impl {{
                 inner: self,
             }}
         }}
+
+        fn get_ccw(&self) -> &Self::CcwType {{
+            unsafe {{
+                let this = self as *const _ as *const u8;
+                let this = this.offset(-(crosscom::offset_of!({klass.name}Ccw, inner) as isize));
+                &*(this as *const Self::CcwType)
+            }}
+        }}
     }}
 }}
     }}
 }}
 
-pub(crate) use ComObject_{klass.name};
+// pub use ComObject_{klass.name};
 """)
 
         return w.get_value()
@@ -348,7 +434,9 @@ pub(crate) use ComObject_{klass.name};
 pub {self.__gen_method_signature2(method)} {{
     unsafe {{
         let this = self as *const {i.name} as *const *const std::os::raw::c_void;
-        ((*self.vtable).{method.name})(this, {','.join([f'{p.name}.into()' for p in method.params])}).into()
+        let ret = ((*self.vtable).{method.name})(this, {','.join([f'{p.name}.into()' for p in method.params])});
+        {self.__gen_method_ret_mapping(method)}
+        ret
     }}
 }}
 """)
@@ -413,6 +501,11 @@ pub struct { i.name } {{
 #[allow(unused)]
 impl { i.name } {{
     {self.__gen_interface_method_safe_wrapper(i)}
+
+    pub fn uuid() -> uuid::Uuid {{
+        use crosscom::ComInterface;
+        uuid::Uuid::from_bytes({ i.name }::INTERFACE_ID)
+    }}
 }}
 """)
 
@@ -442,6 +535,12 @@ impl {self.crosscom_module_name}::ComInterface for {i.name} {{
 
         return None
 
+    def __map_rust_internal_type(self, rust_ty: str, method_iface_module: Module) -> str:
+        if "crate::" in rust_ty:
+            if method_iface_module.module_name.split("::")[0] != self.get_rust_module(self.unit).module_name.split("::")[0]:
+                return rust_ty.replace("crate::", method_iface_module.module_name.split("::")[0] + "::")
+        return rust_ty
+
     def __map_raw_type(self, idl_ty: str, attrs: list[str] = None) -> str:
         is_out = attrs is not None and 'out' in attrs
 
@@ -460,20 +559,22 @@ impl {self.crosscom_module_name}::ComInterface for {i.name} {{
                     return '&mut *const *const std::os::raw::c_void'
                 else:
                     return '*const *const std::os::raw::c_void'
+            else:
+                raise Exception('cannot find type: ' + idl_ty)
 
     def __map_type(self, idl_ty: str, mod_prefix=True) -> str:
         if idl_ty.endswith('[]'):
             inner_idl_ty = idl_ty[0:-2]
             inner_ty = self.__get_interface_symbol(inner_idl_ty)
             if inner_ty != None:
-                mod = self.module_name if inner_ty.name != 'IUnknown' else self.crosscom_module_name
+                mod = inner_ty.module.module_name
                 return f'{self.crosscom_module_name}::ObjectArray<{mod}::{inner_ty.name}>'
 
         elif idl_ty.endswith('?'):
             inner_idl_ty = idl_ty[0:-1]
             inner_ty = self.__get_interface_symbol(inner_idl_ty)
             if inner_ty != None:
-                mod = self.module_name if inner_ty.name != 'IUnknown' else self.crosscom_module_name
+                mod = inner_ty.module.module_name
                 return f'Option<crosscom::ComRc<{mod}::{inner_ty.name}>>'
         elif idl_ty in type_map:
             return type_map[idl_ty][1]
@@ -481,15 +582,17 @@ impl {self.crosscom_module_name}::ComInterface for {i.name} {{
             ty = self.__get_interface_symbol(idl_ty)
             if ty != None:
                 if mod_prefix:
-                    mod = self.module_name if ty.name != 'IUnknown' else 'crosscom'
+                    mod = ty.module.module_name
                     return f'{self.crosscom_module_name}::ComRc<{mod}::{ty.name}>'
                 else:
                     return f'{self.crosscom_module_name}::ComRc<{ty.name}>'
 
-    def __collect_symbols(unit: CrossComIdl):
+    def __collect_symbols(self, unit: CrossComIdl):
         symbols = {}
         for i in unit.items:
             symbols[i.name] = i
+            if not hasattr(i, 'module'):
+                i.module = self.get_rust_module(unit)
 
         return symbols
 

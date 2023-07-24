@@ -1,9 +1,6 @@
-[uuid(00000000-0000-0000-C000-000000000046), codegen(ignore)]
-interface IUnknown {
-    long query_interface(UUID guid, [out] IUnknown retval);
-    long add_ref();
-    long release();
-}
+module(rust) felis::comdef;
+
+import crosscom.idl;
 
 [uuid(81bb38bb-da96-4eee-9a80-47bae3c060aa)]
 interface IRenderable: IUnknown {

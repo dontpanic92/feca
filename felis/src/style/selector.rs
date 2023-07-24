@@ -1,6 +1,6 @@
 use crosscom::ComRc;
 
-use crate::defs::IHtmlElement;
+use crate::comdef::IHtmlElement;
 
 pub trait IBasicSelector {
     fn match_element(&self, element: ComRc<IHtmlElement>) -> bool;

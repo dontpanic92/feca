@@ -1,13 +1,13 @@
 use crosscom::ComRc;
 
-use crate::defs::{ComObject_DomString, IDomString, IDomStringImpl};
+use crate::comdef::{IDomString, IDomStringImpl};
 
 // TODO: Should be UTF-16
 pub struct DomString {
     pub string: String,
 }
 
-ComObject_DomString!(crate::dom::core::string::DomString);
+crate::ComObject_DomString!(crate::dom::core::string::DomString);
 
 impl DomString {
     pub fn new(string: String) -> ComRc<IDomString> {

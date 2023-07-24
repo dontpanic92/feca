@@ -225,7 +225,15 @@ fn identifier(input: &str) -> IResult<&str, Token> {
         ),
         pair(
             tag("/"),
-            many0_count(alt((alphanumeric1, tag("."), tag("%"), tag("?"), tag("\\"), tag("-"), tag("_"))))
+            many0_count(alt((
+                alphanumeric1,
+                tag("."),
+                tag("%"),
+                tag("?"),
+                tag("\\"),
+                tag("-"),
+                tag("_"),
+            ))),
         ),
     ))))(input)?;
 

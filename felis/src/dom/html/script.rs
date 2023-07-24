@@ -2,7 +2,7 @@ use crosscom::ComRc;
 use xcdt::XcDataType;
 
 use crate::{
-    defs::{ComObject_HtmlScriptElement, IDomString, IHtmlScriptElementImpl, INode, INodeImpl},
+    comdef::{IDomString, IHtmlScriptElementImpl, INode, INodeImpl},
     dom::core::node::IsCoreNode,
     dom::core::{
         element::ElementProps,
@@ -25,7 +25,7 @@ xcdt::declare_xcdt!(
 );
 
 pub struct Script(pub CoreScript);
-ComObject_HtmlScriptElement!(super::Script);
+crate::ComObject_HtmlScriptElement!(super::Script);
 
 pub struct ScriptProps {}
 
@@ -35,7 +35,7 @@ impl ScriptProps {
     }
 }
 
-impl crate::defs::INodeImpl for CoreScript {
+impl crate::comdef::INodeImpl for CoreScript {
     fn set_inner_html(&self, html: crosscom::ComRc<IDomString>) {
         let html = "<script>".to_string() + html.str() + "</script>";
         let tl_dom = tl::parse(&html, tl::ParserOptions::default()).unwrap();

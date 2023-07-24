@@ -3,8 +3,8 @@ use image::RgbaImage;
 
 use crate::dom::html::html_element::IsCoreHtmlElement;
 use crate::{
+    comdef::{IDomString, INode, IRenderableImpl},
     common::Rectangle,
-    defs::{ComObject_HtmlImageElement, IDomString, INode, IRenderableImpl},
     dom::core::{
         element::ElementProps,
         node::{NodeProps, NodeType},
@@ -18,7 +18,7 @@ use super::html_element::{Attributes, CoreHtmlElement, CoreHtmlElementBase, Html
 xcdt::declare_xcdt!(CoreImage, ImageProps, CoreHtmlElement, CoreHtmlElementBase);
 
 pub struct HtmlImageElement(pub CoreImage);
-ComObject_HtmlImageElement!(super::HtmlImageElement);
+crate::ComObject_HtmlImageElement!(super::HtmlImageElement);
 
 pub struct ImageProps {
     img: Option<RgbaImage>,

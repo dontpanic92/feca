@@ -6,7 +6,7 @@ use catus::{
     symtbl::{JsValue, NativeFunctionProxy, Symbol},
 };
 use crosscom::ComRc;
-use felis::defs::INode;
+use felis::comdef::INode;
 
 use self::{date::make_date, document::make_document, timer_queue::TIMER_QUEUE};
 

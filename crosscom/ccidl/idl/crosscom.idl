@@ -1,3 +1,5 @@
+module(rust) crosscom;
+
 [uuid(00000000-0000-0000-C000-000000000046), codegen(ignore)]
 interface IUnknown {
     long query_interface(UUID guid, [out] IUnknown retval);

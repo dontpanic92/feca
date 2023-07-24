@@ -1,7 +1,7 @@
 use crosscom::ComRc;
 
 use crate::{
-    defs::{ComObject_HtmlDivElement, IDomString, INode},
+    comdef::{IDomString, INode},
     dom::core::{
         element::ElementProps,
         node::{NodeProps, NodeType},
@@ -15,7 +15,7 @@ use super::html_element::{Attributes, CoreHtmlElement, CoreHtmlElementBase, Html
 xcdt::declare_xcdt!(CoreDiv, DivProps, CoreHtmlElement, CoreHtmlElementBase);
 
 pub struct HtmlDivElement(pub CoreDiv);
-ComObject_HtmlDivElement!(super::HtmlDivElement);
+crate::ComObject_HtmlDivElement!(super::HtmlDivElement);
 
 pub struct DivProps {}
 

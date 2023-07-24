@@ -5,7 +5,7 @@ use super::{
     node::{CoreNode, CoreNodeBase},
     string::DomString,
 };
-use crate::defs::{IDomString, IElementImpl};
+use crate::comdef::{IDomString, IElementImpl};
 
 xcdt::declare_xcdt!(CoreElement, ElementProps, CoreNode, CoreNodeBase);
 

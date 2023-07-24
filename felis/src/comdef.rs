@@ -1,3 +1,4 @@
+use crate as felis;
 // Interface IRenderable
 
 #[repr(C)]
@@ -55,24 +56,32 @@ impl IRenderable {
         }
     }
 
-    pub fn add_ref(&self) -> i32 {
+    pub fn add_ref(&self) -> std::os::raw::c_long {
         unsafe {
             let this = self as *const IRenderable as *const *const std::os::raw::c_void;
-            ((*self.vtable).add_ref)(this).into()
+            let ret = ((*self.vtable).add_ref)(this);
+            let ret: std::os::raw::c_long = ret.into();
+
+            ret
         }
     }
 
-    pub fn release(&self) -> i32 {
+    pub fn release(&self) -> std::os::raw::c_long {
         unsafe {
             let this = self as *const IRenderable as *const *const std::os::raw::c_void;
-            ((*self.vtable).release)(this).into()
+            let ret = ((*self.vtable).release)(this);
+            let ret: std::os::raw::c_long = ret.into();
+
+            ret
         }
     }
 
     pub fn display(&self) -> crate::style::Display {
         unsafe {
             let this = self as *const IRenderable as *const *const std::os::raw::c_void;
-            ((*self.vtable).display)(this).into()
+            let ret = ((*self.vtable).display)(this);
+
+            ret
         }
     }
 
@@ -84,13 +93,14 @@ impl IRenderable {
     ) -> crate::common::Rectangle {
         unsafe {
             let this = self as *const IRenderable as *const *const std::os::raw::c_void;
-            ((*self.vtable).layout)(
+            let ret = ((*self.vtable).layout)(
                 this,
                 pango_context.into(),
                 style_computed.into(),
                 content_boundary.into(),
-            )
-            .into()
+            );
+
+            ret
         }
     }
 
@@ -101,8 +111,15 @@ impl IRenderable {
     ) -> crosscom::Void {
         unsafe {
             let this = self as *const IRenderable as *const *const std::os::raw::c_void;
-            ((*self.vtable).paint)(this, renderer.into(), style_computed.into()).into()
+            let ret = ((*self.vtable).paint)(this, renderer.into(), style_computed.into());
+
+            ret
         }
+    }
+
+    pub fn uuid() -> uuid::Uuid {
+        use crosscom::ComInterface;
+        uuid::Uuid::from_bytes(IRenderable::INTERFACE_ID)
     }
 }
 
@@ -178,32 +195,48 @@ impl IDomString {
         }
     }
 
-    pub fn add_ref(&self) -> i32 {
+    pub fn add_ref(&self) -> std::os::raw::c_long {
         unsafe {
             let this = self as *const IDomString as *const *const std::os::raw::c_void;
-            ((*self.vtable).add_ref)(this).into()
+            let ret = ((*self.vtable).add_ref)(this);
+            let ret: std::os::raw::c_long = ret.into();
+
+            ret
         }
     }
 
-    pub fn release(&self) -> i32 {
+    pub fn release(&self) -> std::os::raw::c_long {
         unsafe {
             let this = self as *const IDomString as *const *const std::os::raw::c_void;
-            ((*self.vtable).release)(this).into()
+            let ret = ((*self.vtable).release)(this);
+            let ret: std::os::raw::c_long = ret.into();
+
+            ret
         }
     }
 
     pub fn bytes(&self) -> *const std::os::raw::c_uchar {
         unsafe {
             let this = self as *const IDomString as *const *const std::os::raw::c_void;
-            ((*self.vtable).bytes)(this).into()
+            let ret = ((*self.vtable).bytes)(this);
+            let ret: *const std::os::raw::c_uchar = ret.into();
+
+            ret
         }
     }
 
     pub fn str(&self) -> crosscom::StaticStr {
         unsafe {
             let this = self as *const IDomString as *const *const std::os::raw::c_void;
-            ((*self.vtable).str)(this).into()
+            let ret = ((*self.vtable).str)(this);
+
+            ret
         }
+    }
+
+    pub fn uuid() -> uuid::Uuid {
+        use crosscom::ComInterface;
+        uuid::Uuid::from_bytes(IDomString::INTERFACE_ID)
     }
 }
 
@@ -223,33 +256,37 @@ impl crosscom::ComInterface for IDomString {
 // Class DomString
 
 #[allow(unused)]
+#[macro_export]
 macro_rules! ComObject_DomString {
     ($impl_type: ty) => {
         #[allow(dead_code)]
         #[allow(non_snake_case)]
         #[allow(unused)]
         mod DomString_crosscom_impl {
-            use crate::defs::ICharacterDataImpl;
-            use crate::defs::IDomStringImpl;
-            use crate::defs::IElementImpl;
-            use crate::defs::IHtmlBodyElementImpl;
-            use crate::defs::IHtmlDivElementImpl;
-            use crate::defs::IHtmlElementImpl;
-            use crate::defs::IHtmlHeadElementImpl;
-            use crate::defs::IHtmlHtmlElementImpl;
-            use crate::defs::IHtmlImageElementImpl;
-            use crate::defs::IHtmlLinkElementImpl;
-            use crate::defs::IHtmlParagraphElementImpl;
-            use crate::defs::IHtmlScriptElementImpl;
-            use crate::defs::IHtmlStyleElementImpl;
-            use crate::defs::INodeImpl;
-            use crate::defs::IRenderableImpl;
-            use crate::defs::ITextImpl;
+            use crate as felis;
             use crosscom::ComInterface;
+            use crosscom::IObjectArrayImpl;
+            use crosscom::IUnknownImpl;
+            use felis::comdef::ICharacterDataImpl;
+            use felis::comdef::IDomStringImpl;
+            use felis::comdef::IElementImpl;
+            use felis::comdef::IHtmlBodyElementImpl;
+            use felis::comdef::IHtmlDivElementImpl;
+            use felis::comdef::IHtmlElementImpl;
+            use felis::comdef::IHtmlHeadElementImpl;
+            use felis::comdef::IHtmlHtmlElementImpl;
+            use felis::comdef::IHtmlImageElementImpl;
+            use felis::comdef::IHtmlLinkElementImpl;
+            use felis::comdef::IHtmlParagraphElementImpl;
+            use felis::comdef::IHtmlScriptElementImpl;
+            use felis::comdef::IHtmlStyleElementImpl;
+            use felis::comdef::INodeImpl;
+            use felis::comdef::IRenderableImpl;
+            use felis::comdef::ITextImpl;
 
             #[repr(C)]
             pub struct DomStringCcw {
-                IDomString: crate::defs::IDomString,
+                IDomString: felis::comdef::IDomString,
 
                 ref_count: std::sync::atomic::AtomicU32,
                 pub inner: $impl_type,
@@ -265,16 +302,16 @@ macro_rules! ComObject_DomString {
                     &crosscom::IUnknown::INTERFACE_ID => {
                         *retval = (object as *const *const std::os::raw::c_void).offset(0);
                         add_ref(object as *const *const std::os::raw::c_void);
-                        crosscom::ResultCode::Ok as i32
+                        crosscom::ResultCode::Ok as std::os::raw::c_long
                     }
 
-                    &crate::defs::IDomString::INTERFACE_ID => {
+                    &felis::comdef::IDomString::INTERFACE_ID => {
                         *retval = (object as *const *const std::os::raw::c_void).offset(0);
                         add_ref(object as *const *const std::os::raw::c_void);
-                        crosscom::ResultCode::Ok as i32
+                        crosscom::ResultCode::Ok as std::os::raw::c_long
                     }
 
-                    _ => crosscom::ResultCode::ENoInterface as i32,
+                    _ => crosscom::ResultCode::ENoInterface as std::os::raw::c_long,
                 }
             }
 
@@ -306,42 +343,52 @@ macro_rules! ComObject_DomString {
             unsafe extern "system" fn bytes(
                 this: *const *const std::os::raw::c_void,
             ) -> *const std::os::raw::c_uchar {
-                let object = crosscom::get_object::<DomStringCcw>(this);
-                (*object).inner.bytes().into()
+                let __crosscom_object = crosscom::get_object::<DomStringCcw>(this);
+                (*__crosscom_object).inner.bytes().into()
             }
 
             fn str(this: *const *const std::os::raw::c_void) -> crosscom::StaticStr {
                 unsafe {
-                    let object = crosscom::get_object::<DomStringCcw>(this);
-                    (*object).inner.str()
+                    let __crosscom_object = crosscom::get_object::<DomStringCcw>(this);
+                    (*__crosscom_object).inner.str()
                 }
             }
 
             #[allow(non_upper_case_globals)]
             pub const GLOBAL_IDomStringVirtualTable_CCW_FOR_DomString:
-                crate::defs::IDomStringVirtualTableCcw = crate::defs::IDomStringVirtualTableCcw {
-                offset: 0,
-                vtable: crate::defs::IDomStringVirtualTable {
-                    query_interface,
-                    add_ref,
-                    release,
-                    bytes,
-                    str,
-                },
-            };
+                felis::comdef::IDomStringVirtualTableCcw =
+                felis::comdef::IDomStringVirtualTableCcw {
+                    offset: 0,
+                    vtable: felis::comdef::IDomStringVirtualTable {
+                        query_interface,
+                        add_ref,
+                        release,
+                        bytes,
+                        str,
+                    },
+                };
 
             impl crosscom::ComObject for $impl_type {
                 type CcwType = DomStringCcw;
 
                 fn create_ccw(self) -> Self::CcwType {
                     Self::CcwType {
-                        IDomString: crate::defs::IDomString {
+                        IDomString: felis::comdef::IDomString {
                             vtable: &GLOBAL_IDomStringVirtualTable_CCW_FOR_DomString.vtable
-                                as *const crate::defs::IDomStringVirtualTable,
+                                as *const felis::comdef::IDomStringVirtualTable,
                         },
 
                         ref_count: std::sync::atomic::AtomicU32::new(0),
                         inner: self,
+                    }
+                }
+
+                fn get_ccw(&self) -> &Self::CcwType {
+                    unsafe {
+                        let this = self as *const _ as *const u8;
+                        let this =
+                            this.offset(-(crosscom::offset_of!(DomStringCcw, inner) as isize));
+                        &*(this as *const Self::CcwType)
                     }
                 }
             }
@@ -349,7 +396,7 @@ macro_rules! ComObject_DomString {
     };
 }
 
-pub(crate) use ComObject_DomString;
+// pub use ComObject_DomString;
 
 // Interface INode
 
@@ -418,82 +465,111 @@ impl INode {
         }
     }
 
-    pub fn add_ref(&self) -> i32 {
+    pub fn add_ref(&self) -> std::os::raw::c_long {
         unsafe {
             let this = self as *const INode as *const *const std::os::raw::c_void;
-            ((*self.vtable).add_ref)(this).into()
+            let ret = ((*self.vtable).add_ref)(this);
+            let ret: std::os::raw::c_long = ret.into();
+
+            ret
         }
     }
 
-    pub fn release(&self) -> i32 {
+    pub fn release(&self) -> std::os::raw::c_long {
         unsafe {
             let this = self as *const INode as *const *const std::os::raw::c_void;
-            ((*self.vtable).release)(this).into()
+            let ret = ((*self.vtable).release)(this);
+            let ret: std::os::raw::c_long = ret.into();
+
+            ret
         }
     }
 
-    pub fn children(&self) -> crosscom::ObjectArray<crate::defs::INode> {
+    pub fn children(&self) -> crosscom::ObjectArray<felis::comdef::INode> {
         unsafe {
             let this = self as *const INode as *const *const std::os::raw::c_void;
-            ((*self.vtable).children)(this).into()
+            let ret = ((*self.vtable).children)(this);
+            let ret: crosscom::ObjectArray<felis::comdef::INode> = ret.into();
+
+            ret
         }
     }
 
-    pub fn inner_html(&self) -> crosscom::ComRc<IDomString> {
+    pub fn inner_html(&self) -> crosscom::ComRc<felis::comdef::IDomString> {
         unsafe {
             let this = self as *const INode as *const *const std::os::raw::c_void;
-            ((*self.vtable).inner_html)(this).into()
+            let ret = ((*self.vtable).inner_html)(this);
+            let ret: crosscom::ComRc<IDomString> = ret.into();
+
+            ret
         }
     }
 
-    pub fn outer_html(&self) -> crosscom::ComRc<IDomString> {
+    pub fn outer_html(&self) -> crosscom::ComRc<felis::comdef::IDomString> {
         unsafe {
             let this = self as *const INode as *const *const std::os::raw::c_void;
-            ((*self.vtable).outer_html)(this).into()
+            let ret = ((*self.vtable).outer_html)(this);
+            let ret: crosscom::ComRc<IDomString> = ret.into();
+
+            ret
         }
     }
 
-    pub fn set_inner_html(&self, html: crosscom::ComRc<IDomString>) -> () {
+    pub fn set_inner_html(&self, html: crosscom::ComRc<felis::comdef::IDomString>) -> () {
         unsafe {
             let this = self as *const INode as *const *const std::os::raw::c_void;
-            ((*self.vtable).set_inner_html)(this, html.into()).into()
+            let ret = ((*self.vtable).set_inner_html)(this, html.into());
+            let ret: () = ret.into();
+
+            ret
         }
     }
 
     pub fn get_elements_by_tag_name(
         &self,
-        tag: crosscom::ComRc<IDomString>,
-    ) -> crosscom::ObjectArray<crate::defs::IElement> {
+        tag: crosscom::ComRc<felis::comdef::IDomString>,
+    ) -> crosscom::ObjectArray<felis::comdef::IElement> {
         unsafe {
             let this = self as *const INode as *const *const std::os::raw::c_void;
-            ((*self.vtable).get_elements_by_tag_name)(this, tag.into()).into()
+            let ret = ((*self.vtable).get_elements_by_tag_name)(this, tag.into());
+            let ret: crosscom::ObjectArray<felis::comdef::IElement> = ret.into();
+
+            ret
         }
     }
 
     pub fn get_element_by_id(
         &self,
-        id: crosscom::ComRc<IDomString>,
-    ) -> Option<crosscom::ComRc<crate::defs::IElement>> {
+        id: crosscom::ComRc<felis::comdef::IDomString>,
+    ) -> Option<crosscom::ComRc<felis::comdef::IElement>> {
         unsafe {
             let this = self as *const INode as *const *const std::os::raw::c_void;
-            ((*self.vtable).get_element_by_id)(this, id.into()).into()
+            let ret = ((*self.vtable).get_element_by_id)(this, id.into());
+            let ret: Option<crosscom::ComRc<felis::comdef::IElement>> = ret.into();
+
+            ret
         }
+    }
+
+    pub fn uuid() -> uuid::Uuid {
+        use crosscom::ComInterface;
+        uuid::Uuid::from_bytes(INode::INTERFACE_ID)
     }
 }
 
 pub trait INodeImpl {
-    fn children(&self) -> crosscom::ObjectArray<crate::defs::INode>;
-    fn inner_html(&self) -> crosscom::ComRc<IDomString>;
-    fn outer_html(&self) -> crosscom::ComRc<IDomString>;
-    fn set_inner_html(&self, html: crosscom::ComRc<IDomString>) -> ();
+    fn children(&self) -> crosscom::ObjectArray<felis::comdef::INode>;
+    fn inner_html(&self) -> crosscom::ComRc<felis::comdef::IDomString>;
+    fn outer_html(&self) -> crosscom::ComRc<felis::comdef::IDomString>;
+    fn set_inner_html(&self, html: crosscom::ComRc<felis::comdef::IDomString>) -> ();
     fn get_elements_by_tag_name(
         &self,
-        tag: crosscom::ComRc<IDomString>,
-    ) -> crosscom::ObjectArray<crate::defs::IElement>;
+        tag: crosscom::ComRc<felis::comdef::IDomString>,
+    ) -> crosscom::ObjectArray<felis::comdef::IElement>;
     fn get_element_by_id(
         &self,
-        id: crosscom::ComRc<IDomString>,
-    ) -> Option<crosscom::ComRc<crate::defs::IElement>>;
+        id: crosscom::ComRc<felis::comdef::IDomString>,
+    ) -> Option<crosscom::ComRc<felis::comdef::IElement>>;
 }
 
 impl crosscom::ComInterface for INode {
@@ -577,86 +653,121 @@ impl IElement {
         }
     }
 
-    pub fn add_ref(&self) -> i32 {
+    pub fn add_ref(&self) -> std::os::raw::c_long {
         unsafe {
             let this = self as *const IElement as *const *const std::os::raw::c_void;
-            ((*self.vtable).add_ref)(this).into()
+            let ret = ((*self.vtable).add_ref)(this);
+            let ret: std::os::raw::c_long = ret.into();
+
+            ret
         }
     }
 
-    pub fn release(&self) -> i32 {
+    pub fn release(&self) -> std::os::raw::c_long {
         unsafe {
             let this = self as *const IElement as *const *const std::os::raw::c_void;
-            ((*self.vtable).release)(this).into()
+            let ret = ((*self.vtable).release)(this);
+            let ret: std::os::raw::c_long = ret.into();
+
+            ret
         }
     }
 
-    pub fn children(&self) -> crosscom::ObjectArray<crate::defs::INode> {
+    pub fn children(&self) -> crosscom::ObjectArray<felis::comdef::INode> {
         unsafe {
             let this = self as *const IElement as *const *const std::os::raw::c_void;
-            ((*self.vtable).children)(this).into()
+            let ret = ((*self.vtable).children)(this);
+            let ret: crosscom::ObjectArray<felis::comdef::INode> = ret.into();
+
+            ret
         }
     }
 
-    pub fn inner_html(&self) -> crosscom::ComRc<IDomString> {
+    pub fn inner_html(&self) -> crosscom::ComRc<felis::comdef::IDomString> {
         unsafe {
             let this = self as *const IElement as *const *const std::os::raw::c_void;
-            ((*self.vtable).inner_html)(this).into()
+            let ret = ((*self.vtable).inner_html)(this);
+            let ret: crosscom::ComRc<IDomString> = ret.into();
+
+            ret
         }
     }
 
-    pub fn outer_html(&self) -> crosscom::ComRc<IDomString> {
+    pub fn outer_html(&self) -> crosscom::ComRc<felis::comdef::IDomString> {
         unsafe {
             let this = self as *const IElement as *const *const std::os::raw::c_void;
-            ((*self.vtable).outer_html)(this).into()
+            let ret = ((*self.vtable).outer_html)(this);
+            let ret: crosscom::ComRc<IDomString> = ret.into();
+
+            ret
         }
     }
 
-    pub fn set_inner_html(&self, html: crosscom::ComRc<IDomString>) -> () {
+    pub fn set_inner_html(&self, html: crosscom::ComRc<felis::comdef::IDomString>) -> () {
         unsafe {
             let this = self as *const IElement as *const *const std::os::raw::c_void;
-            ((*self.vtable).set_inner_html)(this, html.into()).into()
+            let ret = ((*self.vtable).set_inner_html)(this, html.into());
+            let ret: () = ret.into();
+
+            ret
         }
     }
 
     pub fn get_elements_by_tag_name(
         &self,
-        tag: crosscom::ComRc<IDomString>,
-    ) -> crosscom::ObjectArray<crate::defs::IElement> {
+        tag: crosscom::ComRc<felis::comdef::IDomString>,
+    ) -> crosscom::ObjectArray<felis::comdef::IElement> {
         unsafe {
             let this = self as *const IElement as *const *const std::os::raw::c_void;
-            ((*self.vtable).get_elements_by_tag_name)(this, tag.into()).into()
+            let ret = ((*self.vtable).get_elements_by_tag_name)(this, tag.into());
+            let ret: crosscom::ObjectArray<felis::comdef::IElement> = ret.into();
+
+            ret
         }
     }
 
     pub fn get_element_by_id(
         &self,
-        id: crosscom::ComRc<IDomString>,
-    ) -> Option<crosscom::ComRc<crate::defs::IElement>> {
+        id: crosscom::ComRc<felis::comdef::IDomString>,
+    ) -> Option<crosscom::ComRc<felis::comdef::IElement>> {
         unsafe {
             let this = self as *const IElement as *const *const std::os::raw::c_void;
-            ((*self.vtable).get_element_by_id)(this, id.into()).into()
+            let ret = ((*self.vtable).get_element_by_id)(this, id.into());
+            let ret: Option<crosscom::ComRc<felis::comdef::IElement>> = ret.into();
+
+            ret
         }
     }
 
-    pub fn id(&self) -> crosscom::ComRc<IDomString> {
+    pub fn id(&self) -> crosscom::ComRc<felis::comdef::IDomString> {
         unsafe {
             let this = self as *const IElement as *const *const std::os::raw::c_void;
-            ((*self.vtable).id)(this).into()
+            let ret = ((*self.vtable).id)(this);
+            let ret: crosscom::ComRc<IDomString> = ret.into();
+
+            ret
         }
     }
 
-    pub fn tag(&self) -> crosscom::ComRc<IDomString> {
+    pub fn tag(&self) -> crosscom::ComRc<felis::comdef::IDomString> {
         unsafe {
             let this = self as *const IElement as *const *const std::os::raw::c_void;
-            ((*self.vtable).tag)(this).into()
+            let ret = ((*self.vtable).tag)(this);
+            let ret: crosscom::ComRc<IDomString> = ret.into();
+
+            ret
         }
+    }
+
+    pub fn uuid() -> uuid::Uuid {
+        use crosscom::ComInterface;
+        uuid::Uuid::from_bytes(IElement::INTERFACE_ID)
     }
 }
 
 pub trait IElementImpl {
-    fn id(&self) -> crosscom::ComRc<IDomString>;
-    fn tag(&self) -> crosscom::ComRc<IDomString>;
+    fn id(&self) -> crosscom::ComRc<felis::comdef::IDomString>;
+    fn tag(&self) -> crosscom::ComRc<felis::comdef::IDomString>;
 }
 
 impl crosscom::ComInterface for IElement {
@@ -737,78 +848,110 @@ impl ICharacterData {
         }
     }
 
-    pub fn add_ref(&self) -> i32 {
+    pub fn add_ref(&self) -> std::os::raw::c_long {
         unsafe {
             let this = self as *const ICharacterData as *const *const std::os::raw::c_void;
-            ((*self.vtable).add_ref)(this).into()
+            let ret = ((*self.vtable).add_ref)(this);
+            let ret: std::os::raw::c_long = ret.into();
+
+            ret
         }
     }
 
-    pub fn release(&self) -> i32 {
+    pub fn release(&self) -> std::os::raw::c_long {
         unsafe {
             let this = self as *const ICharacterData as *const *const std::os::raw::c_void;
-            ((*self.vtable).release)(this).into()
+            let ret = ((*self.vtable).release)(this);
+            let ret: std::os::raw::c_long = ret.into();
+
+            ret
         }
     }
 
-    pub fn children(&self) -> crosscom::ObjectArray<crate::defs::INode> {
+    pub fn children(&self) -> crosscom::ObjectArray<felis::comdef::INode> {
         unsafe {
             let this = self as *const ICharacterData as *const *const std::os::raw::c_void;
-            ((*self.vtable).children)(this).into()
+            let ret = ((*self.vtable).children)(this);
+            let ret: crosscom::ObjectArray<felis::comdef::INode> = ret.into();
+
+            ret
         }
     }
 
-    pub fn inner_html(&self) -> crosscom::ComRc<IDomString> {
+    pub fn inner_html(&self) -> crosscom::ComRc<felis::comdef::IDomString> {
         unsafe {
             let this = self as *const ICharacterData as *const *const std::os::raw::c_void;
-            ((*self.vtable).inner_html)(this).into()
+            let ret = ((*self.vtable).inner_html)(this);
+            let ret: crosscom::ComRc<IDomString> = ret.into();
+
+            ret
         }
     }
 
-    pub fn outer_html(&self) -> crosscom::ComRc<IDomString> {
+    pub fn outer_html(&self) -> crosscom::ComRc<felis::comdef::IDomString> {
         unsafe {
             let this = self as *const ICharacterData as *const *const std::os::raw::c_void;
-            ((*self.vtable).outer_html)(this).into()
+            let ret = ((*self.vtable).outer_html)(this);
+            let ret: crosscom::ComRc<IDomString> = ret.into();
+
+            ret
         }
     }
 
-    pub fn set_inner_html(&self, html: crosscom::ComRc<IDomString>) -> () {
+    pub fn set_inner_html(&self, html: crosscom::ComRc<felis::comdef::IDomString>) -> () {
         unsafe {
             let this = self as *const ICharacterData as *const *const std::os::raw::c_void;
-            ((*self.vtable).set_inner_html)(this, html.into()).into()
+            let ret = ((*self.vtable).set_inner_html)(this, html.into());
+            let ret: () = ret.into();
+
+            ret
         }
     }
 
     pub fn get_elements_by_tag_name(
         &self,
-        tag: crosscom::ComRc<IDomString>,
-    ) -> crosscom::ObjectArray<crate::defs::IElement> {
+        tag: crosscom::ComRc<felis::comdef::IDomString>,
+    ) -> crosscom::ObjectArray<felis::comdef::IElement> {
         unsafe {
             let this = self as *const ICharacterData as *const *const std::os::raw::c_void;
-            ((*self.vtable).get_elements_by_tag_name)(this, tag.into()).into()
+            let ret = ((*self.vtable).get_elements_by_tag_name)(this, tag.into());
+            let ret: crosscom::ObjectArray<felis::comdef::IElement> = ret.into();
+
+            ret
         }
     }
 
     pub fn get_element_by_id(
         &self,
-        id: crosscom::ComRc<IDomString>,
-    ) -> Option<crosscom::ComRc<crate::defs::IElement>> {
+        id: crosscom::ComRc<felis::comdef::IDomString>,
+    ) -> Option<crosscom::ComRc<felis::comdef::IElement>> {
         unsafe {
             let this = self as *const ICharacterData as *const *const std::os::raw::c_void;
-            ((*self.vtable).get_element_by_id)(this, id.into()).into()
+            let ret = ((*self.vtable).get_element_by_id)(this, id.into());
+            let ret: Option<crosscom::ComRc<felis::comdef::IElement>> = ret.into();
+
+            ret
         }
     }
 
-    pub fn text(&self) -> crosscom::ComRc<IDomString> {
+    pub fn text(&self) -> crosscom::ComRc<felis::comdef::IDomString> {
         unsafe {
             let this = self as *const ICharacterData as *const *const std::os::raw::c_void;
-            ((*self.vtable).text)(this).into()
+            let ret = ((*self.vtable).text)(this);
+            let ret: crosscom::ComRc<IDomString> = ret.into();
+
+            ret
         }
+    }
+
+    pub fn uuid() -> uuid::Uuid {
+        use crosscom::ComInterface;
+        uuid::Uuid::from_bytes(ICharacterData::INTERFACE_ID)
     }
 }
 
 pub trait ICharacterDataImpl {
-    fn text(&self) -> crosscom::ComRc<IDomString>;
+    fn text(&self) -> crosscom::ComRc<felis::comdef::IDomString>;
 }
 
 impl crosscom::ComInterface for ICharacterData {
@@ -889,73 +1032,105 @@ impl IText {
         }
     }
 
-    pub fn add_ref(&self) -> i32 {
+    pub fn add_ref(&self) -> std::os::raw::c_long {
         unsafe {
             let this = self as *const IText as *const *const std::os::raw::c_void;
-            ((*self.vtable).add_ref)(this).into()
+            let ret = ((*self.vtable).add_ref)(this);
+            let ret: std::os::raw::c_long = ret.into();
+
+            ret
         }
     }
 
-    pub fn release(&self) -> i32 {
+    pub fn release(&self) -> std::os::raw::c_long {
         unsafe {
             let this = self as *const IText as *const *const std::os::raw::c_void;
-            ((*self.vtable).release)(this).into()
+            let ret = ((*self.vtable).release)(this);
+            let ret: std::os::raw::c_long = ret.into();
+
+            ret
         }
     }
 
-    pub fn children(&self) -> crosscom::ObjectArray<crate::defs::INode> {
+    pub fn children(&self) -> crosscom::ObjectArray<felis::comdef::INode> {
         unsafe {
             let this = self as *const IText as *const *const std::os::raw::c_void;
-            ((*self.vtable).children)(this).into()
+            let ret = ((*self.vtable).children)(this);
+            let ret: crosscom::ObjectArray<felis::comdef::INode> = ret.into();
+
+            ret
         }
     }
 
-    pub fn inner_html(&self) -> crosscom::ComRc<IDomString> {
+    pub fn inner_html(&self) -> crosscom::ComRc<felis::comdef::IDomString> {
         unsafe {
             let this = self as *const IText as *const *const std::os::raw::c_void;
-            ((*self.vtable).inner_html)(this).into()
+            let ret = ((*self.vtable).inner_html)(this);
+            let ret: crosscom::ComRc<IDomString> = ret.into();
+
+            ret
         }
     }
 
-    pub fn outer_html(&self) -> crosscom::ComRc<IDomString> {
+    pub fn outer_html(&self) -> crosscom::ComRc<felis::comdef::IDomString> {
         unsafe {
             let this = self as *const IText as *const *const std::os::raw::c_void;
-            ((*self.vtable).outer_html)(this).into()
+            let ret = ((*self.vtable).outer_html)(this);
+            let ret: crosscom::ComRc<IDomString> = ret.into();
+
+            ret
         }
     }
 
-    pub fn set_inner_html(&self, html: crosscom::ComRc<IDomString>) -> () {
+    pub fn set_inner_html(&self, html: crosscom::ComRc<felis::comdef::IDomString>) -> () {
         unsafe {
             let this = self as *const IText as *const *const std::os::raw::c_void;
-            ((*self.vtable).set_inner_html)(this, html.into()).into()
+            let ret = ((*self.vtable).set_inner_html)(this, html.into());
+            let ret: () = ret.into();
+
+            ret
         }
     }
 
     pub fn get_elements_by_tag_name(
         &self,
-        tag: crosscom::ComRc<IDomString>,
-    ) -> crosscom::ObjectArray<crate::defs::IElement> {
+        tag: crosscom::ComRc<felis::comdef::IDomString>,
+    ) -> crosscom::ObjectArray<felis::comdef::IElement> {
         unsafe {
             let this = self as *const IText as *const *const std::os::raw::c_void;
-            ((*self.vtable).get_elements_by_tag_name)(this, tag.into()).into()
+            let ret = ((*self.vtable).get_elements_by_tag_name)(this, tag.into());
+            let ret: crosscom::ObjectArray<felis::comdef::IElement> = ret.into();
+
+            ret
         }
     }
 
     pub fn get_element_by_id(
         &self,
-        id: crosscom::ComRc<IDomString>,
-    ) -> Option<crosscom::ComRc<crate::defs::IElement>> {
+        id: crosscom::ComRc<felis::comdef::IDomString>,
+    ) -> Option<crosscom::ComRc<felis::comdef::IElement>> {
         unsafe {
             let this = self as *const IText as *const *const std::os::raw::c_void;
-            ((*self.vtable).get_element_by_id)(this, id.into()).into()
+            let ret = ((*self.vtable).get_element_by_id)(this, id.into());
+            let ret: Option<crosscom::ComRc<felis::comdef::IElement>> = ret.into();
+
+            ret
         }
     }
 
-    pub fn text(&self) -> crosscom::ComRc<IDomString> {
+    pub fn text(&self) -> crosscom::ComRc<felis::comdef::IDomString> {
         unsafe {
             let this = self as *const IText as *const *const std::os::raw::c_void;
-            ((*self.vtable).text)(this).into()
+            let ret = ((*self.vtable).text)(this);
+            let ret: crosscom::ComRc<IDomString> = ret.into();
+
+            ret
         }
+    }
+
+    pub fn uuid() -> uuid::Uuid {
+        use crosscom::ComInterface;
+        uuid::Uuid::from_bytes(IText::INTERFACE_ID)
     }
 }
 
@@ -972,34 +1147,38 @@ impl crosscom::ComInterface for IText {
 // Class Text
 
 #[allow(unused)]
+#[macro_export]
 macro_rules! ComObject_Text {
     ($impl_type: ty) => {
         #[allow(dead_code)]
         #[allow(non_snake_case)]
         #[allow(unused)]
         mod Text_crosscom_impl {
-            use crate::defs::ICharacterDataImpl;
-            use crate::defs::IDomStringImpl;
-            use crate::defs::IElementImpl;
-            use crate::defs::IHtmlBodyElementImpl;
-            use crate::defs::IHtmlDivElementImpl;
-            use crate::defs::IHtmlElementImpl;
-            use crate::defs::IHtmlHeadElementImpl;
-            use crate::defs::IHtmlHtmlElementImpl;
-            use crate::defs::IHtmlImageElementImpl;
-            use crate::defs::IHtmlLinkElementImpl;
-            use crate::defs::IHtmlParagraphElementImpl;
-            use crate::defs::IHtmlScriptElementImpl;
-            use crate::defs::IHtmlStyleElementImpl;
-            use crate::defs::INodeImpl;
-            use crate::defs::IRenderableImpl;
-            use crate::defs::ITextImpl;
+            use crate as felis;
             use crosscom::ComInterface;
+            use crosscom::IObjectArrayImpl;
+            use crosscom::IUnknownImpl;
+            use felis::comdef::ICharacterDataImpl;
+            use felis::comdef::IDomStringImpl;
+            use felis::comdef::IElementImpl;
+            use felis::comdef::IHtmlBodyElementImpl;
+            use felis::comdef::IHtmlDivElementImpl;
+            use felis::comdef::IHtmlElementImpl;
+            use felis::comdef::IHtmlHeadElementImpl;
+            use felis::comdef::IHtmlHtmlElementImpl;
+            use felis::comdef::IHtmlImageElementImpl;
+            use felis::comdef::IHtmlLinkElementImpl;
+            use felis::comdef::IHtmlParagraphElementImpl;
+            use felis::comdef::IHtmlScriptElementImpl;
+            use felis::comdef::IHtmlStyleElementImpl;
+            use felis::comdef::INodeImpl;
+            use felis::comdef::IRenderableImpl;
+            use felis::comdef::ITextImpl;
 
             #[repr(C)]
             pub struct TextCcw {
-                IText: crate::defs::IText,
-                IRenderable: crate::defs::IRenderable,
+                IText: felis::comdef::IText,
+                IRenderable: felis::comdef::IRenderable,
 
                 ref_count: std::sync::atomic::AtomicU32,
                 pub inner: $impl_type,
@@ -1015,34 +1194,34 @@ macro_rules! ComObject_Text {
                     &crosscom::IUnknown::INTERFACE_ID => {
                         *retval = (object as *const *const std::os::raw::c_void).offset(0);
                         add_ref(object as *const *const std::os::raw::c_void);
-                        crosscom::ResultCode::Ok as i32
+                        crosscom::ResultCode::Ok as std::os::raw::c_long
                     }
 
-                    &crate::defs::INode::INTERFACE_ID => {
+                    &felis::comdef::INode::INTERFACE_ID => {
                         *retval = (object as *const *const std::os::raw::c_void).offset(0);
                         add_ref(object as *const *const std::os::raw::c_void);
-                        crosscom::ResultCode::Ok as i32
+                        crosscom::ResultCode::Ok as std::os::raw::c_long
                     }
 
-                    &crate::defs::ICharacterData::INTERFACE_ID => {
+                    &felis::comdef::ICharacterData::INTERFACE_ID => {
                         *retval = (object as *const *const std::os::raw::c_void).offset(0);
                         add_ref(object as *const *const std::os::raw::c_void);
-                        crosscom::ResultCode::Ok as i32
+                        crosscom::ResultCode::Ok as std::os::raw::c_long
                     }
 
-                    &crate::defs::IText::INTERFACE_ID => {
+                    &felis::comdef::IText::INTERFACE_ID => {
                         *retval = (object as *const *const std::os::raw::c_void).offset(0);
                         add_ref(object as *const *const std::os::raw::c_void);
-                        crosscom::ResultCode::Ok as i32
+                        crosscom::ResultCode::Ok as std::os::raw::c_long
                     }
 
-                    &crate::defs::IRenderable::INTERFACE_ID => {
+                    &felis::comdef::IRenderable::INTERFACE_ID => {
                         *retval = (object as *const *const std::os::raw::c_void).offset(1);
                         add_ref(object as *const *const std::os::raw::c_void);
-                        crosscom::ResultCode::Ok as i32
+                        crosscom::ResultCode::Ok as std::os::raw::c_long
                     }
 
-                    _ => crosscom::ResultCode::ENoInterface as i32,
+                    _ => crosscom::ResultCode::ENoInterface as std::os::raw::c_long,
                 }
             }
 
@@ -1073,8 +1252,8 @@ macro_rules! ComObject_Text {
 
             fn display(this: *const *const std::os::raw::c_void) -> crate::style::Display {
                 unsafe {
-                    let object = crosscom::get_object::<TextCcw>(this);
-                    (*object).inner.0.display()
+                    let __crosscom_object = crosscom::get_object::<TextCcw>(this);
+                    (*__crosscom_object).inner.0.display()
                 }
             }
 
@@ -1085,11 +1264,12 @@ macro_rules! ComObject_Text {
                 content_boundary: crate::common::Rectangle,
             ) -> crate::common::Rectangle {
                 unsafe {
-                    let object = crosscom::get_object::<TextCcw>(this);
-                    (*object)
-                        .inner
-                        .0
-                        .layout(pango_context, style_computed, content_boundary)
+                    let __crosscom_object = crosscom::get_object::<TextCcw>(this);
+                    (*__crosscom_object).inner.0.layout(
+                        pango_context,
+                        style_computed,
+                        content_boundary,
+                    )
                 }
             }
 
@@ -1099,53 +1279,61 @@ macro_rules! ComObject_Text {
                 style_computed: &crate::style::Style,
             ) -> crosscom::Void {
                 unsafe {
-                    let object = crosscom::get_object::<TextCcw>(this);
-                    (*object).inner.0.paint(renderer, style_computed)
+                    let __crosscom_object = crosscom::get_object::<TextCcw>(this);
+                    (*__crosscom_object).inner.0.paint(renderer, style_computed)
                 }
             }
 
             unsafe extern "system" fn text(
                 this: *const *const std::os::raw::c_void,
             ) -> *const *const std::os::raw::c_void {
-                let object = crosscom::get_object::<TextCcw>(this);
-                (*object).inner.0.text().into()
+                let __crosscom_object = crosscom::get_object::<TextCcw>(this);
+                (*__crosscom_object).inner.0.text().into()
             }
 
             unsafe extern "system" fn children(
                 this: *const *const std::os::raw::c_void,
             ) -> *const *const std::os::raw::c_void {
-                let object = crosscom::get_object::<TextCcw>(this);
-                (*object).inner.0.children().into()
+                let __crosscom_object = crosscom::get_object::<TextCcw>(this);
+                (*__crosscom_object).inner.0.children().into()
             }
 
             unsafe extern "system" fn inner_html(
                 this: *const *const std::os::raw::c_void,
             ) -> *const *const std::os::raw::c_void {
-                let object = crosscom::get_object::<TextCcw>(this);
-                (*object).inner.0.inner_html().into()
+                let __crosscom_object = crosscom::get_object::<TextCcw>(this);
+                (*__crosscom_object).inner.0.inner_html().into()
             }
 
             unsafe extern "system" fn outer_html(
                 this: *const *const std::os::raw::c_void,
             ) -> *const *const std::os::raw::c_void {
-                let object = crosscom::get_object::<TextCcw>(this);
-                (*object).inner.0.outer_html().into()
+                let __crosscom_object = crosscom::get_object::<TextCcw>(this);
+                (*__crosscom_object).inner.0.outer_html().into()
             }
 
             unsafe extern "system" fn set_inner_html(
                 this: *const *const std::os::raw::c_void,
                 html: *const *const std::os::raw::c_void,
             ) -> () {
-                let object = crosscom::get_object::<TextCcw>(this);
-                (*object).inner.0.set_inner_html(html.into()).into()
+                let html: crosscom::ComRc<felis::comdef::IDomString> = html.into();
+
+                let __crosscom_object = crosscom::get_object::<TextCcw>(this);
+                (*__crosscom_object)
+                    .inner
+                    .0
+                    .set_inner_html(html.into())
+                    .into()
             }
 
             unsafe extern "system" fn get_elements_by_tag_name(
                 this: *const *const std::os::raw::c_void,
                 tag: *const *const std::os::raw::c_void,
             ) -> *const *const std::os::raw::c_void {
-                let object = crosscom::get_object::<TextCcw>(this);
-                (*object)
+                let tag: crosscom::ComRc<felis::comdef::IDomString> = tag.into();
+
+                let __crosscom_object = crosscom::get_object::<TextCcw>(this);
+                (*__crosscom_object)
                     .inner
                     .0
                     .get_elements_by_tag_name(tag.into())
@@ -1156,15 +1344,21 @@ macro_rules! ComObject_Text {
                 this: *const *const std::os::raw::c_void,
                 id: *const *const std::os::raw::c_void,
             ) -> crosscom::RawPointer {
-                let object = crosscom::get_object::<TextCcw>(this);
-                (*object).inner.0.get_element_by_id(id.into()).into()
+                let id: crosscom::ComRc<felis::comdef::IDomString> = id.into();
+
+                let __crosscom_object = crosscom::get_object::<TextCcw>(this);
+                (*__crosscom_object)
+                    .inner
+                    .0
+                    .get_element_by_id(id.into())
+                    .into()
             }
 
             #[allow(non_upper_case_globals)]
-            pub const GLOBAL_ITextVirtualTable_CCW_FOR_Text: crate::defs::ITextVirtualTableCcw =
-                crate::defs::ITextVirtualTableCcw {
+            pub const GLOBAL_ITextVirtualTable_CCW_FOR_Text: felis::comdef::ITextVirtualTableCcw =
+                felis::comdef::ITextVirtualTableCcw {
                     offset: 0,
-                    vtable: crate::defs::ITextVirtualTable {
+                    vtable: felis::comdef::ITextVirtualTable {
                         query_interface,
                         add_ref,
                         release,
@@ -1180,35 +1374,44 @@ macro_rules! ComObject_Text {
 
             #[allow(non_upper_case_globals)]
             pub const GLOBAL_IRenderableVirtualTable_CCW_FOR_Text:
-                crate::defs::IRenderableVirtualTableCcw = crate::defs::IRenderableVirtualTableCcw {
-                offset: -1,
-                vtable: crate::defs::IRenderableVirtualTable {
-                    query_interface,
-                    add_ref,
-                    release,
-                    display,
-                    layout,
-                    paint,
-                },
-            };
+                felis::comdef::IRenderableVirtualTableCcw =
+                felis::comdef::IRenderableVirtualTableCcw {
+                    offset: -1,
+                    vtable: felis::comdef::IRenderableVirtualTable {
+                        query_interface,
+                        add_ref,
+                        release,
+                        display,
+                        layout,
+                        paint,
+                    },
+                };
 
             impl crosscom::ComObject for $impl_type {
                 type CcwType = TextCcw;
 
                 fn create_ccw(self) -> Self::CcwType {
                     Self::CcwType {
-                        IText: crate::defs::IText {
+                        IText: felis::comdef::IText {
                             vtable: &GLOBAL_ITextVirtualTable_CCW_FOR_Text.vtable
-                                as *const crate::defs::ITextVirtualTable,
+                                as *const felis::comdef::ITextVirtualTable,
                         },
 
-                        IRenderable: crate::defs::IRenderable {
+                        IRenderable: felis::comdef::IRenderable {
                             vtable: &GLOBAL_IRenderableVirtualTable_CCW_FOR_Text.vtable
-                                as *const crate::defs::IRenderableVirtualTable,
+                                as *const felis::comdef::IRenderableVirtualTable,
                         },
 
                         ref_count: std::sync::atomic::AtomicU32::new(0),
                         inner: self,
+                    }
+                }
+
+                fn get_ccw(&self) -> &Self::CcwType {
+                    unsafe {
+                        let this = self as *const _ as *const u8;
+                        let this = this.offset(-(crosscom::offset_of!(TextCcw, inner) as isize));
+                        &*(this as *const Self::CcwType)
                     }
                 }
             }
@@ -1216,7 +1419,7 @@ macro_rules! ComObject_Text {
     };
 }
 
-pub(crate) use ComObject_Text;
+// pub use ComObject_Text;
 
 // Interface IHtmlElement
 
@@ -1302,108 +1505,151 @@ impl IHtmlElement {
         }
     }
 
-    pub fn add_ref(&self) -> i32 {
+    pub fn add_ref(&self) -> std::os::raw::c_long {
         unsafe {
             let this = self as *const IHtmlElement as *const *const std::os::raw::c_void;
-            ((*self.vtable).add_ref)(this).into()
+            let ret = ((*self.vtable).add_ref)(this);
+            let ret: std::os::raw::c_long = ret.into();
+
+            ret
         }
     }
 
-    pub fn release(&self) -> i32 {
+    pub fn release(&self) -> std::os::raw::c_long {
         unsafe {
             let this = self as *const IHtmlElement as *const *const std::os::raw::c_void;
-            ((*self.vtable).release)(this).into()
+            let ret = ((*self.vtable).release)(this);
+            let ret: std::os::raw::c_long = ret.into();
+
+            ret
         }
     }
 
-    pub fn children(&self) -> crosscom::ObjectArray<crate::defs::INode> {
+    pub fn children(&self) -> crosscom::ObjectArray<felis::comdef::INode> {
         unsafe {
             let this = self as *const IHtmlElement as *const *const std::os::raw::c_void;
-            ((*self.vtable).children)(this).into()
+            let ret = ((*self.vtable).children)(this);
+            let ret: crosscom::ObjectArray<felis::comdef::INode> = ret.into();
+
+            ret
         }
     }
 
-    pub fn inner_html(&self) -> crosscom::ComRc<IDomString> {
+    pub fn inner_html(&self) -> crosscom::ComRc<felis::comdef::IDomString> {
         unsafe {
             let this = self as *const IHtmlElement as *const *const std::os::raw::c_void;
-            ((*self.vtable).inner_html)(this).into()
+            let ret = ((*self.vtable).inner_html)(this);
+            let ret: crosscom::ComRc<IDomString> = ret.into();
+
+            ret
         }
     }
 
-    pub fn outer_html(&self) -> crosscom::ComRc<IDomString> {
+    pub fn outer_html(&self) -> crosscom::ComRc<felis::comdef::IDomString> {
         unsafe {
             let this = self as *const IHtmlElement as *const *const std::os::raw::c_void;
-            ((*self.vtable).outer_html)(this).into()
+            let ret = ((*self.vtable).outer_html)(this);
+            let ret: crosscom::ComRc<IDomString> = ret.into();
+
+            ret
         }
     }
 
-    pub fn set_inner_html(&self, html: crosscom::ComRc<IDomString>) -> () {
+    pub fn set_inner_html(&self, html: crosscom::ComRc<felis::comdef::IDomString>) -> () {
         unsafe {
             let this = self as *const IHtmlElement as *const *const std::os::raw::c_void;
-            ((*self.vtable).set_inner_html)(this, html.into()).into()
+            let ret = ((*self.vtable).set_inner_html)(this, html.into());
+            let ret: () = ret.into();
+
+            ret
         }
     }
 
     pub fn get_elements_by_tag_name(
         &self,
-        tag: crosscom::ComRc<IDomString>,
-    ) -> crosscom::ObjectArray<crate::defs::IElement> {
+        tag: crosscom::ComRc<felis::comdef::IDomString>,
+    ) -> crosscom::ObjectArray<felis::comdef::IElement> {
         unsafe {
             let this = self as *const IHtmlElement as *const *const std::os::raw::c_void;
-            ((*self.vtable).get_elements_by_tag_name)(this, tag.into()).into()
+            let ret = ((*self.vtable).get_elements_by_tag_name)(this, tag.into());
+            let ret: crosscom::ObjectArray<felis::comdef::IElement> = ret.into();
+
+            ret
         }
     }
 
     pub fn get_element_by_id(
         &self,
-        id: crosscom::ComRc<IDomString>,
-    ) -> Option<crosscom::ComRc<crate::defs::IElement>> {
+        id: crosscom::ComRc<felis::comdef::IDomString>,
+    ) -> Option<crosscom::ComRc<felis::comdef::IElement>> {
         unsafe {
             let this = self as *const IHtmlElement as *const *const std::os::raw::c_void;
-            ((*self.vtable).get_element_by_id)(this, id.into()).into()
+            let ret = ((*self.vtable).get_element_by_id)(this, id.into());
+            let ret: Option<crosscom::ComRc<felis::comdef::IElement>> = ret.into();
+
+            ret
         }
     }
 
-    pub fn id(&self) -> crosscom::ComRc<IDomString> {
+    pub fn id(&self) -> crosscom::ComRc<felis::comdef::IDomString> {
         unsafe {
             let this = self as *const IHtmlElement as *const *const std::os::raw::c_void;
-            ((*self.vtable).id)(this).into()
+            let ret = ((*self.vtable).id)(this);
+            let ret: crosscom::ComRc<IDomString> = ret.into();
+
+            ret
         }
     }
 
-    pub fn tag(&self) -> crosscom::ComRc<IDomString> {
+    pub fn tag(&self) -> crosscom::ComRc<felis::comdef::IDomString> {
         unsafe {
             let this = self as *const IHtmlElement as *const *const std::os::raw::c_void;
-            ((*self.vtable).tag)(this).into()
+            let ret = ((*self.vtable).tag)(this);
+            let ret: crosscom::ComRc<IDomString> = ret.into();
+
+            ret
         }
     }
 
     pub fn on_mouse_move(&self, x: f64, y: f64, window: &winit::window::Window) -> crosscom::Void {
         unsafe {
             let this = self as *const IHtmlElement as *const *const std::os::raw::c_void;
-            ((*self.vtable).on_mouse_move)(this, x.into(), y.into(), window.into()).into()
+            let ret = ((*self.vtable).on_mouse_move)(this, x.into(), y.into(), window.into());
+
+            ret
         }
     }
 
     pub fn on_mouse_click(&self) -> crate::page::FelisAction {
         unsafe {
             let this = self as *const IHtmlElement as *const *const std::os::raw::c_void;
-            ((*self.vtable).on_mouse_click)(this).into()
+            let ret = ((*self.vtable).on_mouse_click)(this);
+
+            ret
         }
     }
 
     pub fn merge_style(&self, style: &crate::style::Style) -> crosscom::Void {
         unsafe {
             let this = self as *const IHtmlElement as *const *const std::os::raw::c_void;
-            ((*self.vtable).merge_style)(this, style.into()).into()
+            let ret = ((*self.vtable).merge_style)(this, style.into());
+
+            ret
         }
     }
 
     pub fn get_attribute(&self, key: &str) -> Option<Option<String>> {
         unsafe {
             let this = self as *const IHtmlElement as *const *const std::os::raw::c_void;
-            ((*self.vtable).get_attribute)(this, key.into()).into()
+            let ret = ((*self.vtable).get_attribute)(this, key.into());
+
+            ret
         }
+    }
+
+    pub fn uuid() -> uuid::Uuid {
+        use crosscom::ComInterface;
+        uuid::Uuid::from_bytes(IHtmlElement::INTERFACE_ID)
     }
 }
 
@@ -1425,34 +1671,38 @@ impl crosscom::ComInterface for IHtmlElement {
 // Class HtmlElement
 
 #[allow(unused)]
+#[macro_export]
 macro_rules! ComObject_HtmlElement {
     ($impl_type: ty) => {
         #[allow(dead_code)]
         #[allow(non_snake_case)]
         #[allow(unused)]
         mod HtmlElement_crosscom_impl {
-            use crate::defs::ICharacterDataImpl;
-            use crate::defs::IDomStringImpl;
-            use crate::defs::IElementImpl;
-            use crate::defs::IHtmlBodyElementImpl;
-            use crate::defs::IHtmlDivElementImpl;
-            use crate::defs::IHtmlElementImpl;
-            use crate::defs::IHtmlHeadElementImpl;
-            use crate::defs::IHtmlHtmlElementImpl;
-            use crate::defs::IHtmlImageElementImpl;
-            use crate::defs::IHtmlLinkElementImpl;
-            use crate::defs::IHtmlParagraphElementImpl;
-            use crate::defs::IHtmlScriptElementImpl;
-            use crate::defs::IHtmlStyleElementImpl;
-            use crate::defs::INodeImpl;
-            use crate::defs::IRenderableImpl;
-            use crate::defs::ITextImpl;
+            use crate as felis;
             use crosscom::ComInterface;
+            use crosscom::IObjectArrayImpl;
+            use crosscom::IUnknownImpl;
+            use felis::comdef::ICharacterDataImpl;
+            use felis::comdef::IDomStringImpl;
+            use felis::comdef::IElementImpl;
+            use felis::comdef::IHtmlBodyElementImpl;
+            use felis::comdef::IHtmlDivElementImpl;
+            use felis::comdef::IHtmlElementImpl;
+            use felis::comdef::IHtmlHeadElementImpl;
+            use felis::comdef::IHtmlHtmlElementImpl;
+            use felis::comdef::IHtmlImageElementImpl;
+            use felis::comdef::IHtmlLinkElementImpl;
+            use felis::comdef::IHtmlParagraphElementImpl;
+            use felis::comdef::IHtmlScriptElementImpl;
+            use felis::comdef::IHtmlStyleElementImpl;
+            use felis::comdef::INodeImpl;
+            use felis::comdef::IRenderableImpl;
+            use felis::comdef::ITextImpl;
 
             #[repr(C)]
             pub struct HtmlElementCcw {
-                IHtmlElement: crate::defs::IHtmlElement,
-                IRenderable: crate::defs::IRenderable,
+                IHtmlElement: felis::comdef::IHtmlElement,
+                IRenderable: felis::comdef::IRenderable,
 
                 ref_count: std::sync::atomic::AtomicU32,
                 pub inner: $impl_type,
@@ -1468,34 +1718,34 @@ macro_rules! ComObject_HtmlElement {
                     &crosscom::IUnknown::INTERFACE_ID => {
                         *retval = (object as *const *const std::os::raw::c_void).offset(0);
                         add_ref(object as *const *const std::os::raw::c_void);
-                        crosscom::ResultCode::Ok as i32
+                        crosscom::ResultCode::Ok as std::os::raw::c_long
                     }
 
-                    &crate::defs::INode::INTERFACE_ID => {
+                    &felis::comdef::INode::INTERFACE_ID => {
                         *retval = (object as *const *const std::os::raw::c_void).offset(0);
                         add_ref(object as *const *const std::os::raw::c_void);
-                        crosscom::ResultCode::Ok as i32
+                        crosscom::ResultCode::Ok as std::os::raw::c_long
                     }
 
-                    &crate::defs::IElement::INTERFACE_ID => {
+                    &felis::comdef::IElement::INTERFACE_ID => {
                         *retval = (object as *const *const std::os::raw::c_void).offset(0);
                         add_ref(object as *const *const std::os::raw::c_void);
-                        crosscom::ResultCode::Ok as i32
+                        crosscom::ResultCode::Ok as std::os::raw::c_long
                     }
 
-                    &crate::defs::IHtmlElement::INTERFACE_ID => {
+                    &felis::comdef::IHtmlElement::INTERFACE_ID => {
                         *retval = (object as *const *const std::os::raw::c_void).offset(0);
                         add_ref(object as *const *const std::os::raw::c_void);
-                        crosscom::ResultCode::Ok as i32
+                        crosscom::ResultCode::Ok as std::os::raw::c_long
                     }
 
-                    &crate::defs::IRenderable::INTERFACE_ID => {
+                    &felis::comdef::IRenderable::INTERFACE_ID => {
                         *retval = (object as *const *const std::os::raw::c_void).offset(1);
                         add_ref(object as *const *const std::os::raw::c_void);
-                        crosscom::ResultCode::Ok as i32
+                        crosscom::ResultCode::Ok as std::os::raw::c_long
                     }
 
-                    _ => crosscom::ResultCode::ENoInterface as i32,
+                    _ => crosscom::ResultCode::ENoInterface as std::os::raw::c_long,
                 }
             }
 
@@ -1531,8 +1781,8 @@ macro_rules! ComObject_HtmlElement {
                 window: &winit::window::Window,
             ) -> crosscom::Void {
                 unsafe {
-                    let object = crosscom::get_object::<HtmlElementCcw>(this);
-                    (*object).inner.0.on_mouse_move(x, y, window)
+                    let __crosscom_object = crosscom::get_object::<HtmlElementCcw>(this);
+                    (*__crosscom_object).inner.0.on_mouse_move(x, y, window)
                 }
             }
 
@@ -1540,8 +1790,8 @@ macro_rules! ComObject_HtmlElement {
                 this: *const *const std::os::raw::c_void,
             ) -> crate::page::FelisAction {
                 unsafe {
-                    let object = crosscom::get_object::<HtmlElementCcw>(this);
-                    (*object).inner.0.on_mouse_click()
+                    let __crosscom_object = crosscom::get_object::<HtmlElementCcw>(this);
+                    (*__crosscom_object).inner.0.on_mouse_click()
                 }
             }
 
@@ -1550,8 +1800,8 @@ macro_rules! ComObject_HtmlElement {
                 style: &crate::style::Style,
             ) -> crosscom::Void {
                 unsafe {
-                    let object = crosscom::get_object::<HtmlElementCcw>(this);
-                    (*object).inner.0.merge_style(style)
+                    let __crosscom_object = crosscom::get_object::<HtmlElementCcw>(this);
+                    (*__crosscom_object).inner.0.merge_style(style)
                 }
             }
 
@@ -1560,15 +1810,15 @@ macro_rules! ComObject_HtmlElement {
                 key: &str,
             ) -> Option<Option<String>> {
                 unsafe {
-                    let object = crosscom::get_object::<HtmlElementCcw>(this);
-                    (*object).inner.0.get_attribute(key)
+                    let __crosscom_object = crosscom::get_object::<HtmlElementCcw>(this);
+                    (*__crosscom_object).inner.0.get_attribute(key)
                 }
             }
 
             fn display(this: *const *const std::os::raw::c_void) -> crate::style::Display {
                 unsafe {
-                    let object = crosscom::get_object::<HtmlElementCcw>(this);
-                    (*object).inner.0.display()
+                    let __crosscom_object = crosscom::get_object::<HtmlElementCcw>(this);
+                    (*__crosscom_object).inner.0.display()
                 }
             }
 
@@ -1579,11 +1829,12 @@ macro_rules! ComObject_HtmlElement {
                 content_boundary: crate::common::Rectangle,
             ) -> crate::common::Rectangle {
                 unsafe {
-                    let object = crosscom::get_object::<HtmlElementCcw>(this);
-                    (*object)
-                        .inner
-                        .0
-                        .layout(pango_context, style_computed, content_boundary)
+                    let __crosscom_object = crosscom::get_object::<HtmlElementCcw>(this);
+                    (*__crosscom_object).inner.0.layout(
+                        pango_context,
+                        style_computed,
+                        content_boundary,
+                    )
                 }
             }
 
@@ -1593,60 +1844,68 @@ macro_rules! ComObject_HtmlElement {
                 style_computed: &crate::style::Style,
             ) -> crosscom::Void {
                 unsafe {
-                    let object = crosscom::get_object::<HtmlElementCcw>(this);
-                    (*object).inner.0.paint(renderer, style_computed)
+                    let __crosscom_object = crosscom::get_object::<HtmlElementCcw>(this);
+                    (*__crosscom_object).inner.0.paint(renderer, style_computed)
                 }
             }
 
             unsafe extern "system" fn id(
                 this: *const *const std::os::raw::c_void,
             ) -> *const *const std::os::raw::c_void {
-                let object = crosscom::get_object::<HtmlElementCcw>(this);
-                (*object).inner.0.id().into()
+                let __crosscom_object = crosscom::get_object::<HtmlElementCcw>(this);
+                (*__crosscom_object).inner.0.id().into()
             }
 
             unsafe extern "system" fn tag(
                 this: *const *const std::os::raw::c_void,
             ) -> *const *const std::os::raw::c_void {
-                let object = crosscom::get_object::<HtmlElementCcw>(this);
-                (*object).inner.0.tag().into()
+                let __crosscom_object = crosscom::get_object::<HtmlElementCcw>(this);
+                (*__crosscom_object).inner.0.tag().into()
             }
 
             unsafe extern "system" fn children(
                 this: *const *const std::os::raw::c_void,
             ) -> *const *const std::os::raw::c_void {
-                let object = crosscom::get_object::<HtmlElementCcw>(this);
-                (*object).inner.0.children().into()
+                let __crosscom_object = crosscom::get_object::<HtmlElementCcw>(this);
+                (*__crosscom_object).inner.0.children().into()
             }
 
             unsafe extern "system" fn inner_html(
                 this: *const *const std::os::raw::c_void,
             ) -> *const *const std::os::raw::c_void {
-                let object = crosscom::get_object::<HtmlElementCcw>(this);
-                (*object).inner.0.inner_html().into()
+                let __crosscom_object = crosscom::get_object::<HtmlElementCcw>(this);
+                (*__crosscom_object).inner.0.inner_html().into()
             }
 
             unsafe extern "system" fn outer_html(
                 this: *const *const std::os::raw::c_void,
             ) -> *const *const std::os::raw::c_void {
-                let object = crosscom::get_object::<HtmlElementCcw>(this);
-                (*object).inner.0.outer_html().into()
+                let __crosscom_object = crosscom::get_object::<HtmlElementCcw>(this);
+                (*__crosscom_object).inner.0.outer_html().into()
             }
 
             unsafe extern "system" fn set_inner_html(
                 this: *const *const std::os::raw::c_void,
                 html: *const *const std::os::raw::c_void,
             ) -> () {
-                let object = crosscom::get_object::<HtmlElementCcw>(this);
-                (*object).inner.0.set_inner_html(html.into()).into()
+                let html: crosscom::ComRc<felis::comdef::IDomString> = html.into();
+
+                let __crosscom_object = crosscom::get_object::<HtmlElementCcw>(this);
+                (*__crosscom_object)
+                    .inner
+                    .0
+                    .set_inner_html(html.into())
+                    .into()
             }
 
             unsafe extern "system" fn get_elements_by_tag_name(
                 this: *const *const std::os::raw::c_void,
                 tag: *const *const std::os::raw::c_void,
             ) -> *const *const std::os::raw::c_void {
-                let object = crosscom::get_object::<HtmlElementCcw>(this);
-                (*object)
+                let tag: crosscom::ComRc<felis::comdef::IDomString> = tag.into();
+
+                let __crosscom_object = crosscom::get_object::<HtmlElementCcw>(this);
+                (*__crosscom_object)
                     .inner
                     .0
                     .get_elements_by_tag_name(tag.into())
@@ -1657,16 +1916,22 @@ macro_rules! ComObject_HtmlElement {
                 this: *const *const std::os::raw::c_void,
                 id: *const *const std::os::raw::c_void,
             ) -> crosscom::RawPointer {
-                let object = crosscom::get_object::<HtmlElementCcw>(this);
-                (*object).inner.0.get_element_by_id(id.into()).into()
+                let id: crosscom::ComRc<felis::comdef::IDomString> = id.into();
+
+                let __crosscom_object = crosscom::get_object::<HtmlElementCcw>(this);
+                (*__crosscom_object)
+                    .inner
+                    .0
+                    .get_element_by_id(id.into())
+                    .into()
             }
 
             #[allow(non_upper_case_globals)]
             pub const GLOBAL_IHtmlElementVirtualTable_CCW_FOR_HtmlElement:
-                crate::defs::IHtmlElementVirtualTableCcw =
-                crate::defs::IHtmlElementVirtualTableCcw {
+                felis::comdef::IHtmlElementVirtualTableCcw =
+                felis::comdef::IHtmlElementVirtualTableCcw {
                     offset: 0,
-                    vtable: crate::defs::IHtmlElementVirtualTable {
+                    vtable: felis::comdef::IHtmlElementVirtualTable {
                         query_interface,
                         add_ref,
                         release,
@@ -1687,35 +1952,45 @@ macro_rules! ComObject_HtmlElement {
 
             #[allow(non_upper_case_globals)]
             pub const GLOBAL_IRenderableVirtualTable_CCW_FOR_HtmlElement:
-                crate::defs::IRenderableVirtualTableCcw = crate::defs::IRenderableVirtualTableCcw {
-                offset: -1,
-                vtable: crate::defs::IRenderableVirtualTable {
-                    query_interface,
-                    add_ref,
-                    release,
-                    display,
-                    layout,
-                    paint,
-                },
-            };
+                felis::comdef::IRenderableVirtualTableCcw =
+                felis::comdef::IRenderableVirtualTableCcw {
+                    offset: -1,
+                    vtable: felis::comdef::IRenderableVirtualTable {
+                        query_interface,
+                        add_ref,
+                        release,
+                        display,
+                        layout,
+                        paint,
+                    },
+                };
 
             impl crosscom::ComObject for $impl_type {
                 type CcwType = HtmlElementCcw;
 
                 fn create_ccw(self) -> Self::CcwType {
                     Self::CcwType {
-                        IHtmlElement: crate::defs::IHtmlElement {
+                        IHtmlElement: felis::comdef::IHtmlElement {
                             vtable: &GLOBAL_IHtmlElementVirtualTable_CCW_FOR_HtmlElement.vtable
-                                as *const crate::defs::IHtmlElementVirtualTable,
+                                as *const felis::comdef::IHtmlElementVirtualTable,
                         },
 
-                        IRenderable: crate::defs::IRenderable {
+                        IRenderable: felis::comdef::IRenderable {
                             vtable: &GLOBAL_IRenderableVirtualTable_CCW_FOR_HtmlElement.vtable
-                                as *const crate::defs::IRenderableVirtualTable,
+                                as *const felis::comdef::IRenderableVirtualTable,
                         },
 
                         ref_count: std::sync::atomic::AtomicU32::new(0),
                         inner: self,
+                    }
+                }
+
+                fn get_ccw(&self) -> &Self::CcwType {
+                    unsafe {
+                        let this = self as *const _ as *const u8;
+                        let this =
+                            this.offset(-(crosscom::offset_of!(HtmlElementCcw, inner) as isize));
+                        &*(this as *const Self::CcwType)
                     }
                 }
             }
@@ -1723,7 +1998,7 @@ macro_rules! ComObject_HtmlElement {
     };
 }
 
-pub(crate) use ComObject_HtmlElement;
+// pub use ComObject_HtmlElement;
 
 // Interface IHtmlHtmlElement
 
@@ -1809,108 +2084,151 @@ impl IHtmlHtmlElement {
         }
     }
 
-    pub fn add_ref(&self) -> i32 {
+    pub fn add_ref(&self) -> std::os::raw::c_long {
         unsafe {
             let this = self as *const IHtmlHtmlElement as *const *const std::os::raw::c_void;
-            ((*self.vtable).add_ref)(this).into()
+            let ret = ((*self.vtable).add_ref)(this);
+            let ret: std::os::raw::c_long = ret.into();
+
+            ret
         }
     }
 
-    pub fn release(&self) -> i32 {
+    pub fn release(&self) -> std::os::raw::c_long {
         unsafe {
             let this = self as *const IHtmlHtmlElement as *const *const std::os::raw::c_void;
-            ((*self.vtable).release)(this).into()
+            let ret = ((*self.vtable).release)(this);
+            let ret: std::os::raw::c_long = ret.into();
+
+            ret
         }
     }
 
-    pub fn children(&self) -> crosscom::ObjectArray<crate::defs::INode> {
+    pub fn children(&self) -> crosscom::ObjectArray<felis::comdef::INode> {
         unsafe {
             let this = self as *const IHtmlHtmlElement as *const *const std::os::raw::c_void;
-            ((*self.vtable).children)(this).into()
+            let ret = ((*self.vtable).children)(this);
+            let ret: crosscom::ObjectArray<felis::comdef::INode> = ret.into();
+
+            ret
         }
     }
 
-    pub fn inner_html(&self) -> crosscom::ComRc<IDomString> {
+    pub fn inner_html(&self) -> crosscom::ComRc<felis::comdef::IDomString> {
         unsafe {
             let this = self as *const IHtmlHtmlElement as *const *const std::os::raw::c_void;
-            ((*self.vtable).inner_html)(this).into()
+            let ret = ((*self.vtable).inner_html)(this);
+            let ret: crosscom::ComRc<IDomString> = ret.into();
+
+            ret
         }
     }
 
-    pub fn outer_html(&self) -> crosscom::ComRc<IDomString> {
+    pub fn outer_html(&self) -> crosscom::ComRc<felis::comdef::IDomString> {
         unsafe {
             let this = self as *const IHtmlHtmlElement as *const *const std::os::raw::c_void;
-            ((*self.vtable).outer_html)(this).into()
+            let ret = ((*self.vtable).outer_html)(this);
+            let ret: crosscom::ComRc<IDomString> = ret.into();
+
+            ret
         }
     }
 
-    pub fn set_inner_html(&self, html: crosscom::ComRc<IDomString>) -> () {
+    pub fn set_inner_html(&self, html: crosscom::ComRc<felis::comdef::IDomString>) -> () {
         unsafe {
             let this = self as *const IHtmlHtmlElement as *const *const std::os::raw::c_void;
-            ((*self.vtable).set_inner_html)(this, html.into()).into()
+            let ret = ((*self.vtable).set_inner_html)(this, html.into());
+            let ret: () = ret.into();
+
+            ret
         }
     }
 
     pub fn get_elements_by_tag_name(
         &self,
-        tag: crosscom::ComRc<IDomString>,
-    ) -> crosscom::ObjectArray<crate::defs::IElement> {
+        tag: crosscom::ComRc<felis::comdef::IDomString>,
+    ) -> crosscom::ObjectArray<felis::comdef::IElement> {
         unsafe {
             let this = self as *const IHtmlHtmlElement as *const *const std::os::raw::c_void;
-            ((*self.vtable).get_elements_by_tag_name)(this, tag.into()).into()
+            let ret = ((*self.vtable).get_elements_by_tag_name)(this, tag.into());
+            let ret: crosscom::ObjectArray<felis::comdef::IElement> = ret.into();
+
+            ret
         }
     }
 
     pub fn get_element_by_id(
         &self,
-        id: crosscom::ComRc<IDomString>,
-    ) -> Option<crosscom::ComRc<crate::defs::IElement>> {
+        id: crosscom::ComRc<felis::comdef::IDomString>,
+    ) -> Option<crosscom::ComRc<felis::comdef::IElement>> {
         unsafe {
             let this = self as *const IHtmlHtmlElement as *const *const std::os::raw::c_void;
-            ((*self.vtable).get_element_by_id)(this, id.into()).into()
+            let ret = ((*self.vtable).get_element_by_id)(this, id.into());
+            let ret: Option<crosscom::ComRc<felis::comdef::IElement>> = ret.into();
+
+            ret
         }
     }
 
-    pub fn id(&self) -> crosscom::ComRc<IDomString> {
+    pub fn id(&self) -> crosscom::ComRc<felis::comdef::IDomString> {
         unsafe {
             let this = self as *const IHtmlHtmlElement as *const *const std::os::raw::c_void;
-            ((*self.vtable).id)(this).into()
+            let ret = ((*self.vtable).id)(this);
+            let ret: crosscom::ComRc<IDomString> = ret.into();
+
+            ret
         }
     }
 
-    pub fn tag(&self) -> crosscom::ComRc<IDomString> {
+    pub fn tag(&self) -> crosscom::ComRc<felis::comdef::IDomString> {
         unsafe {
             let this = self as *const IHtmlHtmlElement as *const *const std::os::raw::c_void;
-            ((*self.vtable).tag)(this).into()
+            let ret = ((*self.vtable).tag)(this);
+            let ret: crosscom::ComRc<IDomString> = ret.into();
+
+            ret
         }
     }
 
     pub fn on_mouse_move(&self, x: f64, y: f64, window: &winit::window::Window) -> crosscom::Void {
         unsafe {
             let this = self as *const IHtmlHtmlElement as *const *const std::os::raw::c_void;
-            ((*self.vtable).on_mouse_move)(this, x.into(), y.into(), window.into()).into()
+            let ret = ((*self.vtable).on_mouse_move)(this, x.into(), y.into(), window.into());
+
+            ret
         }
     }
 
     pub fn on_mouse_click(&self) -> crate::page::FelisAction {
         unsafe {
             let this = self as *const IHtmlHtmlElement as *const *const std::os::raw::c_void;
-            ((*self.vtable).on_mouse_click)(this).into()
+            let ret = ((*self.vtable).on_mouse_click)(this);
+
+            ret
         }
     }
 
     pub fn merge_style(&self, style: &crate::style::Style) -> crosscom::Void {
         unsafe {
             let this = self as *const IHtmlHtmlElement as *const *const std::os::raw::c_void;
-            ((*self.vtable).merge_style)(this, style.into()).into()
+            let ret = ((*self.vtable).merge_style)(this, style.into());
+
+            ret
         }
     }
 
     pub fn get_attribute(&self, key: &str) -> Option<Option<String>> {
         unsafe {
             let this = self as *const IHtmlHtmlElement as *const *const std::os::raw::c_void;
-            ((*self.vtable).get_attribute)(this, key.into()).into()
+            let ret = ((*self.vtable).get_attribute)(this, key.into());
+
+            ret
         }
+    }
+
+    pub fn uuid() -> uuid::Uuid {
+        use crosscom::ComInterface;
+        uuid::Uuid::from_bytes(IHtmlHtmlElement::INTERFACE_ID)
     }
 }
 
@@ -1927,34 +2245,38 @@ impl crosscom::ComInterface for IHtmlHtmlElement {
 // Class HtmlHtmlElement
 
 #[allow(unused)]
+#[macro_export]
 macro_rules! ComObject_HtmlHtmlElement {
     ($impl_type: ty) => {
         #[allow(dead_code)]
         #[allow(non_snake_case)]
         #[allow(unused)]
         mod HtmlHtmlElement_crosscom_impl {
-            use crate::defs::ICharacterDataImpl;
-            use crate::defs::IDomStringImpl;
-            use crate::defs::IElementImpl;
-            use crate::defs::IHtmlBodyElementImpl;
-            use crate::defs::IHtmlDivElementImpl;
-            use crate::defs::IHtmlElementImpl;
-            use crate::defs::IHtmlHeadElementImpl;
-            use crate::defs::IHtmlHtmlElementImpl;
-            use crate::defs::IHtmlImageElementImpl;
-            use crate::defs::IHtmlLinkElementImpl;
-            use crate::defs::IHtmlParagraphElementImpl;
-            use crate::defs::IHtmlScriptElementImpl;
-            use crate::defs::IHtmlStyleElementImpl;
-            use crate::defs::INodeImpl;
-            use crate::defs::IRenderableImpl;
-            use crate::defs::ITextImpl;
+            use crate as felis;
             use crosscom::ComInterface;
+            use crosscom::IObjectArrayImpl;
+            use crosscom::IUnknownImpl;
+            use felis::comdef::ICharacterDataImpl;
+            use felis::comdef::IDomStringImpl;
+            use felis::comdef::IElementImpl;
+            use felis::comdef::IHtmlBodyElementImpl;
+            use felis::comdef::IHtmlDivElementImpl;
+            use felis::comdef::IHtmlElementImpl;
+            use felis::comdef::IHtmlHeadElementImpl;
+            use felis::comdef::IHtmlHtmlElementImpl;
+            use felis::comdef::IHtmlImageElementImpl;
+            use felis::comdef::IHtmlLinkElementImpl;
+            use felis::comdef::IHtmlParagraphElementImpl;
+            use felis::comdef::IHtmlScriptElementImpl;
+            use felis::comdef::IHtmlStyleElementImpl;
+            use felis::comdef::INodeImpl;
+            use felis::comdef::IRenderableImpl;
+            use felis::comdef::ITextImpl;
 
             #[repr(C)]
             pub struct HtmlHtmlElementCcw {
-                IHtmlHtmlElement: crate::defs::IHtmlHtmlElement,
-                IRenderable: crate::defs::IRenderable,
+                IHtmlHtmlElement: felis::comdef::IHtmlHtmlElement,
+                IRenderable: felis::comdef::IRenderable,
 
                 ref_count: std::sync::atomic::AtomicU32,
                 pub inner: $impl_type,
@@ -1970,40 +2292,40 @@ macro_rules! ComObject_HtmlHtmlElement {
                     &crosscom::IUnknown::INTERFACE_ID => {
                         *retval = (object as *const *const std::os::raw::c_void).offset(0);
                         add_ref(object as *const *const std::os::raw::c_void);
-                        crosscom::ResultCode::Ok as i32
+                        crosscom::ResultCode::Ok as std::os::raw::c_long
                     }
 
-                    &crate::defs::INode::INTERFACE_ID => {
+                    &felis::comdef::INode::INTERFACE_ID => {
                         *retval = (object as *const *const std::os::raw::c_void).offset(0);
                         add_ref(object as *const *const std::os::raw::c_void);
-                        crosscom::ResultCode::Ok as i32
+                        crosscom::ResultCode::Ok as std::os::raw::c_long
                     }
 
-                    &crate::defs::IElement::INTERFACE_ID => {
+                    &felis::comdef::IElement::INTERFACE_ID => {
                         *retval = (object as *const *const std::os::raw::c_void).offset(0);
                         add_ref(object as *const *const std::os::raw::c_void);
-                        crosscom::ResultCode::Ok as i32
+                        crosscom::ResultCode::Ok as std::os::raw::c_long
                     }
 
-                    &crate::defs::IHtmlElement::INTERFACE_ID => {
+                    &felis::comdef::IHtmlElement::INTERFACE_ID => {
                         *retval = (object as *const *const std::os::raw::c_void).offset(0);
                         add_ref(object as *const *const std::os::raw::c_void);
-                        crosscom::ResultCode::Ok as i32
+                        crosscom::ResultCode::Ok as std::os::raw::c_long
                     }
 
-                    &crate::defs::IHtmlHtmlElement::INTERFACE_ID => {
+                    &felis::comdef::IHtmlHtmlElement::INTERFACE_ID => {
                         *retval = (object as *const *const std::os::raw::c_void).offset(0);
                         add_ref(object as *const *const std::os::raw::c_void);
-                        crosscom::ResultCode::Ok as i32
+                        crosscom::ResultCode::Ok as std::os::raw::c_long
                     }
 
-                    &crate::defs::IRenderable::INTERFACE_ID => {
+                    &felis::comdef::IRenderable::INTERFACE_ID => {
                         *retval = (object as *const *const std::os::raw::c_void).offset(1);
                         add_ref(object as *const *const std::os::raw::c_void);
-                        crosscom::ResultCode::Ok as i32
+                        crosscom::ResultCode::Ok as std::os::raw::c_long
                     }
 
-                    _ => crosscom::ResultCode::ENoInterface as i32,
+                    _ => crosscom::ResultCode::ENoInterface as std::os::raw::c_long,
                 }
             }
 
@@ -2034,8 +2356,8 @@ macro_rules! ComObject_HtmlHtmlElement {
 
             fn display(this: *const *const std::os::raw::c_void) -> crate::style::Display {
                 unsafe {
-                    let object = crosscom::get_object::<HtmlHtmlElementCcw>(this);
-                    (*object).inner.0.display()
+                    let __crosscom_object = crosscom::get_object::<HtmlHtmlElementCcw>(this);
+                    (*__crosscom_object).inner.0.display()
                 }
             }
 
@@ -2046,11 +2368,12 @@ macro_rules! ComObject_HtmlHtmlElement {
                 content_boundary: crate::common::Rectangle,
             ) -> crate::common::Rectangle {
                 unsafe {
-                    let object = crosscom::get_object::<HtmlHtmlElementCcw>(this);
-                    (*object)
-                        .inner
-                        .0
-                        .layout(pango_context, style_computed, content_boundary)
+                    let __crosscom_object = crosscom::get_object::<HtmlHtmlElementCcw>(this);
+                    (*__crosscom_object).inner.0.layout(
+                        pango_context,
+                        style_computed,
+                        content_boundary,
+                    )
                 }
             }
 
@@ -2060,8 +2383,8 @@ macro_rules! ComObject_HtmlHtmlElement {
                 style_computed: &crate::style::Style,
             ) -> crosscom::Void {
                 unsafe {
-                    let object = crosscom::get_object::<HtmlHtmlElementCcw>(this);
-                    (*object).inner.0.paint(renderer, style_computed)
+                    let __crosscom_object = crosscom::get_object::<HtmlHtmlElementCcw>(this);
+                    (*__crosscom_object).inner.0.paint(renderer, style_computed)
                 }
             }
 
@@ -2072,8 +2395,8 @@ macro_rules! ComObject_HtmlHtmlElement {
                 window: &winit::window::Window,
             ) -> crosscom::Void {
                 unsafe {
-                    let object = crosscom::get_object::<HtmlHtmlElementCcw>(this);
-                    (*object).inner.0.on_mouse_move(x, y, window)
+                    let __crosscom_object = crosscom::get_object::<HtmlHtmlElementCcw>(this);
+                    (*__crosscom_object).inner.0.on_mouse_move(x, y, window)
                 }
             }
 
@@ -2081,8 +2404,8 @@ macro_rules! ComObject_HtmlHtmlElement {
                 this: *const *const std::os::raw::c_void,
             ) -> crate::page::FelisAction {
                 unsafe {
-                    let object = crosscom::get_object::<HtmlHtmlElementCcw>(this);
-                    (*object).inner.0.on_mouse_click()
+                    let __crosscom_object = crosscom::get_object::<HtmlHtmlElementCcw>(this);
+                    (*__crosscom_object).inner.0.on_mouse_click()
                 }
             }
 
@@ -2091,8 +2414,8 @@ macro_rules! ComObject_HtmlHtmlElement {
                 style: &crate::style::Style,
             ) -> crosscom::Void {
                 unsafe {
-                    let object = crosscom::get_object::<HtmlHtmlElementCcw>(this);
-                    (*object).inner.0.merge_style(style)
+                    let __crosscom_object = crosscom::get_object::<HtmlHtmlElementCcw>(this);
+                    (*__crosscom_object).inner.0.merge_style(style)
                 }
             }
 
@@ -2101,60 +2424,68 @@ macro_rules! ComObject_HtmlHtmlElement {
                 key: &str,
             ) -> Option<Option<String>> {
                 unsafe {
-                    let object = crosscom::get_object::<HtmlHtmlElementCcw>(this);
-                    (*object).inner.0.get_attribute(key)
+                    let __crosscom_object = crosscom::get_object::<HtmlHtmlElementCcw>(this);
+                    (*__crosscom_object).inner.0.get_attribute(key)
                 }
             }
 
             unsafe extern "system" fn id(
                 this: *const *const std::os::raw::c_void,
             ) -> *const *const std::os::raw::c_void {
-                let object = crosscom::get_object::<HtmlHtmlElementCcw>(this);
-                (*object).inner.0.id().into()
+                let __crosscom_object = crosscom::get_object::<HtmlHtmlElementCcw>(this);
+                (*__crosscom_object).inner.0.id().into()
             }
 
             unsafe extern "system" fn tag(
                 this: *const *const std::os::raw::c_void,
             ) -> *const *const std::os::raw::c_void {
-                let object = crosscom::get_object::<HtmlHtmlElementCcw>(this);
-                (*object).inner.0.tag().into()
+                let __crosscom_object = crosscom::get_object::<HtmlHtmlElementCcw>(this);
+                (*__crosscom_object).inner.0.tag().into()
             }
 
             unsafe extern "system" fn children(
                 this: *const *const std::os::raw::c_void,
             ) -> *const *const std::os::raw::c_void {
-                let object = crosscom::get_object::<HtmlHtmlElementCcw>(this);
-                (*object).inner.0.children().into()
+                let __crosscom_object = crosscom::get_object::<HtmlHtmlElementCcw>(this);
+                (*__crosscom_object).inner.0.children().into()
             }
 
             unsafe extern "system" fn inner_html(
                 this: *const *const std::os::raw::c_void,
             ) -> *const *const std::os::raw::c_void {
-                let object = crosscom::get_object::<HtmlHtmlElementCcw>(this);
-                (*object).inner.0.inner_html().into()
+                let __crosscom_object = crosscom::get_object::<HtmlHtmlElementCcw>(this);
+                (*__crosscom_object).inner.0.inner_html().into()
             }
 
             unsafe extern "system" fn outer_html(
                 this: *const *const std::os::raw::c_void,
             ) -> *const *const std::os::raw::c_void {
-                let object = crosscom::get_object::<HtmlHtmlElementCcw>(this);
-                (*object).inner.0.outer_html().into()
+                let __crosscom_object = crosscom::get_object::<HtmlHtmlElementCcw>(this);
+                (*__crosscom_object).inner.0.outer_html().into()
             }
 
             unsafe extern "system" fn set_inner_html(
                 this: *const *const std::os::raw::c_void,
                 html: *const *const std::os::raw::c_void,
             ) -> () {
-                let object = crosscom::get_object::<HtmlHtmlElementCcw>(this);
-                (*object).inner.0.set_inner_html(html.into()).into()
+                let html: crosscom::ComRc<felis::comdef::IDomString> = html.into();
+
+                let __crosscom_object = crosscom::get_object::<HtmlHtmlElementCcw>(this);
+                (*__crosscom_object)
+                    .inner
+                    .0
+                    .set_inner_html(html.into())
+                    .into()
             }
 
             unsafe extern "system" fn get_elements_by_tag_name(
                 this: *const *const std::os::raw::c_void,
                 tag: *const *const std::os::raw::c_void,
             ) -> *const *const std::os::raw::c_void {
-                let object = crosscom::get_object::<HtmlHtmlElementCcw>(this);
-                (*object)
+                let tag: crosscom::ComRc<felis::comdef::IDomString> = tag.into();
+
+                let __crosscom_object = crosscom::get_object::<HtmlHtmlElementCcw>(this);
+                (*__crosscom_object)
                     .inner
                     .0
                     .get_elements_by_tag_name(tag.into())
@@ -2165,16 +2496,22 @@ macro_rules! ComObject_HtmlHtmlElement {
                 this: *const *const std::os::raw::c_void,
                 id: *const *const std::os::raw::c_void,
             ) -> crosscom::RawPointer {
-                let object = crosscom::get_object::<HtmlHtmlElementCcw>(this);
-                (*object).inner.0.get_element_by_id(id.into()).into()
+                let id: crosscom::ComRc<felis::comdef::IDomString> = id.into();
+
+                let __crosscom_object = crosscom::get_object::<HtmlHtmlElementCcw>(this);
+                (*__crosscom_object)
+                    .inner
+                    .0
+                    .get_element_by_id(id.into())
+                    .into()
             }
 
             #[allow(non_upper_case_globals)]
             pub const GLOBAL_IHtmlHtmlElementVirtualTable_CCW_FOR_HtmlHtmlElement:
-                crate::defs::IHtmlHtmlElementVirtualTableCcw =
-                crate::defs::IHtmlHtmlElementVirtualTableCcw {
+                felis::comdef::IHtmlHtmlElementVirtualTableCcw =
+                felis::comdef::IHtmlHtmlElementVirtualTableCcw {
                     offset: 0,
-                    vtable: crate::defs::IHtmlHtmlElementVirtualTable {
+                    vtable: felis::comdef::IHtmlHtmlElementVirtualTable {
                         query_interface,
                         add_ref,
                         release,
@@ -2195,36 +2532,46 @@ macro_rules! ComObject_HtmlHtmlElement {
 
             #[allow(non_upper_case_globals)]
             pub const GLOBAL_IRenderableVirtualTable_CCW_FOR_HtmlHtmlElement:
-                crate::defs::IRenderableVirtualTableCcw = crate::defs::IRenderableVirtualTableCcw {
-                offset: -1,
-                vtable: crate::defs::IRenderableVirtualTable {
-                    query_interface,
-                    add_ref,
-                    release,
-                    display,
-                    layout,
-                    paint,
-                },
-            };
+                felis::comdef::IRenderableVirtualTableCcw =
+                felis::comdef::IRenderableVirtualTableCcw {
+                    offset: -1,
+                    vtable: felis::comdef::IRenderableVirtualTable {
+                        query_interface,
+                        add_ref,
+                        release,
+                        display,
+                        layout,
+                        paint,
+                    },
+                };
 
             impl crosscom::ComObject for $impl_type {
                 type CcwType = HtmlHtmlElementCcw;
 
                 fn create_ccw(self) -> Self::CcwType {
                     Self::CcwType {
-                        IHtmlHtmlElement: crate::defs::IHtmlHtmlElement {
+                        IHtmlHtmlElement: felis::comdef::IHtmlHtmlElement {
                             vtable: &GLOBAL_IHtmlHtmlElementVirtualTable_CCW_FOR_HtmlHtmlElement
                                 .vtable
-                                as *const crate::defs::IHtmlHtmlElementVirtualTable,
+                                as *const felis::comdef::IHtmlHtmlElementVirtualTable,
                         },
 
-                        IRenderable: crate::defs::IRenderable {
+                        IRenderable: felis::comdef::IRenderable {
                             vtable: &GLOBAL_IRenderableVirtualTable_CCW_FOR_HtmlHtmlElement.vtable
-                                as *const crate::defs::IRenderableVirtualTable,
+                                as *const felis::comdef::IRenderableVirtualTable,
                         },
 
                         ref_count: std::sync::atomic::AtomicU32::new(0),
                         inner: self,
+                    }
+                }
+
+                fn get_ccw(&self) -> &Self::CcwType {
+                    unsafe {
+                        let this = self as *const _ as *const u8;
+                        let this = this
+                            .offset(-(crosscom::offset_of!(HtmlHtmlElementCcw, inner) as isize));
+                        &*(this as *const Self::CcwType)
                     }
                 }
             }
@@ -2232,7 +2579,7 @@ macro_rules! ComObject_HtmlHtmlElement {
     };
 }
 
-pub(crate) use ComObject_HtmlHtmlElement;
+// pub use ComObject_HtmlHtmlElement;
 
 // Interface IHtmlScriptElement
 
@@ -2321,120 +2668,166 @@ impl IHtmlScriptElement {
         }
     }
 
-    pub fn add_ref(&self) -> i32 {
+    pub fn add_ref(&self) -> std::os::raw::c_long {
         unsafe {
             let this = self as *const IHtmlScriptElement as *const *const std::os::raw::c_void;
-            ((*self.vtable).add_ref)(this).into()
+            let ret = ((*self.vtable).add_ref)(this);
+            let ret: std::os::raw::c_long = ret.into();
+
+            ret
         }
     }
 
-    pub fn release(&self) -> i32 {
+    pub fn release(&self) -> std::os::raw::c_long {
         unsafe {
             let this = self as *const IHtmlScriptElement as *const *const std::os::raw::c_void;
-            ((*self.vtable).release)(this).into()
+            let ret = ((*self.vtable).release)(this);
+            let ret: std::os::raw::c_long = ret.into();
+
+            ret
         }
     }
 
-    pub fn children(&self) -> crosscom::ObjectArray<crate::defs::INode> {
+    pub fn children(&self) -> crosscom::ObjectArray<felis::comdef::INode> {
         unsafe {
             let this = self as *const IHtmlScriptElement as *const *const std::os::raw::c_void;
-            ((*self.vtable).children)(this).into()
+            let ret = ((*self.vtable).children)(this);
+            let ret: crosscom::ObjectArray<felis::comdef::INode> = ret.into();
+
+            ret
         }
     }
 
-    pub fn inner_html(&self) -> crosscom::ComRc<IDomString> {
+    pub fn inner_html(&self) -> crosscom::ComRc<felis::comdef::IDomString> {
         unsafe {
             let this = self as *const IHtmlScriptElement as *const *const std::os::raw::c_void;
-            ((*self.vtable).inner_html)(this).into()
+            let ret = ((*self.vtable).inner_html)(this);
+            let ret: crosscom::ComRc<IDomString> = ret.into();
+
+            ret
         }
     }
 
-    pub fn outer_html(&self) -> crosscom::ComRc<IDomString> {
+    pub fn outer_html(&self) -> crosscom::ComRc<felis::comdef::IDomString> {
         unsafe {
             let this = self as *const IHtmlScriptElement as *const *const std::os::raw::c_void;
-            ((*self.vtable).outer_html)(this).into()
+            let ret = ((*self.vtable).outer_html)(this);
+            let ret: crosscom::ComRc<IDomString> = ret.into();
+
+            ret
         }
     }
 
-    pub fn set_inner_html(&self, html: crosscom::ComRc<IDomString>) -> () {
+    pub fn set_inner_html(&self, html: crosscom::ComRc<felis::comdef::IDomString>) -> () {
         unsafe {
             let this = self as *const IHtmlScriptElement as *const *const std::os::raw::c_void;
-            ((*self.vtable).set_inner_html)(this, html.into()).into()
+            let ret = ((*self.vtable).set_inner_html)(this, html.into());
+            let ret: () = ret.into();
+
+            ret
         }
     }
 
     pub fn get_elements_by_tag_name(
         &self,
-        tag: crosscom::ComRc<IDomString>,
-    ) -> crosscom::ObjectArray<crate::defs::IElement> {
+        tag: crosscom::ComRc<felis::comdef::IDomString>,
+    ) -> crosscom::ObjectArray<felis::comdef::IElement> {
         unsafe {
             let this = self as *const IHtmlScriptElement as *const *const std::os::raw::c_void;
-            ((*self.vtable).get_elements_by_tag_name)(this, tag.into()).into()
+            let ret = ((*self.vtable).get_elements_by_tag_name)(this, tag.into());
+            let ret: crosscom::ObjectArray<felis::comdef::IElement> = ret.into();
+
+            ret
         }
     }
 
     pub fn get_element_by_id(
         &self,
-        id: crosscom::ComRc<IDomString>,
-    ) -> Option<crosscom::ComRc<crate::defs::IElement>> {
+        id: crosscom::ComRc<felis::comdef::IDomString>,
+    ) -> Option<crosscom::ComRc<felis::comdef::IElement>> {
         unsafe {
             let this = self as *const IHtmlScriptElement as *const *const std::os::raw::c_void;
-            ((*self.vtable).get_element_by_id)(this, id.into()).into()
+            let ret = ((*self.vtable).get_element_by_id)(this, id.into());
+            let ret: Option<crosscom::ComRc<felis::comdef::IElement>> = ret.into();
+
+            ret
         }
     }
 
-    pub fn id(&self) -> crosscom::ComRc<IDomString> {
+    pub fn id(&self) -> crosscom::ComRc<felis::comdef::IDomString> {
         unsafe {
             let this = self as *const IHtmlScriptElement as *const *const std::os::raw::c_void;
-            ((*self.vtable).id)(this).into()
+            let ret = ((*self.vtable).id)(this);
+            let ret: crosscom::ComRc<IDomString> = ret.into();
+
+            ret
         }
     }
 
-    pub fn tag(&self) -> crosscom::ComRc<IDomString> {
+    pub fn tag(&self) -> crosscom::ComRc<felis::comdef::IDomString> {
         unsafe {
             let this = self as *const IHtmlScriptElement as *const *const std::os::raw::c_void;
-            ((*self.vtable).tag)(this).into()
+            let ret = ((*self.vtable).tag)(this);
+            let ret: crosscom::ComRc<IDomString> = ret.into();
+
+            ret
         }
     }
 
     pub fn on_mouse_move(&self, x: f64, y: f64, window: &winit::window::Window) -> crosscom::Void {
         unsafe {
             let this = self as *const IHtmlScriptElement as *const *const std::os::raw::c_void;
-            ((*self.vtable).on_mouse_move)(this, x.into(), y.into(), window.into()).into()
+            let ret = ((*self.vtable).on_mouse_move)(this, x.into(), y.into(), window.into());
+
+            ret
         }
     }
 
     pub fn on_mouse_click(&self) -> crate::page::FelisAction {
         unsafe {
             let this = self as *const IHtmlScriptElement as *const *const std::os::raw::c_void;
-            ((*self.vtable).on_mouse_click)(this).into()
+            let ret = ((*self.vtable).on_mouse_click)(this);
+
+            ret
         }
     }
 
     pub fn merge_style(&self, style: &crate::style::Style) -> crosscom::Void {
         unsafe {
             let this = self as *const IHtmlScriptElement as *const *const std::os::raw::c_void;
-            ((*self.vtable).merge_style)(this, style.into()).into()
+            let ret = ((*self.vtable).merge_style)(this, style.into());
+
+            ret
         }
     }
 
     pub fn get_attribute(&self, key: &str) -> Option<Option<String>> {
         unsafe {
             let this = self as *const IHtmlScriptElement as *const *const std::os::raw::c_void;
-            ((*self.vtable).get_attribute)(this, key.into()).into()
+            let ret = ((*self.vtable).get_attribute)(this, key.into());
+
+            ret
         }
     }
 
-    pub fn text(&self) -> crosscom::ComRc<IDomString> {
+    pub fn text(&self) -> crosscom::ComRc<felis::comdef::IDomString> {
         unsafe {
             let this = self as *const IHtmlScriptElement as *const *const std::os::raw::c_void;
-            ((*self.vtable).text)(this).into()
+            let ret = ((*self.vtable).text)(this);
+            let ret: crosscom::ComRc<IDomString> = ret.into();
+
+            ret
         }
+    }
+
+    pub fn uuid() -> uuid::Uuid {
+        use crosscom::ComInterface;
+        uuid::Uuid::from_bytes(IHtmlScriptElement::INTERFACE_ID)
     }
 }
 
 pub trait IHtmlScriptElementImpl {
-    fn text(&self) -> crosscom::ComRc<IDomString>;
+    fn text(&self) -> crosscom::ComRc<felis::comdef::IDomString>;
 }
 
 impl crosscom::ComInterface for IHtmlScriptElement {
@@ -2448,33 +2841,37 @@ impl crosscom::ComInterface for IHtmlScriptElement {
 // Class HtmlScriptElement
 
 #[allow(unused)]
+#[macro_export]
 macro_rules! ComObject_HtmlScriptElement {
     ($impl_type: ty) => {
         #[allow(dead_code)]
         #[allow(non_snake_case)]
         #[allow(unused)]
         mod HtmlScriptElement_crosscom_impl {
-            use crate::defs::ICharacterDataImpl;
-            use crate::defs::IDomStringImpl;
-            use crate::defs::IElementImpl;
-            use crate::defs::IHtmlBodyElementImpl;
-            use crate::defs::IHtmlDivElementImpl;
-            use crate::defs::IHtmlElementImpl;
-            use crate::defs::IHtmlHeadElementImpl;
-            use crate::defs::IHtmlHtmlElementImpl;
-            use crate::defs::IHtmlImageElementImpl;
-            use crate::defs::IHtmlLinkElementImpl;
-            use crate::defs::IHtmlParagraphElementImpl;
-            use crate::defs::IHtmlScriptElementImpl;
-            use crate::defs::IHtmlStyleElementImpl;
-            use crate::defs::INodeImpl;
-            use crate::defs::IRenderableImpl;
-            use crate::defs::ITextImpl;
+            use crate as felis;
             use crosscom::ComInterface;
+            use crosscom::IObjectArrayImpl;
+            use crosscom::IUnknownImpl;
+            use felis::comdef::ICharacterDataImpl;
+            use felis::comdef::IDomStringImpl;
+            use felis::comdef::IElementImpl;
+            use felis::comdef::IHtmlBodyElementImpl;
+            use felis::comdef::IHtmlDivElementImpl;
+            use felis::comdef::IHtmlElementImpl;
+            use felis::comdef::IHtmlHeadElementImpl;
+            use felis::comdef::IHtmlHtmlElementImpl;
+            use felis::comdef::IHtmlImageElementImpl;
+            use felis::comdef::IHtmlLinkElementImpl;
+            use felis::comdef::IHtmlParagraphElementImpl;
+            use felis::comdef::IHtmlScriptElementImpl;
+            use felis::comdef::IHtmlStyleElementImpl;
+            use felis::comdef::INodeImpl;
+            use felis::comdef::IRenderableImpl;
+            use felis::comdef::ITextImpl;
 
             #[repr(C)]
             pub struct HtmlScriptElementCcw {
-                IHtmlScriptElement: crate::defs::IHtmlScriptElement,
+                IHtmlScriptElement: felis::comdef::IHtmlScriptElement,
 
                 ref_count: std::sync::atomic::AtomicU32,
                 pub inner: $impl_type,
@@ -2490,34 +2887,34 @@ macro_rules! ComObject_HtmlScriptElement {
                     &crosscom::IUnknown::INTERFACE_ID => {
                         *retval = (object as *const *const std::os::raw::c_void).offset(0);
                         add_ref(object as *const *const std::os::raw::c_void);
-                        crosscom::ResultCode::Ok as i32
+                        crosscom::ResultCode::Ok as std::os::raw::c_long
                     }
 
-                    &crate::defs::INode::INTERFACE_ID => {
+                    &felis::comdef::INode::INTERFACE_ID => {
                         *retval = (object as *const *const std::os::raw::c_void).offset(0);
                         add_ref(object as *const *const std::os::raw::c_void);
-                        crosscom::ResultCode::Ok as i32
+                        crosscom::ResultCode::Ok as std::os::raw::c_long
                     }
 
-                    &crate::defs::IElement::INTERFACE_ID => {
+                    &felis::comdef::IElement::INTERFACE_ID => {
                         *retval = (object as *const *const std::os::raw::c_void).offset(0);
                         add_ref(object as *const *const std::os::raw::c_void);
-                        crosscom::ResultCode::Ok as i32
+                        crosscom::ResultCode::Ok as std::os::raw::c_long
                     }
 
-                    &crate::defs::IHtmlElement::INTERFACE_ID => {
+                    &felis::comdef::IHtmlElement::INTERFACE_ID => {
                         *retval = (object as *const *const std::os::raw::c_void).offset(0);
                         add_ref(object as *const *const std::os::raw::c_void);
-                        crosscom::ResultCode::Ok as i32
+                        crosscom::ResultCode::Ok as std::os::raw::c_long
                     }
 
-                    &crate::defs::IHtmlScriptElement::INTERFACE_ID => {
+                    &felis::comdef::IHtmlScriptElement::INTERFACE_ID => {
                         *retval = (object as *const *const std::os::raw::c_void).offset(0);
                         add_ref(object as *const *const std::os::raw::c_void);
-                        crosscom::ResultCode::Ok as i32
+                        crosscom::ResultCode::Ok as std::os::raw::c_long
                     }
 
-                    _ => crosscom::ResultCode::ENoInterface as i32,
+                    _ => crosscom::ResultCode::ENoInterface as std::os::raw::c_long,
                 }
             }
 
@@ -2549,8 +2946,8 @@ macro_rules! ComObject_HtmlScriptElement {
             unsafe extern "system" fn text(
                 this: *const *const std::os::raw::c_void,
             ) -> *const *const std::os::raw::c_void {
-                let object = crosscom::get_object::<HtmlScriptElementCcw>(this);
-                (*object).inner.0.text().into()
+                let __crosscom_object = crosscom::get_object::<HtmlScriptElementCcw>(this);
+                (*__crosscom_object).inner.0.text().into()
             }
 
             fn on_mouse_move(
@@ -2560,8 +2957,8 @@ macro_rules! ComObject_HtmlScriptElement {
                 window: &winit::window::Window,
             ) -> crosscom::Void {
                 unsafe {
-                    let object = crosscom::get_object::<HtmlScriptElementCcw>(this);
-                    (*object).inner.0.on_mouse_move(x, y, window)
+                    let __crosscom_object = crosscom::get_object::<HtmlScriptElementCcw>(this);
+                    (*__crosscom_object).inner.0.on_mouse_move(x, y, window)
                 }
             }
 
@@ -2569,8 +2966,8 @@ macro_rules! ComObject_HtmlScriptElement {
                 this: *const *const std::os::raw::c_void,
             ) -> crate::page::FelisAction {
                 unsafe {
-                    let object = crosscom::get_object::<HtmlScriptElementCcw>(this);
-                    (*object).inner.0.on_mouse_click()
+                    let __crosscom_object = crosscom::get_object::<HtmlScriptElementCcw>(this);
+                    (*__crosscom_object).inner.0.on_mouse_click()
                 }
             }
 
@@ -2579,8 +2976,8 @@ macro_rules! ComObject_HtmlScriptElement {
                 style: &crate::style::Style,
             ) -> crosscom::Void {
                 unsafe {
-                    let object = crosscom::get_object::<HtmlScriptElementCcw>(this);
-                    (*object).inner.0.merge_style(style)
+                    let __crosscom_object = crosscom::get_object::<HtmlScriptElementCcw>(this);
+                    (*__crosscom_object).inner.0.merge_style(style)
                 }
             }
 
@@ -2589,60 +2986,68 @@ macro_rules! ComObject_HtmlScriptElement {
                 key: &str,
             ) -> Option<Option<String>> {
                 unsafe {
-                    let object = crosscom::get_object::<HtmlScriptElementCcw>(this);
-                    (*object).inner.0.get_attribute(key)
+                    let __crosscom_object = crosscom::get_object::<HtmlScriptElementCcw>(this);
+                    (*__crosscom_object).inner.0.get_attribute(key)
                 }
             }
 
             unsafe extern "system" fn id(
                 this: *const *const std::os::raw::c_void,
             ) -> *const *const std::os::raw::c_void {
-                let object = crosscom::get_object::<HtmlScriptElementCcw>(this);
-                (*object).inner.0.id().into()
+                let __crosscom_object = crosscom::get_object::<HtmlScriptElementCcw>(this);
+                (*__crosscom_object).inner.0.id().into()
             }
 
             unsafe extern "system" fn tag(
                 this: *const *const std::os::raw::c_void,
             ) -> *const *const std::os::raw::c_void {
-                let object = crosscom::get_object::<HtmlScriptElementCcw>(this);
-                (*object).inner.0.tag().into()
+                let __crosscom_object = crosscom::get_object::<HtmlScriptElementCcw>(this);
+                (*__crosscom_object).inner.0.tag().into()
             }
 
             unsafe extern "system" fn children(
                 this: *const *const std::os::raw::c_void,
             ) -> *const *const std::os::raw::c_void {
-                let object = crosscom::get_object::<HtmlScriptElementCcw>(this);
-                (*object).inner.0.children().into()
+                let __crosscom_object = crosscom::get_object::<HtmlScriptElementCcw>(this);
+                (*__crosscom_object).inner.0.children().into()
             }
 
             unsafe extern "system" fn inner_html(
                 this: *const *const std::os::raw::c_void,
             ) -> *const *const std::os::raw::c_void {
-                let object = crosscom::get_object::<HtmlScriptElementCcw>(this);
-                (*object).inner.0.inner_html().into()
+                let __crosscom_object = crosscom::get_object::<HtmlScriptElementCcw>(this);
+                (*__crosscom_object).inner.0.inner_html().into()
             }
 
             unsafe extern "system" fn outer_html(
                 this: *const *const std::os::raw::c_void,
             ) -> *const *const std::os::raw::c_void {
-                let object = crosscom::get_object::<HtmlScriptElementCcw>(this);
-                (*object).inner.0.outer_html().into()
+                let __crosscom_object = crosscom::get_object::<HtmlScriptElementCcw>(this);
+                (*__crosscom_object).inner.0.outer_html().into()
             }
 
             unsafe extern "system" fn set_inner_html(
                 this: *const *const std::os::raw::c_void,
                 html: *const *const std::os::raw::c_void,
             ) -> () {
-                let object = crosscom::get_object::<HtmlScriptElementCcw>(this);
-                (*object).inner.0.set_inner_html(html.into()).into()
+                let html: crosscom::ComRc<felis::comdef::IDomString> = html.into();
+
+                let __crosscom_object = crosscom::get_object::<HtmlScriptElementCcw>(this);
+                (*__crosscom_object)
+                    .inner
+                    .0
+                    .set_inner_html(html.into())
+                    .into()
             }
 
             unsafe extern "system" fn get_elements_by_tag_name(
                 this: *const *const std::os::raw::c_void,
                 tag: *const *const std::os::raw::c_void,
             ) -> *const *const std::os::raw::c_void {
-                let object = crosscom::get_object::<HtmlScriptElementCcw>(this);
-                (*object)
+                let tag: crosscom::ComRc<felis::comdef::IDomString> = tag.into();
+
+                let __crosscom_object = crosscom::get_object::<HtmlScriptElementCcw>(this);
+                (*__crosscom_object)
                     .inner
                     .0
                     .get_elements_by_tag_name(tag.into())
@@ -2653,16 +3058,22 @@ macro_rules! ComObject_HtmlScriptElement {
                 this: *const *const std::os::raw::c_void,
                 id: *const *const std::os::raw::c_void,
             ) -> crosscom::RawPointer {
-                let object = crosscom::get_object::<HtmlScriptElementCcw>(this);
-                (*object).inner.0.get_element_by_id(id.into()).into()
+                let id: crosscom::ComRc<felis::comdef::IDomString> = id.into();
+
+                let __crosscom_object = crosscom::get_object::<HtmlScriptElementCcw>(this);
+                (*__crosscom_object)
+                    .inner
+                    .0
+                    .get_element_by_id(id.into())
+                    .into()
             }
 
             #[allow(non_upper_case_globals)]
             pub const GLOBAL_IHtmlScriptElementVirtualTable_CCW_FOR_HtmlScriptElement:
-                crate::defs::IHtmlScriptElementVirtualTableCcw =
-                crate::defs::IHtmlScriptElementVirtualTableCcw {
+                felis::comdef::IHtmlScriptElementVirtualTableCcw =
+                felis::comdef::IHtmlScriptElementVirtualTableCcw {
                     offset: 0,
-                    vtable: crate::defs::IHtmlScriptElementVirtualTable {
+                    vtable: felis::comdef::IHtmlScriptElementVirtualTable {
                         query_interface,
                         add_ref,
                         release,
@@ -2687,14 +3098,23 @@ macro_rules! ComObject_HtmlScriptElement {
 
                 fn create_ccw(self) -> Self::CcwType {
                     Self::CcwType {
-                        IHtmlScriptElement: crate::defs::IHtmlScriptElement {
+                        IHtmlScriptElement: felis::comdef::IHtmlScriptElement {
                             vtable: &GLOBAL_IHtmlScriptElementVirtualTable_CCW_FOR_HtmlScriptElement
                                 .vtable
-                                as *const crate::defs::IHtmlScriptElementVirtualTable,
+                                as *const felis::comdef::IHtmlScriptElementVirtualTable,
                         },
 
                         ref_count: std::sync::atomic::AtomicU32::new(0),
                         inner: self,
+                    }
+                }
+
+                fn get_ccw(&self) -> &Self::CcwType {
+                    unsafe {
+                        let this = self as *const _ as *const u8;
+                        let this = this
+                            .offset(-(crosscom::offset_of!(HtmlScriptElementCcw, inner) as isize));
+                        &*(this as *const Self::CcwType)
                     }
                 }
             }
@@ -2702,7 +3122,7 @@ macro_rules! ComObject_HtmlScriptElement {
     };
 }
 
-pub(crate) use ComObject_HtmlScriptElement;
+// pub use ComObject_HtmlScriptElement;
 
 // Interface IHtmlHeadElement
 
@@ -2788,108 +3208,151 @@ impl IHtmlHeadElement {
         }
     }
 
-    pub fn add_ref(&self) -> i32 {
+    pub fn add_ref(&self) -> std::os::raw::c_long {
         unsafe {
             let this = self as *const IHtmlHeadElement as *const *const std::os::raw::c_void;
-            ((*self.vtable).add_ref)(this).into()
+            let ret = ((*self.vtable).add_ref)(this);
+            let ret: std::os::raw::c_long = ret.into();
+
+            ret
         }
     }
 
-    pub fn release(&self) -> i32 {
+    pub fn release(&self) -> std::os::raw::c_long {
         unsafe {
             let this = self as *const IHtmlHeadElement as *const *const std::os::raw::c_void;
-            ((*self.vtable).release)(this).into()
+            let ret = ((*self.vtable).release)(this);
+            let ret: std::os::raw::c_long = ret.into();
+
+            ret
         }
     }
 
-    pub fn children(&self) -> crosscom::ObjectArray<crate::defs::INode> {
+    pub fn children(&self) -> crosscom::ObjectArray<felis::comdef::INode> {
         unsafe {
             let this = self as *const IHtmlHeadElement as *const *const std::os::raw::c_void;
-            ((*self.vtable).children)(this).into()
+            let ret = ((*self.vtable).children)(this);
+            let ret: crosscom::ObjectArray<felis::comdef::INode> = ret.into();
+
+            ret
         }
     }
 
-    pub fn inner_html(&self) -> crosscom::ComRc<IDomString> {
+    pub fn inner_html(&self) -> crosscom::ComRc<felis::comdef::IDomString> {
         unsafe {
             let this = self as *const IHtmlHeadElement as *const *const std::os::raw::c_void;
-            ((*self.vtable).inner_html)(this).into()
+            let ret = ((*self.vtable).inner_html)(this);
+            let ret: crosscom::ComRc<IDomString> = ret.into();
+
+            ret
         }
     }
 
-    pub fn outer_html(&self) -> crosscom::ComRc<IDomString> {
+    pub fn outer_html(&self) -> crosscom::ComRc<felis::comdef::IDomString> {
         unsafe {
             let this = self as *const IHtmlHeadElement as *const *const std::os::raw::c_void;
-            ((*self.vtable).outer_html)(this).into()
+            let ret = ((*self.vtable).outer_html)(this);
+            let ret: crosscom::ComRc<IDomString> = ret.into();
+
+            ret
         }
     }
 
-    pub fn set_inner_html(&self, html: crosscom::ComRc<IDomString>) -> () {
+    pub fn set_inner_html(&self, html: crosscom::ComRc<felis::comdef::IDomString>) -> () {
         unsafe {
             let this = self as *const IHtmlHeadElement as *const *const std::os::raw::c_void;
-            ((*self.vtable).set_inner_html)(this, html.into()).into()
+            let ret = ((*self.vtable).set_inner_html)(this, html.into());
+            let ret: () = ret.into();
+
+            ret
         }
     }
 
     pub fn get_elements_by_tag_name(
         &self,
-        tag: crosscom::ComRc<IDomString>,
-    ) -> crosscom::ObjectArray<crate::defs::IElement> {
+        tag: crosscom::ComRc<felis::comdef::IDomString>,
+    ) -> crosscom::ObjectArray<felis::comdef::IElement> {
         unsafe {
             let this = self as *const IHtmlHeadElement as *const *const std::os::raw::c_void;
-            ((*self.vtable).get_elements_by_tag_name)(this, tag.into()).into()
+            let ret = ((*self.vtable).get_elements_by_tag_name)(this, tag.into());
+            let ret: crosscom::ObjectArray<felis::comdef::IElement> = ret.into();
+
+            ret
         }
     }
 
     pub fn get_element_by_id(
         &self,
-        id: crosscom::ComRc<IDomString>,
-    ) -> Option<crosscom::ComRc<crate::defs::IElement>> {
+        id: crosscom::ComRc<felis::comdef::IDomString>,
+    ) -> Option<crosscom::ComRc<felis::comdef::IElement>> {
         unsafe {
             let this = self as *const IHtmlHeadElement as *const *const std::os::raw::c_void;
-            ((*self.vtable).get_element_by_id)(this, id.into()).into()
+            let ret = ((*self.vtable).get_element_by_id)(this, id.into());
+            let ret: Option<crosscom::ComRc<felis::comdef::IElement>> = ret.into();
+
+            ret
         }
     }
 
-    pub fn id(&self) -> crosscom::ComRc<IDomString> {
+    pub fn id(&self) -> crosscom::ComRc<felis::comdef::IDomString> {
         unsafe {
             let this = self as *const IHtmlHeadElement as *const *const std::os::raw::c_void;
-            ((*self.vtable).id)(this).into()
+            let ret = ((*self.vtable).id)(this);
+            let ret: crosscom::ComRc<IDomString> = ret.into();
+
+            ret
         }
     }
 
-    pub fn tag(&self) -> crosscom::ComRc<IDomString> {
+    pub fn tag(&self) -> crosscom::ComRc<felis::comdef::IDomString> {
         unsafe {
             let this = self as *const IHtmlHeadElement as *const *const std::os::raw::c_void;
-            ((*self.vtable).tag)(this).into()
+            let ret = ((*self.vtable).tag)(this);
+            let ret: crosscom::ComRc<IDomString> = ret.into();
+
+            ret
         }
     }
 
     pub fn on_mouse_move(&self, x: f64, y: f64, window: &winit::window::Window) -> crosscom::Void {
         unsafe {
             let this = self as *const IHtmlHeadElement as *const *const std::os::raw::c_void;
-            ((*self.vtable).on_mouse_move)(this, x.into(), y.into(), window.into()).into()
+            let ret = ((*self.vtable).on_mouse_move)(this, x.into(), y.into(), window.into());
+
+            ret
         }
     }
 
     pub fn on_mouse_click(&self) -> crate::page::FelisAction {
         unsafe {
             let this = self as *const IHtmlHeadElement as *const *const std::os::raw::c_void;
-            ((*self.vtable).on_mouse_click)(this).into()
+            let ret = ((*self.vtable).on_mouse_click)(this);
+
+            ret
         }
     }
 
     pub fn merge_style(&self, style: &crate::style::Style) -> crosscom::Void {
         unsafe {
             let this = self as *const IHtmlHeadElement as *const *const std::os::raw::c_void;
-            ((*self.vtable).merge_style)(this, style.into()).into()
+            let ret = ((*self.vtable).merge_style)(this, style.into());
+
+            ret
         }
     }
 
     pub fn get_attribute(&self, key: &str) -> Option<Option<String>> {
         unsafe {
             let this = self as *const IHtmlHeadElement as *const *const std::os::raw::c_void;
-            ((*self.vtable).get_attribute)(this, key.into()).into()
+            let ret = ((*self.vtable).get_attribute)(this, key.into());
+
+            ret
         }
+    }
+
+    pub fn uuid() -> uuid::Uuid {
+        use crosscom::ComInterface;
+        uuid::Uuid::from_bytes(IHtmlHeadElement::INTERFACE_ID)
     }
 }
 
@@ -2906,34 +3369,38 @@ impl crosscom::ComInterface for IHtmlHeadElement {
 // Class HtmlHeadElement
 
 #[allow(unused)]
+#[macro_export]
 macro_rules! ComObject_HtmlHeadElement {
     ($impl_type: ty) => {
         #[allow(dead_code)]
         #[allow(non_snake_case)]
         #[allow(unused)]
         mod HtmlHeadElement_crosscom_impl {
-            use crate::defs::ICharacterDataImpl;
-            use crate::defs::IDomStringImpl;
-            use crate::defs::IElementImpl;
-            use crate::defs::IHtmlBodyElementImpl;
-            use crate::defs::IHtmlDivElementImpl;
-            use crate::defs::IHtmlElementImpl;
-            use crate::defs::IHtmlHeadElementImpl;
-            use crate::defs::IHtmlHtmlElementImpl;
-            use crate::defs::IHtmlImageElementImpl;
-            use crate::defs::IHtmlLinkElementImpl;
-            use crate::defs::IHtmlParagraphElementImpl;
-            use crate::defs::IHtmlScriptElementImpl;
-            use crate::defs::IHtmlStyleElementImpl;
-            use crate::defs::INodeImpl;
-            use crate::defs::IRenderableImpl;
-            use crate::defs::ITextImpl;
+            use crate as felis;
             use crosscom::ComInterface;
+            use crosscom::IObjectArrayImpl;
+            use crosscom::IUnknownImpl;
+            use felis::comdef::ICharacterDataImpl;
+            use felis::comdef::IDomStringImpl;
+            use felis::comdef::IElementImpl;
+            use felis::comdef::IHtmlBodyElementImpl;
+            use felis::comdef::IHtmlDivElementImpl;
+            use felis::comdef::IHtmlElementImpl;
+            use felis::comdef::IHtmlHeadElementImpl;
+            use felis::comdef::IHtmlHtmlElementImpl;
+            use felis::comdef::IHtmlImageElementImpl;
+            use felis::comdef::IHtmlLinkElementImpl;
+            use felis::comdef::IHtmlParagraphElementImpl;
+            use felis::comdef::IHtmlScriptElementImpl;
+            use felis::comdef::IHtmlStyleElementImpl;
+            use felis::comdef::INodeImpl;
+            use felis::comdef::IRenderableImpl;
+            use felis::comdef::ITextImpl;
 
             #[repr(C)]
             pub struct HtmlHeadElementCcw {
-                IHtmlHeadElement: crate::defs::IHtmlHeadElement,
-                IRenderable: crate::defs::IRenderable,
+                IHtmlHeadElement: felis::comdef::IHtmlHeadElement,
+                IRenderable: felis::comdef::IRenderable,
 
                 ref_count: std::sync::atomic::AtomicU32,
                 pub inner: $impl_type,
@@ -2949,40 +3416,40 @@ macro_rules! ComObject_HtmlHeadElement {
                     &crosscom::IUnknown::INTERFACE_ID => {
                         *retval = (object as *const *const std::os::raw::c_void).offset(0);
                         add_ref(object as *const *const std::os::raw::c_void);
-                        crosscom::ResultCode::Ok as i32
+                        crosscom::ResultCode::Ok as std::os::raw::c_long
                     }
 
-                    &crate::defs::INode::INTERFACE_ID => {
+                    &felis::comdef::INode::INTERFACE_ID => {
                         *retval = (object as *const *const std::os::raw::c_void).offset(0);
                         add_ref(object as *const *const std::os::raw::c_void);
-                        crosscom::ResultCode::Ok as i32
+                        crosscom::ResultCode::Ok as std::os::raw::c_long
                     }
 
-                    &crate::defs::IElement::INTERFACE_ID => {
+                    &felis::comdef::IElement::INTERFACE_ID => {
                         *retval = (object as *const *const std::os::raw::c_void).offset(0);
                         add_ref(object as *const *const std::os::raw::c_void);
-                        crosscom::ResultCode::Ok as i32
+                        crosscom::ResultCode::Ok as std::os::raw::c_long
                     }
 
-                    &crate::defs::IHtmlElement::INTERFACE_ID => {
+                    &felis::comdef::IHtmlElement::INTERFACE_ID => {
                         *retval = (object as *const *const std::os::raw::c_void).offset(0);
                         add_ref(object as *const *const std::os::raw::c_void);
-                        crosscom::ResultCode::Ok as i32
+                        crosscom::ResultCode::Ok as std::os::raw::c_long
                     }
 
-                    &crate::defs::IHtmlHeadElement::INTERFACE_ID => {
+                    &felis::comdef::IHtmlHeadElement::INTERFACE_ID => {
                         *retval = (object as *const *const std::os::raw::c_void).offset(0);
                         add_ref(object as *const *const std::os::raw::c_void);
-                        crosscom::ResultCode::Ok as i32
+                        crosscom::ResultCode::Ok as std::os::raw::c_long
                     }
 
-                    &crate::defs::IRenderable::INTERFACE_ID => {
+                    &felis::comdef::IRenderable::INTERFACE_ID => {
                         *retval = (object as *const *const std::os::raw::c_void).offset(1);
                         add_ref(object as *const *const std::os::raw::c_void);
-                        crosscom::ResultCode::Ok as i32
+                        crosscom::ResultCode::Ok as std::os::raw::c_long
                     }
 
-                    _ => crosscom::ResultCode::ENoInterface as i32,
+                    _ => crosscom::ResultCode::ENoInterface as std::os::raw::c_long,
                 }
             }
 
@@ -3013,8 +3480,8 @@ macro_rules! ComObject_HtmlHeadElement {
 
             fn display(this: *const *const std::os::raw::c_void) -> crate::style::Display {
                 unsafe {
-                    let object = crosscom::get_object::<HtmlHeadElementCcw>(this);
-                    (*object).inner.0.display()
+                    let __crosscom_object = crosscom::get_object::<HtmlHeadElementCcw>(this);
+                    (*__crosscom_object).inner.0.display()
                 }
             }
 
@@ -3025,11 +3492,12 @@ macro_rules! ComObject_HtmlHeadElement {
                 content_boundary: crate::common::Rectangle,
             ) -> crate::common::Rectangle {
                 unsafe {
-                    let object = crosscom::get_object::<HtmlHeadElementCcw>(this);
-                    (*object)
-                        .inner
-                        .0
-                        .layout(pango_context, style_computed, content_boundary)
+                    let __crosscom_object = crosscom::get_object::<HtmlHeadElementCcw>(this);
+                    (*__crosscom_object).inner.0.layout(
+                        pango_context,
+                        style_computed,
+                        content_boundary,
+                    )
                 }
             }
 
@@ -3039,8 +3507,8 @@ macro_rules! ComObject_HtmlHeadElement {
                 style_computed: &crate::style::Style,
             ) -> crosscom::Void {
                 unsafe {
-                    let object = crosscom::get_object::<HtmlHeadElementCcw>(this);
-                    (*object).inner.0.paint(renderer, style_computed)
+                    let __crosscom_object = crosscom::get_object::<HtmlHeadElementCcw>(this);
+                    (*__crosscom_object).inner.0.paint(renderer, style_computed)
                 }
             }
 
@@ -3051,8 +3519,8 @@ macro_rules! ComObject_HtmlHeadElement {
                 window: &winit::window::Window,
             ) -> crosscom::Void {
                 unsafe {
-                    let object = crosscom::get_object::<HtmlHeadElementCcw>(this);
-                    (*object).inner.0.on_mouse_move(x, y, window)
+                    let __crosscom_object = crosscom::get_object::<HtmlHeadElementCcw>(this);
+                    (*__crosscom_object).inner.0.on_mouse_move(x, y, window)
                 }
             }
 
@@ -3060,8 +3528,8 @@ macro_rules! ComObject_HtmlHeadElement {
                 this: *const *const std::os::raw::c_void,
             ) -> crate::page::FelisAction {
                 unsafe {
-                    let object = crosscom::get_object::<HtmlHeadElementCcw>(this);
-                    (*object).inner.0.on_mouse_click()
+                    let __crosscom_object = crosscom::get_object::<HtmlHeadElementCcw>(this);
+                    (*__crosscom_object).inner.0.on_mouse_click()
                 }
             }
 
@@ -3070,8 +3538,8 @@ macro_rules! ComObject_HtmlHeadElement {
                 style: &crate::style::Style,
             ) -> crosscom::Void {
                 unsafe {
-                    let object = crosscom::get_object::<HtmlHeadElementCcw>(this);
-                    (*object).inner.0.merge_style(style)
+                    let __crosscom_object = crosscom::get_object::<HtmlHeadElementCcw>(this);
+                    (*__crosscom_object).inner.0.merge_style(style)
                 }
             }
 
@@ -3080,60 +3548,68 @@ macro_rules! ComObject_HtmlHeadElement {
                 key: &str,
             ) -> Option<Option<String>> {
                 unsafe {
-                    let object = crosscom::get_object::<HtmlHeadElementCcw>(this);
-                    (*object).inner.0.get_attribute(key)
+                    let __crosscom_object = crosscom::get_object::<HtmlHeadElementCcw>(this);
+                    (*__crosscom_object).inner.0.get_attribute(key)
                 }
             }
 
             unsafe extern "system" fn id(
                 this: *const *const std::os::raw::c_void,
             ) -> *const *const std::os::raw::c_void {
-                let object = crosscom::get_object::<HtmlHeadElementCcw>(this);
-                (*object).inner.0.id().into()
+                let __crosscom_object = crosscom::get_object::<HtmlHeadElementCcw>(this);
+                (*__crosscom_object).inner.0.id().into()
             }
 
             unsafe extern "system" fn tag(
                 this: *const *const std::os::raw::c_void,
             ) -> *const *const std::os::raw::c_void {
-                let object = crosscom::get_object::<HtmlHeadElementCcw>(this);
-                (*object).inner.0.tag().into()
+                let __crosscom_object = crosscom::get_object::<HtmlHeadElementCcw>(this);
+                (*__crosscom_object).inner.0.tag().into()
             }
 
             unsafe extern "system" fn children(
                 this: *const *const std::os::raw::c_void,
             ) -> *const *const std::os::raw::c_void {
-                let object = crosscom::get_object::<HtmlHeadElementCcw>(this);
-                (*object).inner.0.children().into()
+                let __crosscom_object = crosscom::get_object::<HtmlHeadElementCcw>(this);
+                (*__crosscom_object).inner.0.children().into()
             }
 
             unsafe extern "system" fn inner_html(
                 this: *const *const std::os::raw::c_void,
             ) -> *const *const std::os::raw::c_void {
-                let object = crosscom::get_object::<HtmlHeadElementCcw>(this);
-                (*object).inner.0.inner_html().into()
+                let __crosscom_object = crosscom::get_object::<HtmlHeadElementCcw>(this);
+                (*__crosscom_object).inner.0.inner_html().into()
             }
 
             unsafe extern "system" fn outer_html(
                 this: *const *const std::os::raw::c_void,
             ) -> *const *const std::os::raw::c_void {
-                let object = crosscom::get_object::<HtmlHeadElementCcw>(this);
-                (*object).inner.0.outer_html().into()
+                let __crosscom_object = crosscom::get_object::<HtmlHeadElementCcw>(this);
+                (*__crosscom_object).inner.0.outer_html().into()
             }
 
             unsafe extern "system" fn set_inner_html(
                 this: *const *const std::os::raw::c_void,
                 html: *const *const std::os::raw::c_void,
             ) -> () {
-                let object = crosscom::get_object::<HtmlHeadElementCcw>(this);
-                (*object).inner.0.set_inner_html(html.into()).into()
+                let html: crosscom::ComRc<felis::comdef::IDomString> = html.into();
+
+                let __crosscom_object = crosscom::get_object::<HtmlHeadElementCcw>(this);
+                (*__crosscom_object)
+                    .inner
+                    .0
+                    .set_inner_html(html.into())
+                    .into()
             }
 
             unsafe extern "system" fn get_elements_by_tag_name(
                 this: *const *const std::os::raw::c_void,
                 tag: *const *const std::os::raw::c_void,
             ) -> *const *const std::os::raw::c_void {
-                let object = crosscom::get_object::<HtmlHeadElementCcw>(this);
-                (*object)
+                let tag: crosscom::ComRc<felis::comdef::IDomString> = tag.into();
+
+                let __crosscom_object = crosscom::get_object::<HtmlHeadElementCcw>(this);
+                (*__crosscom_object)
                     .inner
                     .0
                     .get_elements_by_tag_name(tag.into())
@@ -3144,16 +3620,22 @@ macro_rules! ComObject_HtmlHeadElement {
                 this: *const *const std::os::raw::c_void,
                 id: *const *const std::os::raw::c_void,
             ) -> crosscom::RawPointer {
-                let object = crosscom::get_object::<HtmlHeadElementCcw>(this);
-                (*object).inner.0.get_element_by_id(id.into()).into()
+                let id: crosscom::ComRc<felis::comdef::IDomString> = id.into();
+
+                let __crosscom_object = crosscom::get_object::<HtmlHeadElementCcw>(this);
+                (*__crosscom_object)
+                    .inner
+                    .0
+                    .get_element_by_id(id.into())
+                    .into()
             }
 
             #[allow(non_upper_case_globals)]
             pub const GLOBAL_IHtmlHeadElementVirtualTable_CCW_FOR_HtmlHeadElement:
-                crate::defs::IHtmlHeadElementVirtualTableCcw =
-                crate::defs::IHtmlHeadElementVirtualTableCcw {
+                felis::comdef::IHtmlHeadElementVirtualTableCcw =
+                felis::comdef::IHtmlHeadElementVirtualTableCcw {
                     offset: 0,
-                    vtable: crate::defs::IHtmlHeadElementVirtualTable {
+                    vtable: felis::comdef::IHtmlHeadElementVirtualTable {
                         query_interface,
                         add_ref,
                         release,
@@ -3174,36 +3656,46 @@ macro_rules! ComObject_HtmlHeadElement {
 
             #[allow(non_upper_case_globals)]
             pub const GLOBAL_IRenderableVirtualTable_CCW_FOR_HtmlHeadElement:
-                crate::defs::IRenderableVirtualTableCcw = crate::defs::IRenderableVirtualTableCcw {
-                offset: -1,
-                vtable: crate::defs::IRenderableVirtualTable {
-                    query_interface,
-                    add_ref,
-                    release,
-                    display,
-                    layout,
-                    paint,
-                },
-            };
+                felis::comdef::IRenderableVirtualTableCcw =
+                felis::comdef::IRenderableVirtualTableCcw {
+                    offset: -1,
+                    vtable: felis::comdef::IRenderableVirtualTable {
+                        query_interface,
+                        add_ref,
+                        release,
+                        display,
+                        layout,
+                        paint,
+                    },
+                };
 
             impl crosscom::ComObject for $impl_type {
                 type CcwType = HtmlHeadElementCcw;
 
                 fn create_ccw(self) -> Self::CcwType {
                     Self::CcwType {
-                        IHtmlHeadElement: crate::defs::IHtmlHeadElement {
+                        IHtmlHeadElement: felis::comdef::IHtmlHeadElement {
                             vtable: &GLOBAL_IHtmlHeadElementVirtualTable_CCW_FOR_HtmlHeadElement
                                 .vtable
-                                as *const crate::defs::IHtmlHeadElementVirtualTable,
+                                as *const felis::comdef::IHtmlHeadElementVirtualTable,
                         },
 
-                        IRenderable: crate::defs::IRenderable {
+                        IRenderable: felis::comdef::IRenderable {
                             vtable: &GLOBAL_IRenderableVirtualTable_CCW_FOR_HtmlHeadElement.vtable
-                                as *const crate::defs::IRenderableVirtualTable,
+                                as *const felis::comdef::IRenderableVirtualTable,
                         },
 
                         ref_count: std::sync::atomic::AtomicU32::new(0),
                         inner: self,
+                    }
+                }
+
+                fn get_ccw(&self) -> &Self::CcwType {
+                    unsafe {
+                        let this = self as *const _ as *const u8;
+                        let this = this
+                            .offset(-(crosscom::offset_of!(HtmlHeadElementCcw, inner) as isize));
+                        &*(this as *const Self::CcwType)
                     }
                 }
             }
@@ -3211,7 +3703,7 @@ macro_rules! ComObject_HtmlHeadElement {
     };
 }
 
-pub(crate) use ComObject_HtmlHeadElement;
+// pub use ComObject_HtmlHeadElement;
 
 // Interface IHtmlLinkElement
 
@@ -3297,108 +3789,151 @@ impl IHtmlLinkElement {
         }
     }
 
-    pub fn add_ref(&self) -> i32 {
+    pub fn add_ref(&self) -> std::os::raw::c_long {
         unsafe {
             let this = self as *const IHtmlLinkElement as *const *const std::os::raw::c_void;
-            ((*self.vtable).add_ref)(this).into()
+            let ret = ((*self.vtable).add_ref)(this);
+            let ret: std::os::raw::c_long = ret.into();
+
+            ret
         }
     }
 
-    pub fn release(&self) -> i32 {
+    pub fn release(&self) -> std::os::raw::c_long {
         unsafe {
             let this = self as *const IHtmlLinkElement as *const *const std::os::raw::c_void;
-            ((*self.vtable).release)(this).into()
+            let ret = ((*self.vtable).release)(this);
+            let ret: std::os::raw::c_long = ret.into();
+
+            ret
         }
     }
 
-    pub fn children(&self) -> crosscom::ObjectArray<crate::defs::INode> {
+    pub fn children(&self) -> crosscom::ObjectArray<felis::comdef::INode> {
         unsafe {
             let this = self as *const IHtmlLinkElement as *const *const std::os::raw::c_void;
-            ((*self.vtable).children)(this).into()
+            let ret = ((*self.vtable).children)(this);
+            let ret: crosscom::ObjectArray<felis::comdef::INode> = ret.into();
+
+            ret
         }
     }
 
-    pub fn inner_html(&self) -> crosscom::ComRc<IDomString> {
+    pub fn inner_html(&self) -> crosscom::ComRc<felis::comdef::IDomString> {
         unsafe {
             let this = self as *const IHtmlLinkElement as *const *const std::os::raw::c_void;
-            ((*self.vtable).inner_html)(this).into()
+            let ret = ((*self.vtable).inner_html)(this);
+            let ret: crosscom::ComRc<IDomString> = ret.into();
+
+            ret
         }
     }
 
-    pub fn outer_html(&self) -> crosscom::ComRc<IDomString> {
+    pub fn outer_html(&self) -> crosscom::ComRc<felis::comdef::IDomString> {
         unsafe {
             let this = self as *const IHtmlLinkElement as *const *const std::os::raw::c_void;
-            ((*self.vtable).outer_html)(this).into()
+            let ret = ((*self.vtable).outer_html)(this);
+            let ret: crosscom::ComRc<IDomString> = ret.into();
+
+            ret
         }
     }
 
-    pub fn set_inner_html(&self, html: crosscom::ComRc<IDomString>) -> () {
+    pub fn set_inner_html(&self, html: crosscom::ComRc<felis::comdef::IDomString>) -> () {
         unsafe {
             let this = self as *const IHtmlLinkElement as *const *const std::os::raw::c_void;
-            ((*self.vtable).set_inner_html)(this, html.into()).into()
+            let ret = ((*self.vtable).set_inner_html)(this, html.into());
+            let ret: () = ret.into();
+
+            ret
         }
     }
 
     pub fn get_elements_by_tag_name(
         &self,
-        tag: crosscom::ComRc<IDomString>,
-    ) -> crosscom::ObjectArray<crate::defs::IElement> {
+        tag: crosscom::ComRc<felis::comdef::IDomString>,
+    ) -> crosscom::ObjectArray<felis::comdef::IElement> {
         unsafe {
             let this = self as *const IHtmlLinkElement as *const *const std::os::raw::c_void;
-            ((*self.vtable).get_elements_by_tag_name)(this, tag.into()).into()
+            let ret = ((*self.vtable).get_elements_by_tag_name)(this, tag.into());
+            let ret: crosscom::ObjectArray<felis::comdef::IElement> = ret.into();
+
+            ret
         }
     }
 
     pub fn get_element_by_id(
         &self,
-        id: crosscom::ComRc<IDomString>,
-    ) -> Option<crosscom::ComRc<crate::defs::IElement>> {
+        id: crosscom::ComRc<felis::comdef::IDomString>,
+    ) -> Option<crosscom::ComRc<felis::comdef::IElement>> {
         unsafe {
             let this = self as *const IHtmlLinkElement as *const *const std::os::raw::c_void;
-            ((*self.vtable).get_element_by_id)(this, id.into()).into()
+            let ret = ((*self.vtable).get_element_by_id)(this, id.into());
+            let ret: Option<crosscom::ComRc<felis::comdef::IElement>> = ret.into();
+
+            ret
         }
     }
 
-    pub fn id(&self) -> crosscom::ComRc<IDomString> {
+    pub fn id(&self) -> crosscom::ComRc<felis::comdef::IDomString> {
         unsafe {
             let this = self as *const IHtmlLinkElement as *const *const std::os::raw::c_void;
-            ((*self.vtable).id)(this).into()
+            let ret = ((*self.vtable).id)(this);
+            let ret: crosscom::ComRc<IDomString> = ret.into();
+
+            ret
         }
     }
 
-    pub fn tag(&self) -> crosscom::ComRc<IDomString> {
+    pub fn tag(&self) -> crosscom::ComRc<felis::comdef::IDomString> {
         unsafe {
             let this = self as *const IHtmlLinkElement as *const *const std::os::raw::c_void;
-            ((*self.vtable).tag)(this).into()
+            let ret = ((*self.vtable).tag)(this);
+            let ret: crosscom::ComRc<IDomString> = ret.into();
+
+            ret
         }
     }
 
     pub fn on_mouse_move(&self, x: f64, y: f64, window: &winit::window::Window) -> crosscom::Void {
         unsafe {
             let this = self as *const IHtmlLinkElement as *const *const std::os::raw::c_void;
-            ((*self.vtable).on_mouse_move)(this, x.into(), y.into(), window.into()).into()
+            let ret = ((*self.vtable).on_mouse_move)(this, x.into(), y.into(), window.into());
+
+            ret
         }
     }
 
     pub fn on_mouse_click(&self) -> crate::page::FelisAction {
         unsafe {
             let this = self as *const IHtmlLinkElement as *const *const std::os::raw::c_void;
-            ((*self.vtable).on_mouse_click)(this).into()
+            let ret = ((*self.vtable).on_mouse_click)(this);
+
+            ret
         }
     }
 
     pub fn merge_style(&self, style: &crate::style::Style) -> crosscom::Void {
         unsafe {
             let this = self as *const IHtmlLinkElement as *const *const std::os::raw::c_void;
-            ((*self.vtable).merge_style)(this, style.into()).into()
+            let ret = ((*self.vtable).merge_style)(this, style.into());
+
+            ret
         }
     }
 
     pub fn get_attribute(&self, key: &str) -> Option<Option<String>> {
         unsafe {
             let this = self as *const IHtmlLinkElement as *const *const std::os::raw::c_void;
-            ((*self.vtable).get_attribute)(this, key.into()).into()
+            let ret = ((*self.vtable).get_attribute)(this, key.into());
+
+            ret
         }
+    }
+
+    pub fn uuid() -> uuid::Uuid {
+        use crosscom::ComInterface;
+        uuid::Uuid::from_bytes(IHtmlLinkElement::INTERFACE_ID)
     }
 }
 
@@ -3415,34 +3950,38 @@ impl crosscom::ComInterface for IHtmlLinkElement {
 // Class HtmlLinkElement
 
 #[allow(unused)]
+#[macro_export]
 macro_rules! ComObject_HtmlLinkElement {
     ($impl_type: ty) => {
         #[allow(dead_code)]
         #[allow(non_snake_case)]
         #[allow(unused)]
         mod HtmlLinkElement_crosscom_impl {
-            use crate::defs::ICharacterDataImpl;
-            use crate::defs::IDomStringImpl;
-            use crate::defs::IElementImpl;
-            use crate::defs::IHtmlBodyElementImpl;
-            use crate::defs::IHtmlDivElementImpl;
-            use crate::defs::IHtmlElementImpl;
-            use crate::defs::IHtmlHeadElementImpl;
-            use crate::defs::IHtmlHtmlElementImpl;
-            use crate::defs::IHtmlImageElementImpl;
-            use crate::defs::IHtmlLinkElementImpl;
-            use crate::defs::IHtmlParagraphElementImpl;
-            use crate::defs::IHtmlScriptElementImpl;
-            use crate::defs::IHtmlStyleElementImpl;
-            use crate::defs::INodeImpl;
-            use crate::defs::IRenderableImpl;
-            use crate::defs::ITextImpl;
+            use crate as felis;
             use crosscom::ComInterface;
+            use crosscom::IObjectArrayImpl;
+            use crosscom::IUnknownImpl;
+            use felis::comdef::ICharacterDataImpl;
+            use felis::comdef::IDomStringImpl;
+            use felis::comdef::IElementImpl;
+            use felis::comdef::IHtmlBodyElementImpl;
+            use felis::comdef::IHtmlDivElementImpl;
+            use felis::comdef::IHtmlElementImpl;
+            use felis::comdef::IHtmlHeadElementImpl;
+            use felis::comdef::IHtmlHtmlElementImpl;
+            use felis::comdef::IHtmlImageElementImpl;
+            use felis::comdef::IHtmlLinkElementImpl;
+            use felis::comdef::IHtmlParagraphElementImpl;
+            use felis::comdef::IHtmlScriptElementImpl;
+            use felis::comdef::IHtmlStyleElementImpl;
+            use felis::comdef::INodeImpl;
+            use felis::comdef::IRenderableImpl;
+            use felis::comdef::ITextImpl;
 
             #[repr(C)]
             pub struct HtmlLinkElementCcw {
-                IHtmlLinkElement: crate::defs::IHtmlLinkElement,
-                IRenderable: crate::defs::IRenderable,
+                IHtmlLinkElement: felis::comdef::IHtmlLinkElement,
+                IRenderable: felis::comdef::IRenderable,
 
                 ref_count: std::sync::atomic::AtomicU32,
                 pub inner: $impl_type,
@@ -3458,40 +3997,40 @@ macro_rules! ComObject_HtmlLinkElement {
                     &crosscom::IUnknown::INTERFACE_ID => {
                         *retval = (object as *const *const std::os::raw::c_void).offset(0);
                         add_ref(object as *const *const std::os::raw::c_void);
-                        crosscom::ResultCode::Ok as i32
+                        crosscom::ResultCode::Ok as std::os::raw::c_long
                     }
 
-                    &crate::defs::INode::INTERFACE_ID => {
+                    &felis::comdef::INode::INTERFACE_ID => {
                         *retval = (object as *const *const std::os::raw::c_void).offset(0);
                         add_ref(object as *const *const std::os::raw::c_void);
-                        crosscom::ResultCode::Ok as i32
+                        crosscom::ResultCode::Ok as std::os::raw::c_long
                     }
 
-                    &crate::defs::IElement::INTERFACE_ID => {
+                    &felis::comdef::IElement::INTERFACE_ID => {
                         *retval = (object as *const *const std::os::raw::c_void).offset(0);
                         add_ref(object as *const *const std::os::raw::c_void);
-                        crosscom::ResultCode::Ok as i32
+                        crosscom::ResultCode::Ok as std::os::raw::c_long
                     }
 
-                    &crate::defs::IHtmlElement::INTERFACE_ID => {
+                    &felis::comdef::IHtmlElement::INTERFACE_ID => {
                         *retval = (object as *const *const std::os::raw::c_void).offset(0);
                         add_ref(object as *const *const std::os::raw::c_void);
-                        crosscom::ResultCode::Ok as i32
+                        crosscom::ResultCode::Ok as std::os::raw::c_long
                     }
 
-                    &crate::defs::IHtmlLinkElement::INTERFACE_ID => {
+                    &felis::comdef::IHtmlLinkElement::INTERFACE_ID => {
                         *retval = (object as *const *const std::os::raw::c_void).offset(0);
                         add_ref(object as *const *const std::os::raw::c_void);
-                        crosscom::ResultCode::Ok as i32
+                        crosscom::ResultCode::Ok as std::os::raw::c_long
                     }
 
-                    &crate::defs::IRenderable::INTERFACE_ID => {
+                    &felis::comdef::IRenderable::INTERFACE_ID => {
                         *retval = (object as *const *const std::os::raw::c_void).offset(1);
                         add_ref(object as *const *const std::os::raw::c_void);
-                        crosscom::ResultCode::Ok as i32
+                        crosscom::ResultCode::Ok as std::os::raw::c_long
                     }
 
-                    _ => crosscom::ResultCode::ENoInterface as i32,
+                    _ => crosscom::ResultCode::ENoInterface as std::os::raw::c_long,
                 }
             }
 
@@ -3522,8 +4061,8 @@ macro_rules! ComObject_HtmlLinkElement {
 
             fn display(this: *const *const std::os::raw::c_void) -> crate::style::Display {
                 unsafe {
-                    let object = crosscom::get_object::<HtmlLinkElementCcw>(this);
-                    (*object).inner.0.display()
+                    let __crosscom_object = crosscom::get_object::<HtmlLinkElementCcw>(this);
+                    (*__crosscom_object).inner.0.display()
                 }
             }
 
@@ -3534,11 +4073,12 @@ macro_rules! ComObject_HtmlLinkElement {
                 content_boundary: crate::common::Rectangle,
             ) -> crate::common::Rectangle {
                 unsafe {
-                    let object = crosscom::get_object::<HtmlLinkElementCcw>(this);
-                    (*object)
-                        .inner
-                        .0
-                        .layout(pango_context, style_computed, content_boundary)
+                    let __crosscom_object = crosscom::get_object::<HtmlLinkElementCcw>(this);
+                    (*__crosscom_object).inner.0.layout(
+                        pango_context,
+                        style_computed,
+                        content_boundary,
+                    )
                 }
             }
 
@@ -3548,8 +4088,8 @@ macro_rules! ComObject_HtmlLinkElement {
                 style_computed: &crate::style::Style,
             ) -> crosscom::Void {
                 unsafe {
-                    let object = crosscom::get_object::<HtmlLinkElementCcw>(this);
-                    (*object).inner.0.paint(renderer, style_computed)
+                    let __crosscom_object = crosscom::get_object::<HtmlLinkElementCcw>(this);
+                    (*__crosscom_object).inner.0.paint(renderer, style_computed)
                 }
             }
 
@@ -3560,8 +4100,8 @@ macro_rules! ComObject_HtmlLinkElement {
                 window: &winit::window::Window,
             ) -> crosscom::Void {
                 unsafe {
-                    let object = crosscom::get_object::<HtmlLinkElementCcw>(this);
-                    (*object).inner.0.on_mouse_move(x, y, window)
+                    let __crosscom_object = crosscom::get_object::<HtmlLinkElementCcw>(this);
+                    (*__crosscom_object).inner.0.on_mouse_move(x, y, window)
                 }
             }
 
@@ -3569,8 +4109,8 @@ macro_rules! ComObject_HtmlLinkElement {
                 this: *const *const std::os::raw::c_void,
             ) -> crate::page::FelisAction {
                 unsafe {
-                    let object = crosscom::get_object::<HtmlLinkElementCcw>(this);
-                    (*object).inner.0.on_mouse_click()
+                    let __crosscom_object = crosscom::get_object::<HtmlLinkElementCcw>(this);
+                    (*__crosscom_object).inner.0.on_mouse_click()
                 }
             }
 
@@ -3579,8 +4119,8 @@ macro_rules! ComObject_HtmlLinkElement {
                 style: &crate::style::Style,
             ) -> crosscom::Void {
                 unsafe {
-                    let object = crosscom::get_object::<HtmlLinkElementCcw>(this);
-                    (*object).inner.0.merge_style(style)
+                    let __crosscom_object = crosscom::get_object::<HtmlLinkElementCcw>(this);
+                    (*__crosscom_object).inner.0.merge_style(style)
                 }
             }
 
@@ -3589,60 +4129,68 @@ macro_rules! ComObject_HtmlLinkElement {
                 key: &str,
             ) -> Option<Option<String>> {
                 unsafe {
-                    let object = crosscom::get_object::<HtmlLinkElementCcw>(this);
-                    (*object).inner.0.get_attribute(key)
+                    let __crosscom_object = crosscom::get_object::<HtmlLinkElementCcw>(this);
+                    (*__crosscom_object).inner.0.get_attribute(key)
                 }
             }
 
             unsafe extern "system" fn id(
                 this: *const *const std::os::raw::c_void,
             ) -> *const *const std::os::raw::c_void {
-                let object = crosscom::get_object::<HtmlLinkElementCcw>(this);
-                (*object).inner.0.id().into()
+                let __crosscom_object = crosscom::get_object::<HtmlLinkElementCcw>(this);
+                (*__crosscom_object).inner.0.id().into()
             }
 
             unsafe extern "system" fn tag(
                 this: *const *const std::os::raw::c_void,
             ) -> *const *const std::os::raw::c_void {
-                let object = crosscom::get_object::<HtmlLinkElementCcw>(this);
-                (*object).inner.0.tag().into()
+                let __crosscom_object = crosscom::get_object::<HtmlLinkElementCcw>(this);
+                (*__crosscom_object).inner.0.tag().into()
             }
 
             unsafe extern "system" fn children(
                 this: *const *const std::os::raw::c_void,
             ) -> *const *const std::os::raw::c_void {
-                let object = crosscom::get_object::<HtmlLinkElementCcw>(this);
-                (*object).inner.0.children().into()
+                let __crosscom_object = crosscom::get_object::<HtmlLinkElementCcw>(this);
+                (*__crosscom_object).inner.0.children().into()
             }
 
             unsafe extern "system" fn inner_html(
                 this: *const *const std::os::raw::c_void,
             ) -> *const *const std::os::raw::c_void {
-                let object = crosscom::get_object::<HtmlLinkElementCcw>(this);
-                (*object).inner.0.inner_html().into()
+                let __crosscom_object = crosscom::get_object::<HtmlLinkElementCcw>(this);
+                (*__crosscom_object).inner.0.inner_html().into()
             }
 
             unsafe extern "system" fn outer_html(
                 this: *const *const std::os::raw::c_void,
             ) -> *const *const std::os::raw::c_void {
-                let object = crosscom::get_object::<HtmlLinkElementCcw>(this);
-                (*object).inner.0.outer_html().into()
+                let __crosscom_object = crosscom::get_object::<HtmlLinkElementCcw>(this);
+                (*__crosscom_object).inner.0.outer_html().into()
             }
 
             unsafe extern "system" fn set_inner_html(
                 this: *const *const std::os::raw::c_void,
                 html: *const *const std::os::raw::c_void,
             ) -> () {
-                let object = crosscom::get_object::<HtmlLinkElementCcw>(this);
-                (*object).inner.0.set_inner_html(html.into()).into()
+                let html: crosscom::ComRc<felis::comdef::IDomString> = html.into();
+
+                let __crosscom_object = crosscom::get_object::<HtmlLinkElementCcw>(this);
+                (*__crosscom_object)
+                    .inner
+                    .0
+                    .set_inner_html(html.into())
+                    .into()
             }
 
             unsafe extern "system" fn get_elements_by_tag_name(
                 this: *const *const std::os::raw::c_void,
                 tag: *const *const std::os::raw::c_void,
             ) -> *const *const std::os::raw::c_void {
-                let object = crosscom::get_object::<HtmlLinkElementCcw>(this);
-                (*object)
+                let tag: crosscom::ComRc<felis::comdef::IDomString> = tag.into();
+
+                let __crosscom_object = crosscom::get_object::<HtmlLinkElementCcw>(this);
+                (*__crosscom_object)
                     .inner
                     .0
                     .get_elements_by_tag_name(tag.into())
@@ -3653,16 +4201,22 @@ macro_rules! ComObject_HtmlLinkElement {
                 this: *const *const std::os::raw::c_void,
                 id: *const *const std::os::raw::c_void,
             ) -> crosscom::RawPointer {
-                let object = crosscom::get_object::<HtmlLinkElementCcw>(this);
-                (*object).inner.0.get_element_by_id(id.into()).into()
+                let id: crosscom::ComRc<felis::comdef::IDomString> = id.into();
+
+                let __crosscom_object = crosscom::get_object::<HtmlLinkElementCcw>(this);
+                (*__crosscom_object)
+                    .inner
+                    .0
+                    .get_element_by_id(id.into())
+                    .into()
             }
 
             #[allow(non_upper_case_globals)]
             pub const GLOBAL_IHtmlLinkElementVirtualTable_CCW_FOR_HtmlLinkElement:
-                crate::defs::IHtmlLinkElementVirtualTableCcw =
-                crate::defs::IHtmlLinkElementVirtualTableCcw {
+                felis::comdef::IHtmlLinkElementVirtualTableCcw =
+                felis::comdef::IHtmlLinkElementVirtualTableCcw {
                     offset: 0,
-                    vtable: crate::defs::IHtmlLinkElementVirtualTable {
+                    vtable: felis::comdef::IHtmlLinkElementVirtualTable {
                         query_interface,
                         add_ref,
                         release,
@@ -3683,36 +4237,46 @@ macro_rules! ComObject_HtmlLinkElement {
 
             #[allow(non_upper_case_globals)]
             pub const GLOBAL_IRenderableVirtualTable_CCW_FOR_HtmlLinkElement:
-                crate::defs::IRenderableVirtualTableCcw = crate::defs::IRenderableVirtualTableCcw {
-                offset: -1,
-                vtable: crate::defs::IRenderableVirtualTable {
-                    query_interface,
-                    add_ref,
-                    release,
-                    display,
-                    layout,
-                    paint,
-                },
-            };
+                felis::comdef::IRenderableVirtualTableCcw =
+                felis::comdef::IRenderableVirtualTableCcw {
+                    offset: -1,
+                    vtable: felis::comdef::IRenderableVirtualTable {
+                        query_interface,
+                        add_ref,
+                        release,
+                        display,
+                        layout,
+                        paint,
+                    },
+                };
 
             impl crosscom::ComObject for $impl_type {
                 type CcwType = HtmlLinkElementCcw;
 
                 fn create_ccw(self) -> Self::CcwType {
                     Self::CcwType {
-                        IHtmlLinkElement: crate::defs::IHtmlLinkElement {
+                        IHtmlLinkElement: felis::comdef::IHtmlLinkElement {
                             vtable: &GLOBAL_IHtmlLinkElementVirtualTable_CCW_FOR_HtmlLinkElement
                                 .vtable
-                                as *const crate::defs::IHtmlLinkElementVirtualTable,
+                                as *const felis::comdef::IHtmlLinkElementVirtualTable,
                         },
 
-                        IRenderable: crate::defs::IRenderable {
+                        IRenderable: felis::comdef::IRenderable {
                             vtable: &GLOBAL_IRenderableVirtualTable_CCW_FOR_HtmlLinkElement.vtable
-                                as *const crate::defs::IRenderableVirtualTable,
+                                as *const felis::comdef::IRenderableVirtualTable,
                         },
 
                         ref_count: std::sync::atomic::AtomicU32::new(0),
                         inner: self,
+                    }
+                }
+
+                fn get_ccw(&self) -> &Self::CcwType {
+                    unsafe {
+                        let this = self as *const _ as *const u8;
+                        let this = this
+                            .offset(-(crosscom::offset_of!(HtmlLinkElementCcw, inner) as isize));
+                        &*(this as *const Self::CcwType)
                     }
                 }
             }
@@ -3720,7 +4284,7 @@ macro_rules! ComObject_HtmlLinkElement {
     };
 }
 
-pub(crate) use ComObject_HtmlLinkElement;
+// pub use ComObject_HtmlLinkElement;
 
 // Interface IHtmlBodyElement
 
@@ -3806,108 +4370,151 @@ impl IHtmlBodyElement {
         }
     }
 
-    pub fn add_ref(&self) -> i32 {
+    pub fn add_ref(&self) -> std::os::raw::c_long {
         unsafe {
             let this = self as *const IHtmlBodyElement as *const *const std::os::raw::c_void;
-            ((*self.vtable).add_ref)(this).into()
+            let ret = ((*self.vtable).add_ref)(this);
+            let ret: std::os::raw::c_long = ret.into();
+
+            ret
         }
     }
 
-    pub fn release(&self) -> i32 {
+    pub fn release(&self) -> std::os::raw::c_long {
         unsafe {
             let this = self as *const IHtmlBodyElement as *const *const std::os::raw::c_void;
-            ((*self.vtable).release)(this).into()
+            let ret = ((*self.vtable).release)(this);
+            let ret: std::os::raw::c_long = ret.into();
+
+            ret
         }
     }
 
-    pub fn children(&self) -> crosscom::ObjectArray<crate::defs::INode> {
+    pub fn children(&self) -> crosscom::ObjectArray<felis::comdef::INode> {
         unsafe {
             let this = self as *const IHtmlBodyElement as *const *const std::os::raw::c_void;
-            ((*self.vtable).children)(this).into()
+            let ret = ((*self.vtable).children)(this);
+            let ret: crosscom::ObjectArray<felis::comdef::INode> = ret.into();
+
+            ret
         }
     }
 
-    pub fn inner_html(&self) -> crosscom::ComRc<IDomString> {
+    pub fn inner_html(&self) -> crosscom::ComRc<felis::comdef::IDomString> {
         unsafe {
             let this = self as *const IHtmlBodyElement as *const *const std::os::raw::c_void;
-            ((*self.vtable).inner_html)(this).into()
+            let ret = ((*self.vtable).inner_html)(this);
+            let ret: crosscom::ComRc<IDomString> = ret.into();
+
+            ret
         }
     }
 
-    pub fn outer_html(&self) -> crosscom::ComRc<IDomString> {
+    pub fn outer_html(&self) -> crosscom::ComRc<felis::comdef::IDomString> {
         unsafe {
             let this = self as *const IHtmlBodyElement as *const *const std::os::raw::c_void;
-            ((*self.vtable).outer_html)(this).into()
+            let ret = ((*self.vtable).outer_html)(this);
+            let ret: crosscom::ComRc<IDomString> = ret.into();
+
+            ret
         }
     }
 
-    pub fn set_inner_html(&self, html: crosscom::ComRc<IDomString>) -> () {
+    pub fn set_inner_html(&self, html: crosscom::ComRc<felis::comdef::IDomString>) -> () {
         unsafe {
             let this = self as *const IHtmlBodyElement as *const *const std::os::raw::c_void;
-            ((*self.vtable).set_inner_html)(this, html.into()).into()
+            let ret = ((*self.vtable).set_inner_html)(this, html.into());
+            let ret: () = ret.into();
+
+            ret
         }
     }
 
     pub fn get_elements_by_tag_name(
         &self,
-        tag: crosscom::ComRc<IDomString>,
-    ) -> crosscom::ObjectArray<crate::defs::IElement> {
+        tag: crosscom::ComRc<felis::comdef::IDomString>,
+    ) -> crosscom::ObjectArray<felis::comdef::IElement> {
         unsafe {
             let this = self as *const IHtmlBodyElement as *const *const std::os::raw::c_void;
-            ((*self.vtable).get_elements_by_tag_name)(this, tag.into()).into()
+            let ret = ((*self.vtable).get_elements_by_tag_name)(this, tag.into());
+            let ret: crosscom::ObjectArray<felis::comdef::IElement> = ret.into();
+
+            ret
         }
     }
 
     pub fn get_element_by_id(
         &self,
-        id: crosscom::ComRc<IDomString>,
-    ) -> Option<crosscom::ComRc<crate::defs::IElement>> {
+        id: crosscom::ComRc<felis::comdef::IDomString>,
+    ) -> Option<crosscom::ComRc<felis::comdef::IElement>> {
         unsafe {
             let this = self as *const IHtmlBodyElement as *const *const std::os::raw::c_void;
-            ((*self.vtable).get_element_by_id)(this, id.into()).into()
+            let ret = ((*self.vtable).get_element_by_id)(this, id.into());
+            let ret: Option<crosscom::ComRc<felis::comdef::IElement>> = ret.into();
+
+            ret
         }
     }
 
-    pub fn id(&self) -> crosscom::ComRc<IDomString> {
+    pub fn id(&self) -> crosscom::ComRc<felis::comdef::IDomString> {
         unsafe {
             let this = self as *const IHtmlBodyElement as *const *const std::os::raw::c_void;
-            ((*self.vtable).id)(this).into()
+            let ret = ((*self.vtable).id)(this);
+            let ret: crosscom::ComRc<IDomString> = ret.into();
+
+            ret
         }
     }
 
-    pub fn tag(&self) -> crosscom::ComRc<IDomString> {
+    pub fn tag(&self) -> crosscom::ComRc<felis::comdef::IDomString> {
         unsafe {
             let this = self as *const IHtmlBodyElement as *const *const std::os::raw::c_void;
-            ((*self.vtable).tag)(this).into()
+            let ret = ((*self.vtable).tag)(this);
+            let ret: crosscom::ComRc<IDomString> = ret.into();
+
+            ret
         }
     }
 
     pub fn on_mouse_move(&self, x: f64, y: f64, window: &winit::window::Window) -> crosscom::Void {
         unsafe {
             let this = self as *const IHtmlBodyElement as *const *const std::os::raw::c_void;
-            ((*self.vtable).on_mouse_move)(this, x.into(), y.into(), window.into()).into()
+            let ret = ((*self.vtable).on_mouse_move)(this, x.into(), y.into(), window.into());
+
+            ret
         }
     }
 
     pub fn on_mouse_click(&self) -> crate::page::FelisAction {
         unsafe {
             let this = self as *const IHtmlBodyElement as *const *const std::os::raw::c_void;
-            ((*self.vtable).on_mouse_click)(this).into()
+            let ret = ((*self.vtable).on_mouse_click)(this);
+
+            ret
         }
     }
 
     pub fn merge_style(&self, style: &crate::style::Style) -> crosscom::Void {
         unsafe {
             let this = self as *const IHtmlBodyElement as *const *const std::os::raw::c_void;
-            ((*self.vtable).merge_style)(this, style.into()).into()
+            let ret = ((*self.vtable).merge_style)(this, style.into());
+
+            ret
         }
     }
 
     pub fn get_attribute(&self, key: &str) -> Option<Option<String>> {
         unsafe {
             let this = self as *const IHtmlBodyElement as *const *const std::os::raw::c_void;
-            ((*self.vtable).get_attribute)(this, key.into()).into()
+            let ret = ((*self.vtable).get_attribute)(this, key.into());
+
+            ret
         }
+    }
+
+    pub fn uuid() -> uuid::Uuid {
+        use crosscom::ComInterface;
+        uuid::Uuid::from_bytes(IHtmlBodyElement::INTERFACE_ID)
     }
 }
 
@@ -3924,34 +4531,38 @@ impl crosscom::ComInterface for IHtmlBodyElement {
 // Class HtmlBodyElement
 
 #[allow(unused)]
+#[macro_export]
 macro_rules! ComObject_HtmlBodyElement {
     ($impl_type: ty) => {
         #[allow(dead_code)]
         #[allow(non_snake_case)]
         #[allow(unused)]
         mod HtmlBodyElement_crosscom_impl {
-            use crate::defs::ICharacterDataImpl;
-            use crate::defs::IDomStringImpl;
-            use crate::defs::IElementImpl;
-            use crate::defs::IHtmlBodyElementImpl;
-            use crate::defs::IHtmlDivElementImpl;
-            use crate::defs::IHtmlElementImpl;
-            use crate::defs::IHtmlHeadElementImpl;
-            use crate::defs::IHtmlHtmlElementImpl;
-            use crate::defs::IHtmlImageElementImpl;
-            use crate::defs::IHtmlLinkElementImpl;
-            use crate::defs::IHtmlParagraphElementImpl;
-            use crate::defs::IHtmlScriptElementImpl;
-            use crate::defs::IHtmlStyleElementImpl;
-            use crate::defs::INodeImpl;
-            use crate::defs::IRenderableImpl;
-            use crate::defs::ITextImpl;
+            use crate as felis;
             use crosscom::ComInterface;
+            use crosscom::IObjectArrayImpl;
+            use crosscom::IUnknownImpl;
+            use felis::comdef::ICharacterDataImpl;
+            use felis::comdef::IDomStringImpl;
+            use felis::comdef::IElementImpl;
+            use felis::comdef::IHtmlBodyElementImpl;
+            use felis::comdef::IHtmlDivElementImpl;
+            use felis::comdef::IHtmlElementImpl;
+            use felis::comdef::IHtmlHeadElementImpl;
+            use felis::comdef::IHtmlHtmlElementImpl;
+            use felis::comdef::IHtmlImageElementImpl;
+            use felis::comdef::IHtmlLinkElementImpl;
+            use felis::comdef::IHtmlParagraphElementImpl;
+            use felis::comdef::IHtmlScriptElementImpl;
+            use felis::comdef::IHtmlStyleElementImpl;
+            use felis::comdef::INodeImpl;
+            use felis::comdef::IRenderableImpl;
+            use felis::comdef::ITextImpl;
 
             #[repr(C)]
             pub struct HtmlBodyElementCcw {
-                IHtmlBodyElement: crate::defs::IHtmlBodyElement,
-                IRenderable: crate::defs::IRenderable,
+                IHtmlBodyElement: felis::comdef::IHtmlBodyElement,
+                IRenderable: felis::comdef::IRenderable,
 
                 ref_count: std::sync::atomic::AtomicU32,
                 pub inner: $impl_type,
@@ -3967,40 +4578,40 @@ macro_rules! ComObject_HtmlBodyElement {
                     &crosscom::IUnknown::INTERFACE_ID => {
                         *retval = (object as *const *const std::os::raw::c_void).offset(0);
                         add_ref(object as *const *const std::os::raw::c_void);
-                        crosscom::ResultCode::Ok as i32
+                        crosscom::ResultCode::Ok as std::os::raw::c_long
                     }
 
-                    &crate::defs::INode::INTERFACE_ID => {
+                    &felis::comdef::INode::INTERFACE_ID => {
                         *retval = (object as *const *const std::os::raw::c_void).offset(0);
                         add_ref(object as *const *const std::os::raw::c_void);
-                        crosscom::ResultCode::Ok as i32
+                        crosscom::ResultCode::Ok as std::os::raw::c_long
                     }
 
-                    &crate::defs::IElement::INTERFACE_ID => {
+                    &felis::comdef::IElement::INTERFACE_ID => {
                         *retval = (object as *const *const std::os::raw::c_void).offset(0);
                         add_ref(object as *const *const std::os::raw::c_void);
-                        crosscom::ResultCode::Ok as i32
+                        crosscom::ResultCode::Ok as std::os::raw::c_long
                     }
 
-                    &crate::defs::IHtmlElement::INTERFACE_ID => {
+                    &felis::comdef::IHtmlElement::INTERFACE_ID => {
                         *retval = (object as *const *const std::os::raw::c_void).offset(0);
                         add_ref(object as *const *const std::os::raw::c_void);
-                        crosscom::ResultCode::Ok as i32
+                        crosscom::ResultCode::Ok as std::os::raw::c_long
                     }
 
-                    &crate::defs::IHtmlBodyElement::INTERFACE_ID => {
+                    &felis::comdef::IHtmlBodyElement::INTERFACE_ID => {
                         *retval = (object as *const *const std::os::raw::c_void).offset(0);
                         add_ref(object as *const *const std::os::raw::c_void);
-                        crosscom::ResultCode::Ok as i32
+                        crosscom::ResultCode::Ok as std::os::raw::c_long
                     }
 
-                    &crate::defs::IRenderable::INTERFACE_ID => {
+                    &felis::comdef::IRenderable::INTERFACE_ID => {
                         *retval = (object as *const *const std::os::raw::c_void).offset(1);
                         add_ref(object as *const *const std::os::raw::c_void);
-                        crosscom::ResultCode::Ok as i32
+                        crosscom::ResultCode::Ok as std::os::raw::c_long
                     }
 
-                    _ => crosscom::ResultCode::ENoInterface as i32,
+                    _ => crosscom::ResultCode::ENoInterface as std::os::raw::c_long,
                 }
             }
 
@@ -4031,8 +4642,8 @@ macro_rules! ComObject_HtmlBodyElement {
 
             fn display(this: *const *const std::os::raw::c_void) -> crate::style::Display {
                 unsafe {
-                    let object = crosscom::get_object::<HtmlBodyElementCcw>(this);
-                    (*object).inner.0.display()
+                    let __crosscom_object = crosscom::get_object::<HtmlBodyElementCcw>(this);
+                    (*__crosscom_object).inner.0.display()
                 }
             }
 
@@ -4043,11 +4654,12 @@ macro_rules! ComObject_HtmlBodyElement {
                 content_boundary: crate::common::Rectangle,
             ) -> crate::common::Rectangle {
                 unsafe {
-                    let object = crosscom::get_object::<HtmlBodyElementCcw>(this);
-                    (*object)
-                        .inner
-                        .0
-                        .layout(pango_context, style_computed, content_boundary)
+                    let __crosscom_object = crosscom::get_object::<HtmlBodyElementCcw>(this);
+                    (*__crosscom_object).inner.0.layout(
+                        pango_context,
+                        style_computed,
+                        content_boundary,
+                    )
                 }
             }
 
@@ -4057,8 +4669,8 @@ macro_rules! ComObject_HtmlBodyElement {
                 style_computed: &crate::style::Style,
             ) -> crosscom::Void {
                 unsafe {
-                    let object = crosscom::get_object::<HtmlBodyElementCcw>(this);
-                    (*object).inner.0.paint(renderer, style_computed)
+                    let __crosscom_object = crosscom::get_object::<HtmlBodyElementCcw>(this);
+                    (*__crosscom_object).inner.0.paint(renderer, style_computed)
                 }
             }
 
@@ -4069,8 +4681,8 @@ macro_rules! ComObject_HtmlBodyElement {
                 window: &winit::window::Window,
             ) -> crosscom::Void {
                 unsafe {
-                    let object = crosscom::get_object::<HtmlBodyElementCcw>(this);
-                    (*object).inner.0.on_mouse_move(x, y, window)
+                    let __crosscom_object = crosscom::get_object::<HtmlBodyElementCcw>(this);
+                    (*__crosscom_object).inner.0.on_mouse_move(x, y, window)
                 }
             }
 
@@ -4078,8 +4690,8 @@ macro_rules! ComObject_HtmlBodyElement {
                 this: *const *const std::os::raw::c_void,
             ) -> crate::page::FelisAction {
                 unsafe {
-                    let object = crosscom::get_object::<HtmlBodyElementCcw>(this);
-                    (*object).inner.0.on_mouse_click()
+                    let __crosscom_object = crosscom::get_object::<HtmlBodyElementCcw>(this);
+                    (*__crosscom_object).inner.0.on_mouse_click()
                 }
             }
 
@@ -4088,8 +4700,8 @@ macro_rules! ComObject_HtmlBodyElement {
                 style: &crate::style::Style,
             ) -> crosscom::Void {
                 unsafe {
-                    let object = crosscom::get_object::<HtmlBodyElementCcw>(this);
-                    (*object).inner.0.merge_style(style)
+                    let __crosscom_object = crosscom::get_object::<HtmlBodyElementCcw>(this);
+                    (*__crosscom_object).inner.0.merge_style(style)
                 }
             }
 
@@ -4098,60 +4710,68 @@ macro_rules! ComObject_HtmlBodyElement {
                 key: &str,
             ) -> Option<Option<String>> {
                 unsafe {
-                    let object = crosscom::get_object::<HtmlBodyElementCcw>(this);
-                    (*object).inner.0.get_attribute(key)
+                    let __crosscom_object = crosscom::get_object::<HtmlBodyElementCcw>(this);
+                    (*__crosscom_object).inner.0.get_attribute(key)
                 }
             }
 
             unsafe extern "system" fn id(
                 this: *const *const std::os::raw::c_void,
             ) -> *const *const std::os::raw::c_void {
-                let object = crosscom::get_object::<HtmlBodyElementCcw>(this);
-                (*object).inner.0.id().into()
+                let __crosscom_object = crosscom::get_object::<HtmlBodyElementCcw>(this);
+                (*__crosscom_object).inner.0.id().into()
             }
 
             unsafe extern "system" fn tag(
                 this: *const *const std::os::raw::c_void,
             ) -> *const *const std::os::raw::c_void {
-                let object = crosscom::get_object::<HtmlBodyElementCcw>(this);
-                (*object).inner.0.tag().into()
+                let __crosscom_object = crosscom::get_object::<HtmlBodyElementCcw>(this);
+                (*__crosscom_object).inner.0.tag().into()
             }
 
             unsafe extern "system" fn children(
                 this: *const *const std::os::raw::c_void,
             ) -> *const *const std::os::raw::c_void {
-                let object = crosscom::get_object::<HtmlBodyElementCcw>(this);
-                (*object).inner.0.children().into()
+                let __crosscom_object = crosscom::get_object::<HtmlBodyElementCcw>(this);
+                (*__crosscom_object).inner.0.children().into()
             }
 
             unsafe extern "system" fn inner_html(
                 this: *const *const std::os::raw::c_void,
             ) -> *const *const std::os::raw::c_void {
-                let object = crosscom::get_object::<HtmlBodyElementCcw>(this);
-                (*object).inner.0.inner_html().into()
+                let __crosscom_object = crosscom::get_object::<HtmlBodyElementCcw>(this);
+                (*__crosscom_object).inner.0.inner_html().into()
             }
 
             unsafe extern "system" fn outer_html(
                 this: *const *const std::os::raw::c_void,
             ) -> *const *const std::os::raw::c_void {
-                let object = crosscom::get_object::<HtmlBodyElementCcw>(this);
-                (*object).inner.0.outer_html().into()
+                let __crosscom_object = crosscom::get_object::<HtmlBodyElementCcw>(this);
+                (*__crosscom_object).inner.0.outer_html().into()
             }
 
             unsafe extern "system" fn set_inner_html(
                 this: *const *const std::os::raw::c_void,
                 html: *const *const std::os::raw::c_void,
             ) -> () {
-                let object = crosscom::get_object::<HtmlBodyElementCcw>(this);
-                (*object).inner.0.set_inner_html(html.into()).into()
+                let html: crosscom::ComRc<felis::comdef::IDomString> = html.into();
+
+                let __crosscom_object = crosscom::get_object::<HtmlBodyElementCcw>(this);
+                (*__crosscom_object)
+                    .inner
+                    .0
+                    .set_inner_html(html.into())
+                    .into()
             }
 
             unsafe extern "system" fn get_elements_by_tag_name(
                 this: *const *const std::os::raw::c_void,
                 tag: *const *const std::os::raw::c_void,
             ) -> *const *const std::os::raw::c_void {
-                let object = crosscom::get_object::<HtmlBodyElementCcw>(this);
-                (*object)
+                let tag: crosscom::ComRc<felis::comdef::IDomString> = tag.into();
+
+                let __crosscom_object = crosscom::get_object::<HtmlBodyElementCcw>(this);
+                (*__crosscom_object)
                     .inner
                     .0
                     .get_elements_by_tag_name(tag.into())
@@ -4162,16 +4782,22 @@ macro_rules! ComObject_HtmlBodyElement {
                 this: *const *const std::os::raw::c_void,
                 id: *const *const std::os::raw::c_void,
             ) -> crosscom::RawPointer {
-                let object = crosscom::get_object::<HtmlBodyElementCcw>(this);
-                (*object).inner.0.get_element_by_id(id.into()).into()
+                let id: crosscom::ComRc<felis::comdef::IDomString> = id.into();
+
+                let __crosscom_object = crosscom::get_object::<HtmlBodyElementCcw>(this);
+                (*__crosscom_object)
+                    .inner
+                    .0
+                    .get_element_by_id(id.into())
+                    .into()
             }
 
             #[allow(non_upper_case_globals)]
             pub const GLOBAL_IHtmlBodyElementVirtualTable_CCW_FOR_HtmlBodyElement:
-                crate::defs::IHtmlBodyElementVirtualTableCcw =
-                crate::defs::IHtmlBodyElementVirtualTableCcw {
+                felis::comdef::IHtmlBodyElementVirtualTableCcw =
+                felis::comdef::IHtmlBodyElementVirtualTableCcw {
                     offset: 0,
-                    vtable: crate::defs::IHtmlBodyElementVirtualTable {
+                    vtable: felis::comdef::IHtmlBodyElementVirtualTable {
                         query_interface,
                         add_ref,
                         release,
@@ -4192,36 +4818,46 @@ macro_rules! ComObject_HtmlBodyElement {
 
             #[allow(non_upper_case_globals)]
             pub const GLOBAL_IRenderableVirtualTable_CCW_FOR_HtmlBodyElement:
-                crate::defs::IRenderableVirtualTableCcw = crate::defs::IRenderableVirtualTableCcw {
-                offset: -1,
-                vtable: crate::defs::IRenderableVirtualTable {
-                    query_interface,
-                    add_ref,
-                    release,
-                    display,
-                    layout,
-                    paint,
-                },
-            };
+                felis::comdef::IRenderableVirtualTableCcw =
+                felis::comdef::IRenderableVirtualTableCcw {
+                    offset: -1,
+                    vtable: felis::comdef::IRenderableVirtualTable {
+                        query_interface,
+                        add_ref,
+                        release,
+                        display,
+                        layout,
+                        paint,
+                    },
+                };
 
             impl crosscom::ComObject for $impl_type {
                 type CcwType = HtmlBodyElementCcw;
 
                 fn create_ccw(self) -> Self::CcwType {
                     Self::CcwType {
-                        IHtmlBodyElement: crate::defs::IHtmlBodyElement {
+                        IHtmlBodyElement: felis::comdef::IHtmlBodyElement {
                             vtable: &GLOBAL_IHtmlBodyElementVirtualTable_CCW_FOR_HtmlBodyElement
                                 .vtable
-                                as *const crate::defs::IHtmlBodyElementVirtualTable,
+                                as *const felis::comdef::IHtmlBodyElementVirtualTable,
                         },
 
-                        IRenderable: crate::defs::IRenderable {
+                        IRenderable: felis::comdef::IRenderable {
                             vtable: &GLOBAL_IRenderableVirtualTable_CCW_FOR_HtmlBodyElement.vtable
-                                as *const crate::defs::IRenderableVirtualTable,
+                                as *const felis::comdef::IRenderableVirtualTable,
                         },
 
                         ref_count: std::sync::atomic::AtomicU32::new(0),
                         inner: self,
+                    }
+                }
+
+                fn get_ccw(&self) -> &Self::CcwType {
+                    unsafe {
+                        let this = self as *const _ as *const u8;
+                        let this = this
+                            .offset(-(crosscom::offset_of!(HtmlBodyElementCcw, inner) as isize));
+                        &*(this as *const Self::CcwType)
                     }
                 }
             }
@@ -4229,7 +4865,7 @@ macro_rules! ComObject_HtmlBodyElement {
     };
 }
 
-pub(crate) use ComObject_HtmlBodyElement;
+// pub use ComObject_HtmlBodyElement;
 
 // Interface IHtmlParagraphElement
 
@@ -4315,108 +4951,151 @@ impl IHtmlParagraphElement {
         }
     }
 
-    pub fn add_ref(&self) -> i32 {
+    pub fn add_ref(&self) -> std::os::raw::c_long {
         unsafe {
             let this = self as *const IHtmlParagraphElement as *const *const std::os::raw::c_void;
-            ((*self.vtable).add_ref)(this).into()
+            let ret = ((*self.vtable).add_ref)(this);
+            let ret: std::os::raw::c_long = ret.into();
+
+            ret
         }
     }
 
-    pub fn release(&self) -> i32 {
+    pub fn release(&self) -> std::os::raw::c_long {
         unsafe {
             let this = self as *const IHtmlParagraphElement as *const *const std::os::raw::c_void;
-            ((*self.vtable).release)(this).into()
+            let ret = ((*self.vtable).release)(this);
+            let ret: std::os::raw::c_long = ret.into();
+
+            ret
         }
     }
 
-    pub fn children(&self) -> crosscom::ObjectArray<crate::defs::INode> {
+    pub fn children(&self) -> crosscom::ObjectArray<felis::comdef::INode> {
         unsafe {
             let this = self as *const IHtmlParagraphElement as *const *const std::os::raw::c_void;
-            ((*self.vtable).children)(this).into()
+            let ret = ((*self.vtable).children)(this);
+            let ret: crosscom::ObjectArray<felis::comdef::INode> = ret.into();
+
+            ret
         }
     }
 
-    pub fn inner_html(&self) -> crosscom::ComRc<IDomString> {
+    pub fn inner_html(&self) -> crosscom::ComRc<felis::comdef::IDomString> {
         unsafe {
             let this = self as *const IHtmlParagraphElement as *const *const std::os::raw::c_void;
-            ((*self.vtable).inner_html)(this).into()
+            let ret = ((*self.vtable).inner_html)(this);
+            let ret: crosscom::ComRc<IDomString> = ret.into();
+
+            ret
         }
     }
 
-    pub fn outer_html(&self) -> crosscom::ComRc<IDomString> {
+    pub fn outer_html(&self) -> crosscom::ComRc<felis::comdef::IDomString> {
         unsafe {
             let this = self as *const IHtmlParagraphElement as *const *const std::os::raw::c_void;
-            ((*self.vtable).outer_html)(this).into()
+            let ret = ((*self.vtable).outer_html)(this);
+            let ret: crosscom::ComRc<IDomString> = ret.into();
+
+            ret
         }
     }
 
-    pub fn set_inner_html(&self, html: crosscom::ComRc<IDomString>) -> () {
+    pub fn set_inner_html(&self, html: crosscom::ComRc<felis::comdef::IDomString>) -> () {
         unsafe {
             let this = self as *const IHtmlParagraphElement as *const *const std::os::raw::c_void;
-            ((*self.vtable).set_inner_html)(this, html.into()).into()
+            let ret = ((*self.vtable).set_inner_html)(this, html.into());
+            let ret: () = ret.into();
+
+            ret
         }
     }
 
     pub fn get_elements_by_tag_name(
         &self,
-        tag: crosscom::ComRc<IDomString>,
-    ) -> crosscom::ObjectArray<crate::defs::IElement> {
+        tag: crosscom::ComRc<felis::comdef::IDomString>,
+    ) -> crosscom::ObjectArray<felis::comdef::IElement> {
         unsafe {
             let this = self as *const IHtmlParagraphElement as *const *const std::os::raw::c_void;
-            ((*self.vtable).get_elements_by_tag_name)(this, tag.into()).into()
+            let ret = ((*self.vtable).get_elements_by_tag_name)(this, tag.into());
+            let ret: crosscom::ObjectArray<felis::comdef::IElement> = ret.into();
+
+            ret
         }
     }
 
     pub fn get_element_by_id(
         &self,
-        id: crosscom::ComRc<IDomString>,
-    ) -> Option<crosscom::ComRc<crate::defs::IElement>> {
+        id: crosscom::ComRc<felis::comdef::IDomString>,
+    ) -> Option<crosscom::ComRc<felis::comdef::IElement>> {
         unsafe {
             let this = self as *const IHtmlParagraphElement as *const *const std::os::raw::c_void;
-            ((*self.vtable).get_element_by_id)(this, id.into()).into()
+            let ret = ((*self.vtable).get_element_by_id)(this, id.into());
+            let ret: Option<crosscom::ComRc<felis::comdef::IElement>> = ret.into();
+
+            ret
         }
     }
 
-    pub fn id(&self) -> crosscom::ComRc<IDomString> {
+    pub fn id(&self) -> crosscom::ComRc<felis::comdef::IDomString> {
         unsafe {
             let this = self as *const IHtmlParagraphElement as *const *const std::os::raw::c_void;
-            ((*self.vtable).id)(this).into()
+            let ret = ((*self.vtable).id)(this);
+            let ret: crosscom::ComRc<IDomString> = ret.into();
+
+            ret
         }
     }
 
-    pub fn tag(&self) -> crosscom::ComRc<IDomString> {
+    pub fn tag(&self) -> crosscom::ComRc<felis::comdef::IDomString> {
         unsafe {
             let this = self as *const IHtmlParagraphElement as *const *const std::os::raw::c_void;
-            ((*self.vtable).tag)(this).into()
+            let ret = ((*self.vtable).tag)(this);
+            let ret: crosscom::ComRc<IDomString> = ret.into();
+
+            ret
         }
     }
 
     pub fn on_mouse_move(&self, x: f64, y: f64, window: &winit::window::Window) -> crosscom::Void {
         unsafe {
             let this = self as *const IHtmlParagraphElement as *const *const std::os::raw::c_void;
-            ((*self.vtable).on_mouse_move)(this, x.into(), y.into(), window.into()).into()
+            let ret = ((*self.vtable).on_mouse_move)(this, x.into(), y.into(), window.into());
+
+            ret
         }
     }
 
     pub fn on_mouse_click(&self) -> crate::page::FelisAction {
         unsafe {
             let this = self as *const IHtmlParagraphElement as *const *const std::os::raw::c_void;
-            ((*self.vtable).on_mouse_click)(this).into()
+            let ret = ((*self.vtable).on_mouse_click)(this);
+
+            ret
         }
     }
 
     pub fn merge_style(&self, style: &crate::style::Style) -> crosscom::Void {
         unsafe {
             let this = self as *const IHtmlParagraphElement as *const *const std::os::raw::c_void;
-            ((*self.vtable).merge_style)(this, style.into()).into()
+            let ret = ((*self.vtable).merge_style)(this, style.into());
+
+            ret
         }
     }
 
     pub fn get_attribute(&self, key: &str) -> Option<Option<String>> {
         unsafe {
             let this = self as *const IHtmlParagraphElement as *const *const std::os::raw::c_void;
-            ((*self.vtable).get_attribute)(this, key.into()).into()
+            let ret = ((*self.vtable).get_attribute)(this, key.into());
+
+            ret
         }
+    }
+
+    pub fn uuid() -> uuid::Uuid {
+        use crosscom::ComInterface;
+        uuid::Uuid::from_bytes(IHtmlParagraphElement::INTERFACE_ID)
     }
 }
 
@@ -4433,34 +5112,38 @@ impl crosscom::ComInterface for IHtmlParagraphElement {
 // Class HtmlParagraphElement
 
 #[allow(unused)]
+#[macro_export]
 macro_rules! ComObject_HtmlParagraphElement {
     ($impl_type: ty) => {
         #[allow(dead_code)]
         #[allow(non_snake_case)]
         #[allow(unused)]
         mod HtmlParagraphElement_crosscom_impl {
-            use crate::defs::ICharacterDataImpl;
-            use crate::defs::IDomStringImpl;
-            use crate::defs::IElementImpl;
-            use crate::defs::IHtmlBodyElementImpl;
-            use crate::defs::IHtmlDivElementImpl;
-            use crate::defs::IHtmlElementImpl;
-            use crate::defs::IHtmlHeadElementImpl;
-            use crate::defs::IHtmlHtmlElementImpl;
-            use crate::defs::IHtmlImageElementImpl;
-            use crate::defs::IHtmlLinkElementImpl;
-            use crate::defs::IHtmlParagraphElementImpl;
-            use crate::defs::IHtmlScriptElementImpl;
-            use crate::defs::IHtmlStyleElementImpl;
-            use crate::defs::INodeImpl;
-            use crate::defs::IRenderableImpl;
-            use crate::defs::ITextImpl;
+            use crate as felis;
             use crosscom::ComInterface;
+            use crosscom::IObjectArrayImpl;
+            use crosscom::IUnknownImpl;
+            use felis::comdef::ICharacterDataImpl;
+            use felis::comdef::IDomStringImpl;
+            use felis::comdef::IElementImpl;
+            use felis::comdef::IHtmlBodyElementImpl;
+            use felis::comdef::IHtmlDivElementImpl;
+            use felis::comdef::IHtmlElementImpl;
+            use felis::comdef::IHtmlHeadElementImpl;
+            use felis::comdef::IHtmlHtmlElementImpl;
+            use felis::comdef::IHtmlImageElementImpl;
+            use felis::comdef::IHtmlLinkElementImpl;
+            use felis::comdef::IHtmlParagraphElementImpl;
+            use felis::comdef::IHtmlScriptElementImpl;
+            use felis::comdef::IHtmlStyleElementImpl;
+            use felis::comdef::INodeImpl;
+            use felis::comdef::IRenderableImpl;
+            use felis::comdef::ITextImpl;
 
             #[repr(C)]
             pub struct HtmlParagraphElementCcw {
-                IHtmlParagraphElement: crate::defs::IHtmlParagraphElement,
-                IRenderable: crate::defs::IRenderable,
+                IHtmlParagraphElement: felis::comdef::IHtmlParagraphElement,
+                IRenderable: felis::comdef::IRenderable,
 
                 ref_count: std::sync::atomic::AtomicU32,
                 pub inner: $impl_type,
@@ -4476,40 +5159,40 @@ macro_rules! ComObject_HtmlParagraphElement {
                     &crosscom::IUnknown::INTERFACE_ID => {
                         *retval = (object as *const *const std::os::raw::c_void).offset(0);
                         add_ref(object as *const *const std::os::raw::c_void);
-                        crosscom::ResultCode::Ok as i32
+                        crosscom::ResultCode::Ok as std::os::raw::c_long
                     }
 
-                    &crate::defs::INode::INTERFACE_ID => {
+                    &felis::comdef::INode::INTERFACE_ID => {
                         *retval = (object as *const *const std::os::raw::c_void).offset(0);
                         add_ref(object as *const *const std::os::raw::c_void);
-                        crosscom::ResultCode::Ok as i32
+                        crosscom::ResultCode::Ok as std::os::raw::c_long
                     }
 
-                    &crate::defs::IElement::INTERFACE_ID => {
+                    &felis::comdef::IElement::INTERFACE_ID => {
                         *retval = (object as *const *const std::os::raw::c_void).offset(0);
                         add_ref(object as *const *const std::os::raw::c_void);
-                        crosscom::ResultCode::Ok as i32
+                        crosscom::ResultCode::Ok as std::os::raw::c_long
                     }
 
-                    &crate::defs::IHtmlElement::INTERFACE_ID => {
+                    &felis::comdef::IHtmlElement::INTERFACE_ID => {
                         *retval = (object as *const *const std::os::raw::c_void).offset(0);
                         add_ref(object as *const *const std::os::raw::c_void);
-                        crosscom::ResultCode::Ok as i32
+                        crosscom::ResultCode::Ok as std::os::raw::c_long
                     }
 
-                    &crate::defs::IHtmlParagraphElement::INTERFACE_ID => {
+                    &felis::comdef::IHtmlParagraphElement::INTERFACE_ID => {
                         *retval = (object as *const *const std::os::raw::c_void).offset(0);
                         add_ref(object as *const *const std::os::raw::c_void);
-                        crosscom::ResultCode::Ok as i32
+                        crosscom::ResultCode::Ok as std::os::raw::c_long
                     }
 
-                    &crate::defs::IRenderable::INTERFACE_ID => {
+                    &felis::comdef::IRenderable::INTERFACE_ID => {
                         *retval = (object as *const *const std::os::raw::c_void).offset(1);
                         add_ref(object as *const *const std::os::raw::c_void);
-                        crosscom::ResultCode::Ok as i32
+                        crosscom::ResultCode::Ok as std::os::raw::c_long
                     }
 
-                    _ => crosscom::ResultCode::ENoInterface as i32,
+                    _ => crosscom::ResultCode::ENoInterface as std::os::raw::c_long,
                 }
             }
 
@@ -4540,8 +5223,8 @@ macro_rules! ComObject_HtmlParagraphElement {
 
             fn display(this: *const *const std::os::raw::c_void) -> crate::style::Display {
                 unsafe {
-                    let object = crosscom::get_object::<HtmlParagraphElementCcw>(this);
-                    (*object).inner.0.display()
+                    let __crosscom_object = crosscom::get_object::<HtmlParagraphElementCcw>(this);
+                    (*__crosscom_object).inner.0.display()
                 }
             }
 
@@ -4552,11 +5235,12 @@ macro_rules! ComObject_HtmlParagraphElement {
                 content_boundary: crate::common::Rectangle,
             ) -> crate::common::Rectangle {
                 unsafe {
-                    let object = crosscom::get_object::<HtmlParagraphElementCcw>(this);
-                    (*object)
-                        .inner
-                        .0
-                        .layout(pango_context, style_computed, content_boundary)
+                    let __crosscom_object = crosscom::get_object::<HtmlParagraphElementCcw>(this);
+                    (*__crosscom_object).inner.0.layout(
+                        pango_context,
+                        style_computed,
+                        content_boundary,
+                    )
                 }
             }
 
@@ -4566,8 +5250,8 @@ macro_rules! ComObject_HtmlParagraphElement {
                 style_computed: &crate::style::Style,
             ) -> crosscom::Void {
                 unsafe {
-                    let object = crosscom::get_object::<HtmlParagraphElementCcw>(this);
-                    (*object).inner.0.paint(renderer, style_computed)
+                    let __crosscom_object = crosscom::get_object::<HtmlParagraphElementCcw>(this);
+                    (*__crosscom_object).inner.0.paint(renderer, style_computed)
                 }
             }
 
@@ -4578,8 +5262,8 @@ macro_rules! ComObject_HtmlParagraphElement {
                 window: &winit::window::Window,
             ) -> crosscom::Void {
                 unsafe {
-                    let object = crosscom::get_object::<HtmlParagraphElementCcw>(this);
-                    (*object).inner.0.on_mouse_move(x, y, window)
+                    let __crosscom_object = crosscom::get_object::<HtmlParagraphElementCcw>(this);
+                    (*__crosscom_object).inner.0.on_mouse_move(x, y, window)
                 }
             }
 
@@ -4587,8 +5271,8 @@ macro_rules! ComObject_HtmlParagraphElement {
                 this: *const *const std::os::raw::c_void,
             ) -> crate::page::FelisAction {
                 unsafe {
-                    let object = crosscom::get_object::<HtmlParagraphElementCcw>(this);
-                    (*object).inner.0.on_mouse_click()
+                    let __crosscom_object = crosscom::get_object::<HtmlParagraphElementCcw>(this);
+                    (*__crosscom_object).inner.0.on_mouse_click()
                 }
             }
 
@@ -4597,8 +5281,8 @@ macro_rules! ComObject_HtmlParagraphElement {
                 style: &crate::style::Style,
             ) -> crosscom::Void {
                 unsafe {
-                    let object = crosscom::get_object::<HtmlParagraphElementCcw>(this);
-                    (*object).inner.0.merge_style(style)
+                    let __crosscom_object = crosscom::get_object::<HtmlParagraphElementCcw>(this);
+                    (*__crosscom_object).inner.0.merge_style(style)
                 }
             }
 
@@ -4607,60 +5291,68 @@ macro_rules! ComObject_HtmlParagraphElement {
                 key: &str,
             ) -> Option<Option<String>> {
                 unsafe {
-                    let object = crosscom::get_object::<HtmlParagraphElementCcw>(this);
-                    (*object).inner.0.get_attribute(key)
+                    let __crosscom_object = crosscom::get_object::<HtmlParagraphElementCcw>(this);
+                    (*__crosscom_object).inner.0.get_attribute(key)
                 }
             }
 
             unsafe extern "system" fn id(
                 this: *const *const std::os::raw::c_void,
             ) -> *const *const std::os::raw::c_void {
-                let object = crosscom::get_object::<HtmlParagraphElementCcw>(this);
-                (*object).inner.0.id().into()
+                let __crosscom_object = crosscom::get_object::<HtmlParagraphElementCcw>(this);
+                (*__crosscom_object).inner.0.id().into()
             }
 
             unsafe extern "system" fn tag(
                 this: *const *const std::os::raw::c_void,
             ) -> *const *const std::os::raw::c_void {
-                let object = crosscom::get_object::<HtmlParagraphElementCcw>(this);
-                (*object).inner.0.tag().into()
+                let __crosscom_object = crosscom::get_object::<HtmlParagraphElementCcw>(this);
+                (*__crosscom_object).inner.0.tag().into()
             }
 
             unsafe extern "system" fn children(
                 this: *const *const std::os::raw::c_void,
             ) -> *const *const std::os::raw::c_void {
-                let object = crosscom::get_object::<HtmlParagraphElementCcw>(this);
-                (*object).inner.0.children().into()
+                let __crosscom_object = crosscom::get_object::<HtmlParagraphElementCcw>(this);
+                (*__crosscom_object).inner.0.children().into()
             }
 
             unsafe extern "system" fn inner_html(
                 this: *const *const std::os::raw::c_void,
             ) -> *const *const std::os::raw::c_void {
-                let object = crosscom::get_object::<HtmlParagraphElementCcw>(this);
-                (*object).inner.0.inner_html().into()
+                let __crosscom_object = crosscom::get_object::<HtmlParagraphElementCcw>(this);
+                (*__crosscom_object).inner.0.inner_html().into()
             }
 
             unsafe extern "system" fn outer_html(
                 this: *const *const std::os::raw::c_void,
             ) -> *const *const std::os::raw::c_void {
-                let object = crosscom::get_object::<HtmlParagraphElementCcw>(this);
-                (*object).inner.0.outer_html().into()
+                let __crosscom_object = crosscom::get_object::<HtmlParagraphElementCcw>(this);
+                (*__crosscom_object).inner.0.outer_html().into()
             }
 
             unsafe extern "system" fn set_inner_html(
                 this: *const *const std::os::raw::c_void,
                 html: *const *const std::os::raw::c_void,
             ) -> () {
-                let object = crosscom::get_object::<HtmlParagraphElementCcw>(this);
-                (*object).inner.0.set_inner_html(html.into()).into()
+                let html: crosscom::ComRc<felis::comdef::IDomString> = html.into();
+
+                let __crosscom_object = crosscom::get_object::<HtmlParagraphElementCcw>(this);
+                (*__crosscom_object)
+                    .inner
+                    .0
+                    .set_inner_html(html.into())
+                    .into()
             }
 
             unsafe extern "system" fn get_elements_by_tag_name(
                 this: *const *const std::os::raw::c_void,
                 tag: *const *const std::os::raw::c_void,
             ) -> *const *const std::os::raw::c_void {
-                let object = crosscom::get_object::<HtmlParagraphElementCcw>(this);
-                (*object)
+                let tag: crosscom::ComRc<felis::comdef::IDomString> = tag.into();
+
+                let __crosscom_object = crosscom::get_object::<HtmlParagraphElementCcw>(this);
+                (*__crosscom_object)
                     .inner
                     .0
                     .get_elements_by_tag_name(tag.into())
@@ -4671,16 +5363,22 @@ macro_rules! ComObject_HtmlParagraphElement {
                 this: *const *const std::os::raw::c_void,
                 id: *const *const std::os::raw::c_void,
             ) -> crosscom::RawPointer {
-                let object = crosscom::get_object::<HtmlParagraphElementCcw>(this);
-                (*object).inner.0.get_element_by_id(id.into()).into()
+                let id: crosscom::ComRc<felis::comdef::IDomString> = id.into();
+
+                let __crosscom_object = crosscom::get_object::<HtmlParagraphElementCcw>(this);
+                (*__crosscom_object)
+                    .inner
+                    .0
+                    .get_element_by_id(id.into())
+                    .into()
             }
 
             #[allow(non_upper_case_globals)]
             pub const GLOBAL_IHtmlParagraphElementVirtualTable_CCW_FOR_HtmlParagraphElement:
-                crate::defs::IHtmlParagraphElementVirtualTableCcw =
-                crate::defs::IHtmlParagraphElementVirtualTableCcw {
+                felis::comdef::IHtmlParagraphElementVirtualTableCcw =
+                felis::comdef::IHtmlParagraphElementVirtualTableCcw {
                     offset: 0,
-                    vtable: crate::defs::IHtmlParagraphElementVirtualTable {
+                    vtable: felis::comdef::IHtmlParagraphElementVirtualTable {
                         query_interface,
                         add_ref,
                         release,
@@ -4701,17 +5399,18 @@ macro_rules! ComObject_HtmlParagraphElement {
 
             #[allow(non_upper_case_globals)]
             pub const GLOBAL_IRenderableVirtualTable_CCW_FOR_HtmlParagraphElement:
-                crate::defs::IRenderableVirtualTableCcw = crate::defs::IRenderableVirtualTableCcw {
-                offset: -1,
-                vtable: crate::defs::IRenderableVirtualTable {
-                    query_interface,
-                    add_ref,
-                    release,
-                    display,
-                    layout,
-                    paint,
-                },
-            };
+                felis::comdef::IRenderableVirtualTableCcw =
+                felis::comdef::IRenderableVirtualTableCcw {
+                    offset: -1,
+                    vtable: felis::comdef::IRenderableVirtualTable {
+                        query_interface,
+                        add_ref,
+                        release,
+                        display,
+                        layout,
+                        paint,
+                    },
+                };
 
             impl crosscom::ComObject for $impl_type {
                 type CcwType = HtmlParagraphElementCcw;
@@ -4719,18 +5418,28 @@ macro_rules! ComObject_HtmlParagraphElement {
                 fn create_ccw(self) -> Self::CcwType {
                     Self::CcwType {
 
-        IHtmlParagraphElement: crate::defs::IHtmlParagraphElement {
+        IHtmlParagraphElement: felis::comdef::IHtmlParagraphElement {
             vtable: &GLOBAL_IHtmlParagraphElementVirtualTable_CCW_FOR_HtmlParagraphElement.vtable
-                as *const crate::defs::IHtmlParagraphElementVirtualTable,
+                as *const felis::comdef::IHtmlParagraphElementVirtualTable,
         },
 
-        IRenderable: crate::defs::IRenderable {
+        IRenderable: felis::comdef::IRenderable {
             vtable: &GLOBAL_IRenderableVirtualTable_CCW_FOR_HtmlParagraphElement.vtable
-                as *const crate::defs::IRenderableVirtualTable,
+                as *const felis::comdef::IRenderableVirtualTable,
         },
 
                         ref_count: std::sync::atomic::AtomicU32::new(0),
                         inner: self,
+                    }
+                }
+
+                fn get_ccw(&self) -> &Self::CcwType {
+                    unsafe {
+                        let this = self as *const _ as *const u8;
+                        let this = this.offset(
+                            -(crosscom::offset_of!(HtmlParagraphElementCcw, inner) as isize),
+                        );
+                        &*(this as *const Self::CcwType)
                     }
                 }
             }
@@ -4738,7 +5447,7 @@ macro_rules! ComObject_HtmlParagraphElement {
     };
 }
 
-pub(crate) use ComObject_HtmlParagraphElement;
+// pub use ComObject_HtmlParagraphElement;
 
 // Interface IHtmlDivElement
 
@@ -4824,108 +5533,151 @@ impl IHtmlDivElement {
         }
     }
 
-    pub fn add_ref(&self) -> i32 {
+    pub fn add_ref(&self) -> std::os::raw::c_long {
         unsafe {
             let this = self as *const IHtmlDivElement as *const *const std::os::raw::c_void;
-            ((*self.vtable).add_ref)(this).into()
+            let ret = ((*self.vtable).add_ref)(this);
+            let ret: std::os::raw::c_long = ret.into();
+
+            ret
         }
     }
 
-    pub fn release(&self) -> i32 {
+    pub fn release(&self) -> std::os::raw::c_long {
         unsafe {
             let this = self as *const IHtmlDivElement as *const *const std::os::raw::c_void;
-            ((*self.vtable).release)(this).into()
+            let ret = ((*self.vtable).release)(this);
+            let ret: std::os::raw::c_long = ret.into();
+
+            ret
         }
     }
 
-    pub fn children(&self) -> crosscom::ObjectArray<crate::defs::INode> {
+    pub fn children(&self) -> crosscom::ObjectArray<felis::comdef::INode> {
         unsafe {
             let this = self as *const IHtmlDivElement as *const *const std::os::raw::c_void;
-            ((*self.vtable).children)(this).into()
+            let ret = ((*self.vtable).children)(this);
+            let ret: crosscom::ObjectArray<felis::comdef::INode> = ret.into();
+
+            ret
         }
     }
 
-    pub fn inner_html(&self) -> crosscom::ComRc<IDomString> {
+    pub fn inner_html(&self) -> crosscom::ComRc<felis::comdef::IDomString> {
         unsafe {
             let this = self as *const IHtmlDivElement as *const *const std::os::raw::c_void;
-            ((*self.vtable).inner_html)(this).into()
+            let ret = ((*self.vtable).inner_html)(this);
+            let ret: crosscom::ComRc<IDomString> = ret.into();
+
+            ret
         }
     }
 
-    pub fn outer_html(&self) -> crosscom::ComRc<IDomString> {
+    pub fn outer_html(&self) -> crosscom::ComRc<felis::comdef::IDomString> {
         unsafe {
             let this = self as *const IHtmlDivElement as *const *const std::os::raw::c_void;
-            ((*self.vtable).outer_html)(this).into()
+            let ret = ((*self.vtable).outer_html)(this);
+            let ret: crosscom::ComRc<IDomString> = ret.into();
+
+            ret
         }
     }
 
-    pub fn set_inner_html(&self, html: crosscom::ComRc<IDomString>) -> () {
+    pub fn set_inner_html(&self, html: crosscom::ComRc<felis::comdef::IDomString>) -> () {
         unsafe {
             let this = self as *const IHtmlDivElement as *const *const std::os::raw::c_void;
-            ((*self.vtable).set_inner_html)(this, html.into()).into()
+            let ret = ((*self.vtable).set_inner_html)(this, html.into());
+            let ret: () = ret.into();
+
+            ret
         }
     }
 
     pub fn get_elements_by_tag_name(
         &self,
-        tag: crosscom::ComRc<IDomString>,
-    ) -> crosscom::ObjectArray<crate::defs::IElement> {
+        tag: crosscom::ComRc<felis::comdef::IDomString>,
+    ) -> crosscom::ObjectArray<felis::comdef::IElement> {
         unsafe {
             let this = self as *const IHtmlDivElement as *const *const std::os::raw::c_void;
-            ((*self.vtable).get_elements_by_tag_name)(this, tag.into()).into()
+            let ret = ((*self.vtable).get_elements_by_tag_name)(this, tag.into());
+            let ret: crosscom::ObjectArray<felis::comdef::IElement> = ret.into();
+
+            ret
         }
     }
 
     pub fn get_element_by_id(
         &self,
-        id: crosscom::ComRc<IDomString>,
-    ) -> Option<crosscom::ComRc<crate::defs::IElement>> {
+        id: crosscom::ComRc<felis::comdef::IDomString>,
+    ) -> Option<crosscom::ComRc<felis::comdef::IElement>> {
         unsafe {
             let this = self as *const IHtmlDivElement as *const *const std::os::raw::c_void;
-            ((*self.vtable).get_element_by_id)(this, id.into()).into()
+            let ret = ((*self.vtable).get_element_by_id)(this, id.into());
+            let ret: Option<crosscom::ComRc<felis::comdef::IElement>> = ret.into();
+
+            ret
         }
     }
 
-    pub fn id(&self) -> crosscom::ComRc<IDomString> {
+    pub fn id(&self) -> crosscom::ComRc<felis::comdef::IDomString> {
         unsafe {
             let this = self as *const IHtmlDivElement as *const *const std::os::raw::c_void;
-            ((*self.vtable).id)(this).into()
+            let ret = ((*self.vtable).id)(this);
+            let ret: crosscom::ComRc<IDomString> = ret.into();
+
+            ret
         }
     }
 
-    pub fn tag(&self) -> crosscom::ComRc<IDomString> {
+    pub fn tag(&self) -> crosscom::ComRc<felis::comdef::IDomString> {
         unsafe {
             let this = self as *const IHtmlDivElement as *const *const std::os::raw::c_void;
-            ((*self.vtable).tag)(this).into()
+            let ret = ((*self.vtable).tag)(this);
+            let ret: crosscom::ComRc<IDomString> = ret.into();
+
+            ret
         }
     }
 
     pub fn on_mouse_move(&self, x: f64, y: f64, window: &winit::window::Window) -> crosscom::Void {
         unsafe {
             let this = self as *const IHtmlDivElement as *const *const std::os::raw::c_void;
-            ((*self.vtable).on_mouse_move)(this, x.into(), y.into(), window.into()).into()
+            let ret = ((*self.vtable).on_mouse_move)(this, x.into(), y.into(), window.into());
+
+            ret
         }
     }
 
     pub fn on_mouse_click(&self) -> crate::page::FelisAction {
         unsafe {
             let this = self as *const IHtmlDivElement as *const *const std::os::raw::c_void;
-            ((*self.vtable).on_mouse_click)(this).into()
+            let ret = ((*self.vtable).on_mouse_click)(this);
+
+            ret
         }
     }
 
     pub fn merge_style(&self, style: &crate::style::Style) -> crosscom::Void {
         unsafe {
             let this = self as *const IHtmlDivElement as *const *const std::os::raw::c_void;
-            ((*self.vtable).merge_style)(this, style.into()).into()
+            let ret = ((*self.vtable).merge_style)(this, style.into());
+
+            ret
         }
     }
 
     pub fn get_attribute(&self, key: &str) -> Option<Option<String>> {
         unsafe {
             let this = self as *const IHtmlDivElement as *const *const std::os::raw::c_void;
-            ((*self.vtable).get_attribute)(this, key.into()).into()
+            let ret = ((*self.vtable).get_attribute)(this, key.into());
+
+            ret
         }
+    }
+
+    pub fn uuid() -> uuid::Uuid {
+        use crosscom::ComInterface;
+        uuid::Uuid::from_bytes(IHtmlDivElement::INTERFACE_ID)
     }
 }
 
@@ -4942,34 +5694,38 @@ impl crosscom::ComInterface for IHtmlDivElement {
 // Class HtmlDivElement
 
 #[allow(unused)]
+#[macro_export]
 macro_rules! ComObject_HtmlDivElement {
     ($impl_type: ty) => {
         #[allow(dead_code)]
         #[allow(non_snake_case)]
         #[allow(unused)]
         mod HtmlDivElement_crosscom_impl {
-            use crate::defs::ICharacterDataImpl;
-            use crate::defs::IDomStringImpl;
-            use crate::defs::IElementImpl;
-            use crate::defs::IHtmlBodyElementImpl;
-            use crate::defs::IHtmlDivElementImpl;
-            use crate::defs::IHtmlElementImpl;
-            use crate::defs::IHtmlHeadElementImpl;
-            use crate::defs::IHtmlHtmlElementImpl;
-            use crate::defs::IHtmlImageElementImpl;
-            use crate::defs::IHtmlLinkElementImpl;
-            use crate::defs::IHtmlParagraphElementImpl;
-            use crate::defs::IHtmlScriptElementImpl;
-            use crate::defs::IHtmlStyleElementImpl;
-            use crate::defs::INodeImpl;
-            use crate::defs::IRenderableImpl;
-            use crate::defs::ITextImpl;
+            use crate as felis;
             use crosscom::ComInterface;
+            use crosscom::IObjectArrayImpl;
+            use crosscom::IUnknownImpl;
+            use felis::comdef::ICharacterDataImpl;
+            use felis::comdef::IDomStringImpl;
+            use felis::comdef::IElementImpl;
+            use felis::comdef::IHtmlBodyElementImpl;
+            use felis::comdef::IHtmlDivElementImpl;
+            use felis::comdef::IHtmlElementImpl;
+            use felis::comdef::IHtmlHeadElementImpl;
+            use felis::comdef::IHtmlHtmlElementImpl;
+            use felis::comdef::IHtmlImageElementImpl;
+            use felis::comdef::IHtmlLinkElementImpl;
+            use felis::comdef::IHtmlParagraphElementImpl;
+            use felis::comdef::IHtmlScriptElementImpl;
+            use felis::comdef::IHtmlStyleElementImpl;
+            use felis::comdef::INodeImpl;
+            use felis::comdef::IRenderableImpl;
+            use felis::comdef::ITextImpl;
 
             #[repr(C)]
             pub struct HtmlDivElementCcw {
-                IHtmlDivElement: crate::defs::IHtmlDivElement,
-                IRenderable: crate::defs::IRenderable,
+                IHtmlDivElement: felis::comdef::IHtmlDivElement,
+                IRenderable: felis::comdef::IRenderable,
 
                 ref_count: std::sync::atomic::AtomicU32,
                 pub inner: $impl_type,
@@ -4985,40 +5741,40 @@ macro_rules! ComObject_HtmlDivElement {
                     &crosscom::IUnknown::INTERFACE_ID => {
                         *retval = (object as *const *const std::os::raw::c_void).offset(0);
                         add_ref(object as *const *const std::os::raw::c_void);
-                        crosscom::ResultCode::Ok as i32
+                        crosscom::ResultCode::Ok as std::os::raw::c_long
                     }
 
-                    &crate::defs::INode::INTERFACE_ID => {
+                    &felis::comdef::INode::INTERFACE_ID => {
                         *retval = (object as *const *const std::os::raw::c_void).offset(0);
                         add_ref(object as *const *const std::os::raw::c_void);
-                        crosscom::ResultCode::Ok as i32
+                        crosscom::ResultCode::Ok as std::os::raw::c_long
                     }
 
-                    &crate::defs::IElement::INTERFACE_ID => {
+                    &felis::comdef::IElement::INTERFACE_ID => {
                         *retval = (object as *const *const std::os::raw::c_void).offset(0);
                         add_ref(object as *const *const std::os::raw::c_void);
-                        crosscom::ResultCode::Ok as i32
+                        crosscom::ResultCode::Ok as std::os::raw::c_long
                     }
 
-                    &crate::defs::IHtmlElement::INTERFACE_ID => {
+                    &felis::comdef::IHtmlElement::INTERFACE_ID => {
                         *retval = (object as *const *const std::os::raw::c_void).offset(0);
                         add_ref(object as *const *const std::os::raw::c_void);
-                        crosscom::ResultCode::Ok as i32
+                        crosscom::ResultCode::Ok as std::os::raw::c_long
                     }
 
-                    &crate::defs::IHtmlDivElement::INTERFACE_ID => {
+                    &felis::comdef::IHtmlDivElement::INTERFACE_ID => {
                         *retval = (object as *const *const std::os::raw::c_void).offset(0);
                         add_ref(object as *const *const std::os::raw::c_void);
-                        crosscom::ResultCode::Ok as i32
+                        crosscom::ResultCode::Ok as std::os::raw::c_long
                     }
 
-                    &crate::defs::IRenderable::INTERFACE_ID => {
+                    &felis::comdef::IRenderable::INTERFACE_ID => {
                         *retval = (object as *const *const std::os::raw::c_void).offset(1);
                         add_ref(object as *const *const std::os::raw::c_void);
-                        crosscom::ResultCode::Ok as i32
+                        crosscom::ResultCode::Ok as std::os::raw::c_long
                     }
 
-                    _ => crosscom::ResultCode::ENoInterface as i32,
+                    _ => crosscom::ResultCode::ENoInterface as std::os::raw::c_long,
                 }
             }
 
@@ -5049,8 +5805,8 @@ macro_rules! ComObject_HtmlDivElement {
 
             fn display(this: *const *const std::os::raw::c_void) -> crate::style::Display {
                 unsafe {
-                    let object = crosscom::get_object::<HtmlDivElementCcw>(this);
-                    (*object).inner.0.display()
+                    let __crosscom_object = crosscom::get_object::<HtmlDivElementCcw>(this);
+                    (*__crosscom_object).inner.0.display()
                 }
             }
 
@@ -5061,11 +5817,12 @@ macro_rules! ComObject_HtmlDivElement {
                 content_boundary: crate::common::Rectangle,
             ) -> crate::common::Rectangle {
                 unsafe {
-                    let object = crosscom::get_object::<HtmlDivElementCcw>(this);
-                    (*object)
-                        .inner
-                        .0
-                        .layout(pango_context, style_computed, content_boundary)
+                    let __crosscom_object = crosscom::get_object::<HtmlDivElementCcw>(this);
+                    (*__crosscom_object).inner.0.layout(
+                        pango_context,
+                        style_computed,
+                        content_boundary,
+                    )
                 }
             }
 
@@ -5075,8 +5832,8 @@ macro_rules! ComObject_HtmlDivElement {
                 style_computed: &crate::style::Style,
             ) -> crosscom::Void {
                 unsafe {
-                    let object = crosscom::get_object::<HtmlDivElementCcw>(this);
-                    (*object).inner.0.paint(renderer, style_computed)
+                    let __crosscom_object = crosscom::get_object::<HtmlDivElementCcw>(this);
+                    (*__crosscom_object).inner.0.paint(renderer, style_computed)
                 }
             }
 
@@ -5087,8 +5844,8 @@ macro_rules! ComObject_HtmlDivElement {
                 window: &winit::window::Window,
             ) -> crosscom::Void {
                 unsafe {
-                    let object = crosscom::get_object::<HtmlDivElementCcw>(this);
-                    (*object).inner.0.on_mouse_move(x, y, window)
+                    let __crosscom_object = crosscom::get_object::<HtmlDivElementCcw>(this);
+                    (*__crosscom_object).inner.0.on_mouse_move(x, y, window)
                 }
             }
 
@@ -5096,8 +5853,8 @@ macro_rules! ComObject_HtmlDivElement {
                 this: *const *const std::os::raw::c_void,
             ) -> crate::page::FelisAction {
                 unsafe {
-                    let object = crosscom::get_object::<HtmlDivElementCcw>(this);
-                    (*object).inner.0.on_mouse_click()
+                    let __crosscom_object = crosscom::get_object::<HtmlDivElementCcw>(this);
+                    (*__crosscom_object).inner.0.on_mouse_click()
                 }
             }
 
@@ -5106,8 +5863,8 @@ macro_rules! ComObject_HtmlDivElement {
                 style: &crate::style::Style,
             ) -> crosscom::Void {
                 unsafe {
-                    let object = crosscom::get_object::<HtmlDivElementCcw>(this);
-                    (*object).inner.0.merge_style(style)
+                    let __crosscom_object = crosscom::get_object::<HtmlDivElementCcw>(this);
+                    (*__crosscom_object).inner.0.merge_style(style)
                 }
             }
 
@@ -5116,60 +5873,68 @@ macro_rules! ComObject_HtmlDivElement {
                 key: &str,
             ) -> Option<Option<String>> {
                 unsafe {
-                    let object = crosscom::get_object::<HtmlDivElementCcw>(this);
-                    (*object).inner.0.get_attribute(key)
+                    let __crosscom_object = crosscom::get_object::<HtmlDivElementCcw>(this);
+                    (*__crosscom_object).inner.0.get_attribute(key)
                 }
             }
 
             unsafe extern "system" fn id(
                 this: *const *const std::os::raw::c_void,
             ) -> *const *const std::os::raw::c_void {
-                let object = crosscom::get_object::<HtmlDivElementCcw>(this);
-                (*object).inner.0.id().into()
+                let __crosscom_object = crosscom::get_object::<HtmlDivElementCcw>(this);
+                (*__crosscom_object).inner.0.id().into()
             }
 
             unsafe extern "system" fn tag(
                 this: *const *const std::os::raw::c_void,
             ) -> *const *const std::os::raw::c_void {
-                let object = crosscom::get_object::<HtmlDivElementCcw>(this);
-                (*object).inner.0.tag().into()
+                let __crosscom_object = crosscom::get_object::<HtmlDivElementCcw>(this);
+                (*__crosscom_object).inner.0.tag().into()
             }
 
             unsafe extern "system" fn children(
                 this: *const *const std::os::raw::c_void,
             ) -> *const *const std::os::raw::c_void {
-                let object = crosscom::get_object::<HtmlDivElementCcw>(this);
-                (*object).inner.0.children().into()
+                let __crosscom_object = crosscom::get_object::<HtmlDivElementCcw>(this);
+                (*__crosscom_object).inner.0.children().into()
             }
 
             unsafe extern "system" fn inner_html(
                 this: *const *const std::os::raw::c_void,
             ) -> *const *const std::os::raw::c_void {
-                let object = crosscom::get_object::<HtmlDivElementCcw>(this);
-                (*object).inner.0.inner_html().into()
+                let __crosscom_object = crosscom::get_object::<HtmlDivElementCcw>(this);
+                (*__crosscom_object).inner.0.inner_html().into()
             }
 
             unsafe extern "system" fn outer_html(
                 this: *const *const std::os::raw::c_void,
             ) -> *const *const std::os::raw::c_void {
-                let object = crosscom::get_object::<HtmlDivElementCcw>(this);
-                (*object).inner.0.outer_html().into()
+                let __crosscom_object = crosscom::get_object::<HtmlDivElementCcw>(this);
+                (*__crosscom_object).inner.0.outer_html().into()
             }
 
             unsafe extern "system" fn set_inner_html(
                 this: *const *const std::os::raw::c_void,
                 html: *const *const std::os::raw::c_void,
             ) -> () {
-                let object = crosscom::get_object::<HtmlDivElementCcw>(this);
-                (*object).inner.0.set_inner_html(html.into()).into()
+                let html: crosscom::ComRc<felis::comdef::IDomString> = html.into();
+
+                let __crosscom_object = crosscom::get_object::<HtmlDivElementCcw>(this);
+                (*__crosscom_object)
+                    .inner
+                    .0
+                    .set_inner_html(html.into())
+                    .into()
             }
 
             unsafe extern "system" fn get_elements_by_tag_name(
                 this: *const *const std::os::raw::c_void,
                 tag: *const *const std::os::raw::c_void,
             ) -> *const *const std::os::raw::c_void {
-                let object = crosscom::get_object::<HtmlDivElementCcw>(this);
-                (*object)
+                let tag: crosscom::ComRc<felis::comdef::IDomString> = tag.into();
+
+                let __crosscom_object = crosscom::get_object::<HtmlDivElementCcw>(this);
+                (*__crosscom_object)
                     .inner
                     .0
                     .get_elements_by_tag_name(tag.into())
@@ -5180,16 +5945,22 @@ macro_rules! ComObject_HtmlDivElement {
                 this: *const *const std::os::raw::c_void,
                 id: *const *const std::os::raw::c_void,
             ) -> crosscom::RawPointer {
-                let object = crosscom::get_object::<HtmlDivElementCcw>(this);
-                (*object).inner.0.get_element_by_id(id.into()).into()
+                let id: crosscom::ComRc<felis::comdef::IDomString> = id.into();
+
+                let __crosscom_object = crosscom::get_object::<HtmlDivElementCcw>(this);
+                (*__crosscom_object)
+                    .inner
+                    .0
+                    .get_element_by_id(id.into())
+                    .into()
             }
 
             #[allow(non_upper_case_globals)]
             pub const GLOBAL_IHtmlDivElementVirtualTable_CCW_FOR_HtmlDivElement:
-                crate::defs::IHtmlDivElementVirtualTableCcw =
-                crate::defs::IHtmlDivElementVirtualTableCcw {
+                felis::comdef::IHtmlDivElementVirtualTableCcw =
+                felis::comdef::IHtmlDivElementVirtualTableCcw {
                     offset: 0,
-                    vtable: crate::defs::IHtmlDivElementVirtualTable {
+                    vtable: felis::comdef::IHtmlDivElementVirtualTable {
                         query_interface,
                         add_ref,
                         release,
@@ -5210,36 +5981,46 @@ macro_rules! ComObject_HtmlDivElement {
 
             #[allow(non_upper_case_globals)]
             pub const GLOBAL_IRenderableVirtualTable_CCW_FOR_HtmlDivElement:
-                crate::defs::IRenderableVirtualTableCcw = crate::defs::IRenderableVirtualTableCcw {
-                offset: -1,
-                vtable: crate::defs::IRenderableVirtualTable {
-                    query_interface,
-                    add_ref,
-                    release,
-                    display,
-                    layout,
-                    paint,
-                },
-            };
+                felis::comdef::IRenderableVirtualTableCcw =
+                felis::comdef::IRenderableVirtualTableCcw {
+                    offset: -1,
+                    vtable: felis::comdef::IRenderableVirtualTable {
+                        query_interface,
+                        add_ref,
+                        release,
+                        display,
+                        layout,
+                        paint,
+                    },
+                };
 
             impl crosscom::ComObject for $impl_type {
                 type CcwType = HtmlDivElementCcw;
 
                 fn create_ccw(self) -> Self::CcwType {
                     Self::CcwType {
-                        IHtmlDivElement: crate::defs::IHtmlDivElement {
+                        IHtmlDivElement: felis::comdef::IHtmlDivElement {
                             vtable: &GLOBAL_IHtmlDivElementVirtualTable_CCW_FOR_HtmlDivElement
                                 .vtable
-                                as *const crate::defs::IHtmlDivElementVirtualTable,
+                                as *const felis::comdef::IHtmlDivElementVirtualTable,
                         },
 
-                        IRenderable: crate::defs::IRenderable {
+                        IRenderable: felis::comdef::IRenderable {
                             vtable: &GLOBAL_IRenderableVirtualTable_CCW_FOR_HtmlDivElement.vtable
-                                as *const crate::defs::IRenderableVirtualTable,
+                                as *const felis::comdef::IRenderableVirtualTable,
                         },
 
                         ref_count: std::sync::atomic::AtomicU32::new(0),
                         inner: self,
+                    }
+                }
+
+                fn get_ccw(&self) -> &Self::CcwType {
+                    unsafe {
+                        let this = self as *const _ as *const u8;
+                        let this =
+                            this.offset(-(crosscom::offset_of!(HtmlDivElementCcw, inner) as isize));
+                        &*(this as *const Self::CcwType)
                     }
                 }
             }
@@ -5247,7 +6028,7 @@ macro_rules! ComObject_HtmlDivElement {
     };
 }
 
-pub(crate) use ComObject_HtmlDivElement;
+// pub use ComObject_HtmlDivElement;
 
 // Interface IHtmlImageElement
 
@@ -5333,108 +6114,151 @@ impl IHtmlImageElement {
         }
     }
 
-    pub fn add_ref(&self) -> i32 {
+    pub fn add_ref(&self) -> std::os::raw::c_long {
         unsafe {
             let this = self as *const IHtmlImageElement as *const *const std::os::raw::c_void;
-            ((*self.vtable).add_ref)(this).into()
+            let ret = ((*self.vtable).add_ref)(this);
+            let ret: std::os::raw::c_long = ret.into();
+
+            ret
         }
     }
 
-    pub fn release(&self) -> i32 {
+    pub fn release(&self) -> std::os::raw::c_long {
         unsafe {
             let this = self as *const IHtmlImageElement as *const *const std::os::raw::c_void;
-            ((*self.vtable).release)(this).into()
+            let ret = ((*self.vtable).release)(this);
+            let ret: std::os::raw::c_long = ret.into();
+
+            ret
         }
     }
 
-    pub fn children(&self) -> crosscom::ObjectArray<crate::defs::INode> {
+    pub fn children(&self) -> crosscom::ObjectArray<felis::comdef::INode> {
         unsafe {
             let this = self as *const IHtmlImageElement as *const *const std::os::raw::c_void;
-            ((*self.vtable).children)(this).into()
+            let ret = ((*self.vtable).children)(this);
+            let ret: crosscom::ObjectArray<felis::comdef::INode> = ret.into();
+
+            ret
         }
     }
 
-    pub fn inner_html(&self) -> crosscom::ComRc<IDomString> {
+    pub fn inner_html(&self) -> crosscom::ComRc<felis::comdef::IDomString> {
         unsafe {
             let this = self as *const IHtmlImageElement as *const *const std::os::raw::c_void;
-            ((*self.vtable).inner_html)(this).into()
+            let ret = ((*self.vtable).inner_html)(this);
+            let ret: crosscom::ComRc<IDomString> = ret.into();
+
+            ret
         }
     }
 
-    pub fn outer_html(&self) -> crosscom::ComRc<IDomString> {
+    pub fn outer_html(&self) -> crosscom::ComRc<felis::comdef::IDomString> {
         unsafe {
             let this = self as *const IHtmlImageElement as *const *const std::os::raw::c_void;
-            ((*self.vtable).outer_html)(this).into()
+            let ret = ((*self.vtable).outer_html)(this);
+            let ret: crosscom::ComRc<IDomString> = ret.into();
+
+            ret
         }
     }
 
-    pub fn set_inner_html(&self, html: crosscom::ComRc<IDomString>) -> () {
+    pub fn set_inner_html(&self, html: crosscom::ComRc<felis::comdef::IDomString>) -> () {
         unsafe {
             let this = self as *const IHtmlImageElement as *const *const std::os::raw::c_void;
-            ((*self.vtable).set_inner_html)(this, html.into()).into()
+            let ret = ((*self.vtable).set_inner_html)(this, html.into());
+            let ret: () = ret.into();
+
+            ret
         }
     }
 
     pub fn get_elements_by_tag_name(
         &self,
-        tag: crosscom::ComRc<IDomString>,
-    ) -> crosscom::ObjectArray<crate::defs::IElement> {
+        tag: crosscom::ComRc<felis::comdef::IDomString>,
+    ) -> crosscom::ObjectArray<felis::comdef::IElement> {
         unsafe {
             let this = self as *const IHtmlImageElement as *const *const std::os::raw::c_void;
-            ((*self.vtable).get_elements_by_tag_name)(this, tag.into()).into()
+            let ret = ((*self.vtable).get_elements_by_tag_name)(this, tag.into());
+            let ret: crosscom::ObjectArray<felis::comdef::IElement> = ret.into();
+
+            ret
         }
     }
 
     pub fn get_element_by_id(
         &self,
-        id: crosscom::ComRc<IDomString>,
-    ) -> Option<crosscom::ComRc<crate::defs::IElement>> {
+        id: crosscom::ComRc<felis::comdef::IDomString>,
+    ) -> Option<crosscom::ComRc<felis::comdef::IElement>> {
         unsafe {
             let this = self as *const IHtmlImageElement as *const *const std::os::raw::c_void;
-            ((*self.vtable).get_element_by_id)(this, id.into()).into()
+            let ret = ((*self.vtable).get_element_by_id)(this, id.into());
+            let ret: Option<crosscom::ComRc<felis::comdef::IElement>> = ret.into();
+
+            ret
         }
     }
 
-    pub fn id(&self) -> crosscom::ComRc<IDomString> {
+    pub fn id(&self) -> crosscom::ComRc<felis::comdef::IDomString> {
         unsafe {
             let this = self as *const IHtmlImageElement as *const *const std::os::raw::c_void;
-            ((*self.vtable).id)(this).into()
+            let ret = ((*self.vtable).id)(this);
+            let ret: crosscom::ComRc<IDomString> = ret.into();
+
+            ret
         }
     }
 
-    pub fn tag(&self) -> crosscom::ComRc<IDomString> {
+    pub fn tag(&self) -> crosscom::ComRc<felis::comdef::IDomString> {
         unsafe {
             let this = self as *const IHtmlImageElement as *const *const std::os::raw::c_void;
-            ((*self.vtable).tag)(this).into()
+            let ret = ((*self.vtable).tag)(this);
+            let ret: crosscom::ComRc<IDomString> = ret.into();
+
+            ret
         }
     }
 
     pub fn on_mouse_move(&self, x: f64, y: f64, window: &winit::window::Window) -> crosscom::Void {
         unsafe {
             let this = self as *const IHtmlImageElement as *const *const std::os::raw::c_void;
-            ((*self.vtable).on_mouse_move)(this, x.into(), y.into(), window.into()).into()
+            let ret = ((*self.vtable).on_mouse_move)(this, x.into(), y.into(), window.into());
+
+            ret
         }
     }
 
     pub fn on_mouse_click(&self) -> crate::page::FelisAction {
         unsafe {
             let this = self as *const IHtmlImageElement as *const *const std::os::raw::c_void;
-            ((*self.vtable).on_mouse_click)(this).into()
+            let ret = ((*self.vtable).on_mouse_click)(this);
+
+            ret
         }
     }
 
     pub fn merge_style(&self, style: &crate::style::Style) -> crosscom::Void {
         unsafe {
             let this = self as *const IHtmlImageElement as *const *const std::os::raw::c_void;
-            ((*self.vtable).merge_style)(this, style.into()).into()
+            let ret = ((*self.vtable).merge_style)(this, style.into());
+
+            ret
         }
     }
 
     pub fn get_attribute(&self, key: &str) -> Option<Option<String>> {
         unsafe {
             let this = self as *const IHtmlImageElement as *const *const std::os::raw::c_void;
-            ((*self.vtable).get_attribute)(this, key.into()).into()
+            let ret = ((*self.vtable).get_attribute)(this, key.into());
+
+            ret
         }
+    }
+
+    pub fn uuid() -> uuid::Uuid {
+        use crosscom::ComInterface;
+        uuid::Uuid::from_bytes(IHtmlImageElement::INTERFACE_ID)
     }
 }
 
@@ -5451,34 +6275,38 @@ impl crosscom::ComInterface for IHtmlImageElement {
 // Class HtmlImageElement
 
 #[allow(unused)]
+#[macro_export]
 macro_rules! ComObject_HtmlImageElement {
     ($impl_type: ty) => {
         #[allow(dead_code)]
         #[allow(non_snake_case)]
         #[allow(unused)]
         mod HtmlImageElement_crosscom_impl {
-            use crate::defs::ICharacterDataImpl;
-            use crate::defs::IDomStringImpl;
-            use crate::defs::IElementImpl;
-            use crate::defs::IHtmlBodyElementImpl;
-            use crate::defs::IHtmlDivElementImpl;
-            use crate::defs::IHtmlElementImpl;
-            use crate::defs::IHtmlHeadElementImpl;
-            use crate::defs::IHtmlHtmlElementImpl;
-            use crate::defs::IHtmlImageElementImpl;
-            use crate::defs::IHtmlLinkElementImpl;
-            use crate::defs::IHtmlParagraphElementImpl;
-            use crate::defs::IHtmlScriptElementImpl;
-            use crate::defs::IHtmlStyleElementImpl;
-            use crate::defs::INodeImpl;
-            use crate::defs::IRenderableImpl;
-            use crate::defs::ITextImpl;
+            use crate as felis;
             use crosscom::ComInterface;
+            use crosscom::IObjectArrayImpl;
+            use crosscom::IUnknownImpl;
+            use felis::comdef::ICharacterDataImpl;
+            use felis::comdef::IDomStringImpl;
+            use felis::comdef::IElementImpl;
+            use felis::comdef::IHtmlBodyElementImpl;
+            use felis::comdef::IHtmlDivElementImpl;
+            use felis::comdef::IHtmlElementImpl;
+            use felis::comdef::IHtmlHeadElementImpl;
+            use felis::comdef::IHtmlHtmlElementImpl;
+            use felis::comdef::IHtmlImageElementImpl;
+            use felis::comdef::IHtmlLinkElementImpl;
+            use felis::comdef::IHtmlParagraphElementImpl;
+            use felis::comdef::IHtmlScriptElementImpl;
+            use felis::comdef::IHtmlStyleElementImpl;
+            use felis::comdef::INodeImpl;
+            use felis::comdef::IRenderableImpl;
+            use felis::comdef::ITextImpl;
 
             #[repr(C)]
             pub struct HtmlImageElementCcw {
-                IHtmlImageElement: crate::defs::IHtmlImageElement,
-                IRenderable: crate::defs::IRenderable,
+                IHtmlImageElement: felis::comdef::IHtmlImageElement,
+                IRenderable: felis::comdef::IRenderable,
 
                 ref_count: std::sync::atomic::AtomicU32,
                 pub inner: $impl_type,
@@ -5494,40 +6322,40 @@ macro_rules! ComObject_HtmlImageElement {
                     &crosscom::IUnknown::INTERFACE_ID => {
                         *retval = (object as *const *const std::os::raw::c_void).offset(0);
                         add_ref(object as *const *const std::os::raw::c_void);
-                        crosscom::ResultCode::Ok as i32
+                        crosscom::ResultCode::Ok as std::os::raw::c_long
                     }
 
-                    &crate::defs::INode::INTERFACE_ID => {
+                    &felis::comdef::INode::INTERFACE_ID => {
                         *retval = (object as *const *const std::os::raw::c_void).offset(0);
                         add_ref(object as *const *const std::os::raw::c_void);
-                        crosscom::ResultCode::Ok as i32
+                        crosscom::ResultCode::Ok as std::os::raw::c_long
                     }
 
-                    &crate::defs::IElement::INTERFACE_ID => {
+                    &felis::comdef::IElement::INTERFACE_ID => {
                         *retval = (object as *const *const std::os::raw::c_void).offset(0);
                         add_ref(object as *const *const std::os::raw::c_void);
-                        crosscom::ResultCode::Ok as i32
+                        crosscom::ResultCode::Ok as std::os::raw::c_long
                     }
 
-                    &crate::defs::IHtmlElement::INTERFACE_ID => {
+                    &felis::comdef::IHtmlElement::INTERFACE_ID => {
                         *retval = (object as *const *const std::os::raw::c_void).offset(0);
                         add_ref(object as *const *const std::os::raw::c_void);
-                        crosscom::ResultCode::Ok as i32
+                        crosscom::ResultCode::Ok as std::os::raw::c_long
                     }
 
-                    &crate::defs::IHtmlImageElement::INTERFACE_ID => {
+                    &felis::comdef::IHtmlImageElement::INTERFACE_ID => {
                         *retval = (object as *const *const std::os::raw::c_void).offset(0);
                         add_ref(object as *const *const std::os::raw::c_void);
-                        crosscom::ResultCode::Ok as i32
+                        crosscom::ResultCode::Ok as std::os::raw::c_long
                     }
 
-                    &crate::defs::IRenderable::INTERFACE_ID => {
+                    &felis::comdef::IRenderable::INTERFACE_ID => {
                         *retval = (object as *const *const std::os::raw::c_void).offset(1);
                         add_ref(object as *const *const std::os::raw::c_void);
-                        crosscom::ResultCode::Ok as i32
+                        crosscom::ResultCode::Ok as std::os::raw::c_long
                     }
 
-                    _ => crosscom::ResultCode::ENoInterface as i32,
+                    _ => crosscom::ResultCode::ENoInterface as std::os::raw::c_long,
                 }
             }
 
@@ -5558,8 +6386,8 @@ macro_rules! ComObject_HtmlImageElement {
 
             fn display(this: *const *const std::os::raw::c_void) -> crate::style::Display {
                 unsafe {
-                    let object = crosscom::get_object::<HtmlImageElementCcw>(this);
-                    (*object).inner.0.display()
+                    let __crosscom_object = crosscom::get_object::<HtmlImageElementCcw>(this);
+                    (*__crosscom_object).inner.0.display()
                 }
             }
 
@@ -5570,11 +6398,12 @@ macro_rules! ComObject_HtmlImageElement {
                 content_boundary: crate::common::Rectangle,
             ) -> crate::common::Rectangle {
                 unsafe {
-                    let object = crosscom::get_object::<HtmlImageElementCcw>(this);
-                    (*object)
-                        .inner
-                        .0
-                        .layout(pango_context, style_computed, content_boundary)
+                    let __crosscom_object = crosscom::get_object::<HtmlImageElementCcw>(this);
+                    (*__crosscom_object).inner.0.layout(
+                        pango_context,
+                        style_computed,
+                        content_boundary,
+                    )
                 }
             }
 
@@ -5584,8 +6413,8 @@ macro_rules! ComObject_HtmlImageElement {
                 style_computed: &crate::style::Style,
             ) -> crosscom::Void {
                 unsafe {
-                    let object = crosscom::get_object::<HtmlImageElementCcw>(this);
-                    (*object).inner.0.paint(renderer, style_computed)
+                    let __crosscom_object = crosscom::get_object::<HtmlImageElementCcw>(this);
+                    (*__crosscom_object).inner.0.paint(renderer, style_computed)
                 }
             }
 
@@ -5596,8 +6425,8 @@ macro_rules! ComObject_HtmlImageElement {
                 window: &winit::window::Window,
             ) -> crosscom::Void {
                 unsafe {
-                    let object = crosscom::get_object::<HtmlImageElementCcw>(this);
-                    (*object).inner.0.on_mouse_move(x, y, window)
+                    let __crosscom_object = crosscom::get_object::<HtmlImageElementCcw>(this);
+                    (*__crosscom_object).inner.0.on_mouse_move(x, y, window)
                 }
             }
 
@@ -5605,8 +6434,8 @@ macro_rules! ComObject_HtmlImageElement {
                 this: *const *const std::os::raw::c_void,
             ) -> crate::page::FelisAction {
                 unsafe {
-                    let object = crosscom::get_object::<HtmlImageElementCcw>(this);
-                    (*object).inner.0.on_mouse_click()
+                    let __crosscom_object = crosscom::get_object::<HtmlImageElementCcw>(this);
+                    (*__crosscom_object).inner.0.on_mouse_click()
                 }
             }
 
@@ -5615,8 +6444,8 @@ macro_rules! ComObject_HtmlImageElement {
                 style: &crate::style::Style,
             ) -> crosscom::Void {
                 unsafe {
-                    let object = crosscom::get_object::<HtmlImageElementCcw>(this);
-                    (*object).inner.0.merge_style(style)
+                    let __crosscom_object = crosscom::get_object::<HtmlImageElementCcw>(this);
+                    (*__crosscom_object).inner.0.merge_style(style)
                 }
             }
 
@@ -5625,60 +6454,68 @@ macro_rules! ComObject_HtmlImageElement {
                 key: &str,
             ) -> Option<Option<String>> {
                 unsafe {
-                    let object = crosscom::get_object::<HtmlImageElementCcw>(this);
-                    (*object).inner.0.get_attribute(key)
+                    let __crosscom_object = crosscom::get_object::<HtmlImageElementCcw>(this);
+                    (*__crosscom_object).inner.0.get_attribute(key)
                 }
             }
 
             unsafe extern "system" fn id(
                 this: *const *const std::os::raw::c_void,
             ) -> *const *const std::os::raw::c_void {
-                let object = crosscom::get_object::<HtmlImageElementCcw>(this);
-                (*object).inner.0.id().into()
+                let __crosscom_object = crosscom::get_object::<HtmlImageElementCcw>(this);
+                (*__crosscom_object).inner.0.id().into()
             }
 
             unsafe extern "system" fn tag(
                 this: *const *const std::os::raw::c_void,
             ) -> *const *const std::os::raw::c_void {
-                let object = crosscom::get_object::<HtmlImageElementCcw>(this);
-                (*object).inner.0.tag().into()
+                let __crosscom_object = crosscom::get_object::<HtmlImageElementCcw>(this);
+                (*__crosscom_object).inner.0.tag().into()
             }
 
             unsafe extern "system" fn children(
                 this: *const *const std::os::raw::c_void,
             ) -> *const *const std::os::raw::c_void {
-                let object = crosscom::get_object::<HtmlImageElementCcw>(this);
-                (*object).inner.0.children().into()
+                let __crosscom_object = crosscom::get_object::<HtmlImageElementCcw>(this);
+                (*__crosscom_object).inner.0.children().into()
             }
 
             unsafe extern "system" fn inner_html(
                 this: *const *const std::os::raw::c_void,
             ) -> *const *const std::os::raw::c_void {
-                let object = crosscom::get_object::<HtmlImageElementCcw>(this);
-                (*object).inner.0.inner_html().into()
+                let __crosscom_object = crosscom::get_object::<HtmlImageElementCcw>(this);
+                (*__crosscom_object).inner.0.inner_html().into()
             }
 
             unsafe extern "system" fn outer_html(
                 this: *const *const std::os::raw::c_void,
             ) -> *const *const std::os::raw::c_void {
-                let object = crosscom::get_object::<HtmlImageElementCcw>(this);
-                (*object).inner.0.outer_html().into()
+                let __crosscom_object = crosscom::get_object::<HtmlImageElementCcw>(this);
+                (*__crosscom_object).inner.0.outer_html().into()
             }
 
             unsafe extern "system" fn set_inner_html(
                 this: *const *const std::os::raw::c_void,
                 html: *const *const std::os::raw::c_void,
             ) -> () {
-                let object = crosscom::get_object::<HtmlImageElementCcw>(this);
-                (*object).inner.0.set_inner_html(html.into()).into()
+                let html: crosscom::ComRc<felis::comdef::IDomString> = html.into();
+
+                let __crosscom_object = crosscom::get_object::<HtmlImageElementCcw>(this);
+                (*__crosscom_object)
+                    .inner
+                    .0
+                    .set_inner_html(html.into())
+                    .into()
             }
 
             unsafe extern "system" fn get_elements_by_tag_name(
                 this: *const *const std::os::raw::c_void,
                 tag: *const *const std::os::raw::c_void,
             ) -> *const *const std::os::raw::c_void {
-                let object = crosscom::get_object::<HtmlImageElementCcw>(this);
-                (*object)
+                let tag: crosscom::ComRc<felis::comdef::IDomString> = tag.into();
+
+                let __crosscom_object = crosscom::get_object::<HtmlImageElementCcw>(this);
+                (*__crosscom_object)
                     .inner
                     .0
                     .get_elements_by_tag_name(tag.into())
@@ -5689,16 +6526,22 @@ macro_rules! ComObject_HtmlImageElement {
                 this: *const *const std::os::raw::c_void,
                 id: *const *const std::os::raw::c_void,
             ) -> crosscom::RawPointer {
-                let object = crosscom::get_object::<HtmlImageElementCcw>(this);
-                (*object).inner.0.get_element_by_id(id.into()).into()
+                let id: crosscom::ComRc<felis::comdef::IDomString> = id.into();
+
+                let __crosscom_object = crosscom::get_object::<HtmlImageElementCcw>(this);
+                (*__crosscom_object)
+                    .inner
+                    .0
+                    .get_element_by_id(id.into())
+                    .into()
             }
 
             #[allow(non_upper_case_globals)]
             pub const GLOBAL_IHtmlImageElementVirtualTable_CCW_FOR_HtmlImageElement:
-                crate::defs::IHtmlImageElementVirtualTableCcw =
-                crate::defs::IHtmlImageElementVirtualTableCcw {
+                felis::comdef::IHtmlImageElementVirtualTableCcw =
+                felis::comdef::IHtmlImageElementVirtualTableCcw {
                     offset: 0,
-                    vtable: crate::defs::IHtmlImageElementVirtualTable {
+                    vtable: felis::comdef::IHtmlImageElementVirtualTable {
                         query_interface,
                         add_ref,
                         release,
@@ -5719,36 +6562,46 @@ macro_rules! ComObject_HtmlImageElement {
 
             #[allow(non_upper_case_globals)]
             pub const GLOBAL_IRenderableVirtualTable_CCW_FOR_HtmlImageElement:
-                crate::defs::IRenderableVirtualTableCcw = crate::defs::IRenderableVirtualTableCcw {
-                offset: -1,
-                vtable: crate::defs::IRenderableVirtualTable {
-                    query_interface,
-                    add_ref,
-                    release,
-                    display,
-                    layout,
-                    paint,
-                },
-            };
+                felis::comdef::IRenderableVirtualTableCcw =
+                felis::comdef::IRenderableVirtualTableCcw {
+                    offset: -1,
+                    vtable: felis::comdef::IRenderableVirtualTable {
+                        query_interface,
+                        add_ref,
+                        release,
+                        display,
+                        layout,
+                        paint,
+                    },
+                };
 
             impl crosscom::ComObject for $impl_type {
                 type CcwType = HtmlImageElementCcw;
 
                 fn create_ccw(self) -> Self::CcwType {
                     Self::CcwType {
-                        IHtmlImageElement: crate::defs::IHtmlImageElement {
+                        IHtmlImageElement: felis::comdef::IHtmlImageElement {
                             vtable: &GLOBAL_IHtmlImageElementVirtualTable_CCW_FOR_HtmlImageElement
                                 .vtable
-                                as *const crate::defs::IHtmlImageElementVirtualTable,
+                                as *const felis::comdef::IHtmlImageElementVirtualTable,
                         },
 
-                        IRenderable: crate::defs::IRenderable {
+                        IRenderable: felis::comdef::IRenderable {
                             vtable: &GLOBAL_IRenderableVirtualTable_CCW_FOR_HtmlImageElement.vtable
-                                as *const crate::defs::IRenderableVirtualTable,
+                                as *const felis::comdef::IRenderableVirtualTable,
                         },
 
                         ref_count: std::sync::atomic::AtomicU32::new(0),
                         inner: self,
+                    }
+                }
+
+                fn get_ccw(&self) -> &Self::CcwType {
+                    unsafe {
+                        let this = self as *const _ as *const u8;
+                        let this = this
+                            .offset(-(crosscom::offset_of!(HtmlImageElementCcw, inner) as isize));
+                        &*(this as *const Self::CcwType)
                     }
                 }
             }
@@ -5756,7 +6609,7 @@ macro_rules! ComObject_HtmlImageElement {
     };
 }
 
-pub(crate) use ComObject_HtmlImageElement;
+// pub use ComObject_HtmlImageElement;
 
 // Interface IHtmlStyleElement
 
@@ -5842,108 +6695,151 @@ impl IHtmlStyleElement {
         }
     }
 
-    pub fn add_ref(&self) -> i32 {
+    pub fn add_ref(&self) -> std::os::raw::c_long {
         unsafe {
             let this = self as *const IHtmlStyleElement as *const *const std::os::raw::c_void;
-            ((*self.vtable).add_ref)(this).into()
+            let ret = ((*self.vtable).add_ref)(this);
+            let ret: std::os::raw::c_long = ret.into();
+
+            ret
         }
     }
 
-    pub fn release(&self) -> i32 {
+    pub fn release(&self) -> std::os::raw::c_long {
         unsafe {
             let this = self as *const IHtmlStyleElement as *const *const std::os::raw::c_void;
-            ((*self.vtable).release)(this).into()
+            let ret = ((*self.vtable).release)(this);
+            let ret: std::os::raw::c_long = ret.into();
+
+            ret
         }
     }
 
-    pub fn children(&self) -> crosscom::ObjectArray<crate::defs::INode> {
+    pub fn children(&self) -> crosscom::ObjectArray<felis::comdef::INode> {
         unsafe {
             let this = self as *const IHtmlStyleElement as *const *const std::os::raw::c_void;
-            ((*self.vtable).children)(this).into()
+            let ret = ((*self.vtable).children)(this);
+            let ret: crosscom::ObjectArray<felis::comdef::INode> = ret.into();
+
+            ret
         }
     }
 
-    pub fn inner_html(&self) -> crosscom::ComRc<IDomString> {
+    pub fn inner_html(&self) -> crosscom::ComRc<felis::comdef::IDomString> {
         unsafe {
             let this = self as *const IHtmlStyleElement as *const *const std::os::raw::c_void;
-            ((*self.vtable).inner_html)(this).into()
+            let ret = ((*self.vtable).inner_html)(this);
+            let ret: crosscom::ComRc<IDomString> = ret.into();
+
+            ret
         }
     }
 
-    pub fn outer_html(&self) -> crosscom::ComRc<IDomString> {
+    pub fn outer_html(&self) -> crosscom::ComRc<felis::comdef::IDomString> {
         unsafe {
             let this = self as *const IHtmlStyleElement as *const *const std::os::raw::c_void;
-            ((*self.vtable).outer_html)(this).into()
+            let ret = ((*self.vtable).outer_html)(this);
+            let ret: crosscom::ComRc<IDomString> = ret.into();
+
+            ret
         }
     }
 
-    pub fn set_inner_html(&self, html: crosscom::ComRc<IDomString>) -> () {
+    pub fn set_inner_html(&self, html: crosscom::ComRc<felis::comdef::IDomString>) -> () {
         unsafe {
             let this = self as *const IHtmlStyleElement as *const *const std::os::raw::c_void;
-            ((*self.vtable).set_inner_html)(this, html.into()).into()
+            let ret = ((*self.vtable).set_inner_html)(this, html.into());
+            let ret: () = ret.into();
+
+            ret
         }
     }
 
     pub fn get_elements_by_tag_name(
         &self,
-        tag: crosscom::ComRc<IDomString>,
-    ) -> crosscom::ObjectArray<crate::defs::IElement> {
+        tag: crosscom::ComRc<felis::comdef::IDomString>,
+    ) -> crosscom::ObjectArray<felis::comdef::IElement> {
         unsafe {
             let this = self as *const IHtmlStyleElement as *const *const std::os::raw::c_void;
-            ((*self.vtable).get_elements_by_tag_name)(this, tag.into()).into()
+            let ret = ((*self.vtable).get_elements_by_tag_name)(this, tag.into());
+            let ret: crosscom::ObjectArray<felis::comdef::IElement> = ret.into();
+
+            ret
         }
     }
 
     pub fn get_element_by_id(
         &self,
-        id: crosscom::ComRc<IDomString>,
-    ) -> Option<crosscom::ComRc<crate::defs::IElement>> {
+        id: crosscom::ComRc<felis::comdef::IDomString>,
+    ) -> Option<crosscom::ComRc<felis::comdef::IElement>> {
         unsafe {
             let this = self as *const IHtmlStyleElement as *const *const std::os::raw::c_void;
-            ((*self.vtable).get_element_by_id)(this, id.into()).into()
+            let ret = ((*self.vtable).get_element_by_id)(this, id.into());
+            let ret: Option<crosscom::ComRc<felis::comdef::IElement>> = ret.into();
+
+            ret
         }
     }
 
-    pub fn id(&self) -> crosscom::ComRc<IDomString> {
+    pub fn id(&self) -> crosscom::ComRc<felis::comdef::IDomString> {
         unsafe {
             let this = self as *const IHtmlStyleElement as *const *const std::os::raw::c_void;
-            ((*self.vtable).id)(this).into()
+            let ret = ((*self.vtable).id)(this);
+            let ret: crosscom::ComRc<IDomString> = ret.into();
+
+            ret
         }
     }
 
-    pub fn tag(&self) -> crosscom::ComRc<IDomString> {
+    pub fn tag(&self) -> crosscom::ComRc<felis::comdef::IDomString> {
         unsafe {
             let this = self as *const IHtmlStyleElement as *const *const std::os::raw::c_void;
-            ((*self.vtable).tag)(this).into()
+            let ret = ((*self.vtable).tag)(this);
+            let ret: crosscom::ComRc<IDomString> = ret.into();
+
+            ret
         }
     }
 
     pub fn on_mouse_move(&self, x: f64, y: f64, window: &winit::window::Window) -> crosscom::Void {
         unsafe {
             let this = self as *const IHtmlStyleElement as *const *const std::os::raw::c_void;
-            ((*self.vtable).on_mouse_move)(this, x.into(), y.into(), window.into()).into()
+            let ret = ((*self.vtable).on_mouse_move)(this, x.into(), y.into(), window.into());
+
+            ret
         }
     }
 
     pub fn on_mouse_click(&self) -> crate::page::FelisAction {
         unsafe {
             let this = self as *const IHtmlStyleElement as *const *const std::os::raw::c_void;
-            ((*self.vtable).on_mouse_click)(this).into()
+            let ret = ((*self.vtable).on_mouse_click)(this);
+
+            ret
         }
     }
 
     pub fn merge_style(&self, style: &crate::style::Style) -> crosscom::Void {
         unsafe {
             let this = self as *const IHtmlStyleElement as *const *const std::os::raw::c_void;
-            ((*self.vtable).merge_style)(this, style.into()).into()
+            let ret = ((*self.vtable).merge_style)(this, style.into());
+
+            ret
         }
     }
 
     pub fn get_attribute(&self, key: &str) -> Option<Option<String>> {
         unsafe {
             let this = self as *const IHtmlStyleElement as *const *const std::os::raw::c_void;
-            ((*self.vtable).get_attribute)(this, key.into()).into()
+            let ret = ((*self.vtable).get_attribute)(this, key.into());
+
+            ret
         }
+    }
+
+    pub fn uuid() -> uuid::Uuid {
+        use crosscom::ComInterface;
+        uuid::Uuid::from_bytes(IHtmlStyleElement::INTERFACE_ID)
     }
 }
 
@@ -5960,33 +6856,37 @@ impl crosscom::ComInterface for IHtmlStyleElement {
 // Class HtmlStyleElement
 
 #[allow(unused)]
+#[macro_export]
 macro_rules! ComObject_HtmlStyleElement {
     ($impl_type: ty) => {
         #[allow(dead_code)]
         #[allow(non_snake_case)]
         #[allow(unused)]
         mod HtmlStyleElement_crosscom_impl {
-            use crate::defs::ICharacterDataImpl;
-            use crate::defs::IDomStringImpl;
-            use crate::defs::IElementImpl;
-            use crate::defs::IHtmlBodyElementImpl;
-            use crate::defs::IHtmlDivElementImpl;
-            use crate::defs::IHtmlElementImpl;
-            use crate::defs::IHtmlHeadElementImpl;
-            use crate::defs::IHtmlHtmlElementImpl;
-            use crate::defs::IHtmlImageElementImpl;
-            use crate::defs::IHtmlLinkElementImpl;
-            use crate::defs::IHtmlParagraphElementImpl;
-            use crate::defs::IHtmlScriptElementImpl;
-            use crate::defs::IHtmlStyleElementImpl;
-            use crate::defs::INodeImpl;
-            use crate::defs::IRenderableImpl;
-            use crate::defs::ITextImpl;
+            use crate as felis;
             use crosscom::ComInterface;
+            use crosscom::IObjectArrayImpl;
+            use crosscom::IUnknownImpl;
+            use felis::comdef::ICharacterDataImpl;
+            use felis::comdef::IDomStringImpl;
+            use felis::comdef::IElementImpl;
+            use felis::comdef::IHtmlBodyElementImpl;
+            use felis::comdef::IHtmlDivElementImpl;
+            use felis::comdef::IHtmlElementImpl;
+            use felis::comdef::IHtmlHeadElementImpl;
+            use felis::comdef::IHtmlHtmlElementImpl;
+            use felis::comdef::IHtmlImageElementImpl;
+            use felis::comdef::IHtmlLinkElementImpl;
+            use felis::comdef::IHtmlParagraphElementImpl;
+            use felis::comdef::IHtmlScriptElementImpl;
+            use felis::comdef::IHtmlStyleElementImpl;
+            use felis::comdef::INodeImpl;
+            use felis::comdef::IRenderableImpl;
+            use felis::comdef::ITextImpl;
 
             #[repr(C)]
             pub struct HtmlStyleElementCcw {
-                IHtmlStyleElement: crate::defs::IHtmlStyleElement,
+                IHtmlStyleElement: felis::comdef::IHtmlStyleElement,
 
                 ref_count: std::sync::atomic::AtomicU32,
                 pub inner: $impl_type,
@@ -6002,34 +6902,34 @@ macro_rules! ComObject_HtmlStyleElement {
                     &crosscom::IUnknown::INTERFACE_ID => {
                         *retval = (object as *const *const std::os::raw::c_void).offset(0);
                         add_ref(object as *const *const std::os::raw::c_void);
-                        crosscom::ResultCode::Ok as i32
+                        crosscom::ResultCode::Ok as std::os::raw::c_long
                     }
 
-                    &crate::defs::INode::INTERFACE_ID => {
+                    &felis::comdef::INode::INTERFACE_ID => {
                         *retval = (object as *const *const std::os::raw::c_void).offset(0);
                         add_ref(object as *const *const std::os::raw::c_void);
-                        crosscom::ResultCode::Ok as i32
+                        crosscom::ResultCode::Ok as std::os::raw::c_long
                     }
 
-                    &crate::defs::IElement::INTERFACE_ID => {
+                    &felis::comdef::IElement::INTERFACE_ID => {
                         *retval = (object as *const *const std::os::raw::c_void).offset(0);
                         add_ref(object as *const *const std::os::raw::c_void);
-                        crosscom::ResultCode::Ok as i32
+                        crosscom::ResultCode::Ok as std::os::raw::c_long
                     }
 
-                    &crate::defs::IHtmlElement::INTERFACE_ID => {
+                    &felis::comdef::IHtmlElement::INTERFACE_ID => {
                         *retval = (object as *const *const std::os::raw::c_void).offset(0);
                         add_ref(object as *const *const std::os::raw::c_void);
-                        crosscom::ResultCode::Ok as i32
+                        crosscom::ResultCode::Ok as std::os::raw::c_long
                     }
 
-                    &crate::defs::IHtmlStyleElement::INTERFACE_ID => {
+                    &felis::comdef::IHtmlStyleElement::INTERFACE_ID => {
                         *retval = (object as *const *const std::os::raw::c_void).offset(0);
                         add_ref(object as *const *const std::os::raw::c_void);
-                        crosscom::ResultCode::Ok as i32
+                        crosscom::ResultCode::Ok as std::os::raw::c_long
                     }
 
-                    _ => crosscom::ResultCode::ENoInterface as i32,
+                    _ => crosscom::ResultCode::ENoInterface as std::os::raw::c_long,
                 }
             }
 
@@ -6065,8 +6965,8 @@ macro_rules! ComObject_HtmlStyleElement {
                 window: &winit::window::Window,
             ) -> crosscom::Void {
                 unsafe {
-                    let object = crosscom::get_object::<HtmlStyleElementCcw>(this);
-                    (*object).inner.0.on_mouse_move(x, y, window)
+                    let __crosscom_object = crosscom::get_object::<HtmlStyleElementCcw>(this);
+                    (*__crosscom_object).inner.0.on_mouse_move(x, y, window)
                 }
             }
 
@@ -6074,8 +6974,8 @@ macro_rules! ComObject_HtmlStyleElement {
                 this: *const *const std::os::raw::c_void,
             ) -> crate::page::FelisAction {
                 unsafe {
-                    let object = crosscom::get_object::<HtmlStyleElementCcw>(this);
-                    (*object).inner.0.on_mouse_click()
+                    let __crosscom_object = crosscom::get_object::<HtmlStyleElementCcw>(this);
+                    (*__crosscom_object).inner.0.on_mouse_click()
                 }
             }
 
@@ -6084,8 +6984,8 @@ macro_rules! ComObject_HtmlStyleElement {
                 style: &crate::style::Style,
             ) -> crosscom::Void {
                 unsafe {
-                    let object = crosscom::get_object::<HtmlStyleElementCcw>(this);
-                    (*object).inner.0.merge_style(style)
+                    let __crosscom_object = crosscom::get_object::<HtmlStyleElementCcw>(this);
+                    (*__crosscom_object).inner.0.merge_style(style)
                 }
             }
 
@@ -6094,60 +6994,68 @@ macro_rules! ComObject_HtmlStyleElement {
                 key: &str,
             ) -> Option<Option<String>> {
                 unsafe {
-                    let object = crosscom::get_object::<HtmlStyleElementCcw>(this);
-                    (*object).inner.0.get_attribute(key)
+                    let __crosscom_object = crosscom::get_object::<HtmlStyleElementCcw>(this);
+                    (*__crosscom_object).inner.0.get_attribute(key)
                 }
             }
 
             unsafe extern "system" fn id(
                 this: *const *const std::os::raw::c_void,
             ) -> *const *const std::os::raw::c_void {
-                let object = crosscom::get_object::<HtmlStyleElementCcw>(this);
-                (*object).inner.0.id().into()
+                let __crosscom_object = crosscom::get_object::<HtmlStyleElementCcw>(this);
+                (*__crosscom_object).inner.0.id().into()
             }
 
             unsafe extern "system" fn tag(
                 this: *const *const std::os::raw::c_void,
             ) -> *const *const std::os::raw::c_void {
-                let object = crosscom::get_object::<HtmlStyleElementCcw>(this);
-                (*object).inner.0.tag().into()
+                let __crosscom_object = crosscom::get_object::<HtmlStyleElementCcw>(this);
+                (*__crosscom_object).inner.0.tag().into()
             }
 
             unsafe extern "system" fn children(
                 this: *const *const std::os::raw::c_void,
             ) -> *const *const std::os::raw::c_void {
-                let object = crosscom::get_object::<HtmlStyleElementCcw>(this);
-                (*object).inner.0.children().into()
+                let __crosscom_object = crosscom::get_object::<HtmlStyleElementCcw>(this);
+                (*__crosscom_object).inner.0.children().into()
             }
 
             unsafe extern "system" fn inner_html(
                 this: *const *const std::os::raw::c_void,
             ) -> *const *const std::os::raw::c_void {
-                let object = crosscom::get_object::<HtmlStyleElementCcw>(this);
-                (*object).inner.0.inner_html().into()
+                let __crosscom_object = crosscom::get_object::<HtmlStyleElementCcw>(this);
+                (*__crosscom_object).inner.0.inner_html().into()
             }
 
             unsafe extern "system" fn outer_html(
                 this: *const *const std::os::raw::c_void,
             ) -> *const *const std::os::raw::c_void {
-                let object = crosscom::get_object::<HtmlStyleElementCcw>(this);
-                (*object).inner.0.outer_html().into()
+                let __crosscom_object = crosscom::get_object::<HtmlStyleElementCcw>(this);
+                (*__crosscom_object).inner.0.outer_html().into()
             }
 
             unsafe extern "system" fn set_inner_html(
                 this: *const *const std::os::raw::c_void,
                 html: *const *const std::os::raw::c_void,
             ) -> () {
-                let object = crosscom::get_object::<HtmlStyleElementCcw>(this);
-                (*object).inner.0.set_inner_html(html.into()).into()
+                let html: crosscom::ComRc<felis::comdef::IDomString> = html.into();
+
+                let __crosscom_object = crosscom::get_object::<HtmlStyleElementCcw>(this);
+                (*__crosscom_object)
+                    .inner
+                    .0
+                    .set_inner_html(html.into())
+                    .into()
             }
 
             unsafe extern "system" fn get_elements_by_tag_name(
                 this: *const *const std::os::raw::c_void,
                 tag: *const *const std::os::raw::c_void,
             ) -> *const *const std::os::raw::c_void {
-                let object = crosscom::get_object::<HtmlStyleElementCcw>(this);
-                (*object)
+                let tag: crosscom::ComRc<felis::comdef::IDomString> = tag.into();
+
+                let __crosscom_object = crosscom::get_object::<HtmlStyleElementCcw>(this);
+                (*__crosscom_object)
                     .inner
                     .0
                     .get_elements_by_tag_name(tag.into())
@@ -6158,16 +7066,22 @@ macro_rules! ComObject_HtmlStyleElement {
                 this: *const *const std::os::raw::c_void,
                 id: *const *const std::os::raw::c_void,
             ) -> crosscom::RawPointer {
-                let object = crosscom::get_object::<HtmlStyleElementCcw>(this);
-                (*object).inner.0.get_element_by_id(id.into()).into()
+                let id: crosscom::ComRc<felis::comdef::IDomString> = id.into();
+
+                let __crosscom_object = crosscom::get_object::<HtmlStyleElementCcw>(this);
+                (*__crosscom_object)
+                    .inner
+                    .0
+                    .get_element_by_id(id.into())
+                    .into()
             }
 
             #[allow(non_upper_case_globals)]
             pub const GLOBAL_IHtmlStyleElementVirtualTable_CCW_FOR_HtmlStyleElement:
-                crate::defs::IHtmlStyleElementVirtualTableCcw =
-                crate::defs::IHtmlStyleElementVirtualTableCcw {
+                felis::comdef::IHtmlStyleElementVirtualTableCcw =
+                felis::comdef::IHtmlStyleElementVirtualTableCcw {
                     offset: 0,
-                    vtable: crate::defs::IHtmlStyleElementVirtualTable {
+                    vtable: felis::comdef::IHtmlStyleElementVirtualTable {
                         query_interface,
                         add_ref,
                         release,
@@ -6191,14 +7105,23 @@ macro_rules! ComObject_HtmlStyleElement {
 
                 fn create_ccw(self) -> Self::CcwType {
                     Self::CcwType {
-                        IHtmlStyleElement: crate::defs::IHtmlStyleElement {
+                        IHtmlStyleElement: felis::comdef::IHtmlStyleElement {
                             vtable: &GLOBAL_IHtmlStyleElementVirtualTable_CCW_FOR_HtmlStyleElement
                                 .vtable
-                                as *const crate::defs::IHtmlStyleElementVirtualTable,
+                                as *const felis::comdef::IHtmlStyleElementVirtualTable,
                         },
 
                         ref_count: std::sync::atomic::AtomicU32::new(0),
                         inner: self,
+                    }
+                }
+
+                fn get_ccw(&self) -> &Self::CcwType {
+                    unsafe {
+                        let this = self as *const _ as *const u8;
+                        let this = this
+                            .offset(-(crosscom::offset_of!(HtmlStyleElementCcw, inner) as isize));
+                        &*(this as *const Self::CcwType)
                     }
                 }
             }
@@ -6206,4 +7129,4 @@ macro_rules! ComObject_HtmlStyleElement {
     };
 }
 
-pub(crate) use ComObject_HtmlStyleElement;
+// pub use ComObject_HtmlStyleElement;

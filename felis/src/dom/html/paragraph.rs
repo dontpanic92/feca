@@ -1,7 +1,7 @@
 use crosscom::ComRc;
 
 use crate::{
-    defs::{ComObject_HtmlParagraphElement, IDomString, INode},
+    comdef::{IDomString, INode},
     dom::core::{
         element::ElementProps,
         node::{NodeProps, NodeType},
@@ -20,7 +20,7 @@ xcdt::declare_xcdt!(
 );
 
 pub struct HtmlParagraphElement(pub CoreParagraph);
-ComObject_HtmlParagraphElement!(super::HtmlParagraphElement);
+crate::ComObject_HtmlParagraphElement!(super::HtmlParagraphElement);
 
 pub struct ParagraphProps {}
 

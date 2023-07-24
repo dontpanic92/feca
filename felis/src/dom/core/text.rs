@@ -1,7 +1,7 @@
 use crosscom::ComRc;
 
 use crate::{
-    defs::{ComObject_Text, IDomString, INode, IRenderableImpl, ITextImpl},
+    comdef::{IDomString, INode, INodeImpl, IRenderableImpl, ITextImpl},
     layout::text::TextLayout,
     style::{Display, Style},
 };
@@ -21,7 +21,7 @@ xcdt::declare_xcdt!(
 );
 
 pub struct Text(pub CoreText);
-ComObject_Text!(crate::dom::core::text::Text);
+crate::ComObject_Text!(crate::dom::core::text::Text);
 
 impl ITextImpl for CoreText {}
 
@@ -37,7 +37,7 @@ impl TextProps {
     }
 }
 
-impl crate::defs::INodeImpl for CoreText {
+impl INodeImpl for CoreText {
     fn outer_html(&self) -> crosscom::ComRc<IDomString> {
         self.CharacterDataProps().text().clone()
     }

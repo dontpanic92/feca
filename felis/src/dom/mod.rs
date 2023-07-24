@@ -1,6 +1,6 @@
 use crosscom::ComRc;
 
-use crate::defs::{INode, IDomString};
+use crate::comdef::{IDomString, INode};
 
 use self::html::html_element::Attributes;
 

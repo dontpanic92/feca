@@ -2,7 +2,7 @@ use crosscom::ComRc;
 use xcdt::XcDataType;
 
 use crate::{
-    defs::{ComObject_HtmlStyleElement, IDomString, INode},
+    comdef::{IDomString, INode},
     dom::core::{
         element::ElementProps,
         node::{NodeProps, NodeType},
@@ -19,7 +19,7 @@ use super::{
 xcdt::declare_xcdt!(CoreStyle, StyleProps, CoreHtmlElement, CoreHtmlElementBase);
 
 pub struct HtmlStyle(pub CoreStyle);
-ComObject_HtmlStyleElement!(super::HtmlStyle);
+crate::ComObject_HtmlStyleElement!(super::HtmlStyle);
 
 pub struct StyleProps {}
 

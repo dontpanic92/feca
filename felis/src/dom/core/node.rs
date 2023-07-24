@@ -1,8 +1,8 @@
 use std::cell::RefCell;
 
 use crate::{
+    comdef::{IDomString, IElement, INode, INodeImpl, IRenderable},
     common::Rectangle,
-    defs::{IDomString, IElement, INode, INodeImpl, IRenderable},
     dom::html::HtmlDom,
     layout::flow::FlowLayout,
     style::Style,
@@ -83,10 +83,7 @@ impl<T: 'static + XcDataType> INodeImpl for CoreNodeBase<T> {
         DomString::new("<>".to_string() + self.inner_html().str() + "</>")
     }
 
-    fn get_elements_by_tag_name(
-        &self,
-        tag: ComRc<IDomString>,
-    ) -> ObjectArray<crate::defs::IElement> {
+    fn get_elements_by_tag_name(&self, tag: ComRc<IDomString>) -> ObjectArray<IElement> {
         let mut elements = vec![];
 
         for i in 0..self.children().len() {

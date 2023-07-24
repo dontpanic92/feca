@@ -2,6 +2,8 @@ use std::{ffi::c_void, marker::PhantomData, ops::Deref, os::raw::c_long};
 
 use uuid::Uuid;
 
+pub use memoffset::offset_of;
+
 pub type Void = ();
 pub type StaticStr = &'static str;
 
@@ -13,14 +15,16 @@ impl<TComInterface: ComInterface> ComRc<TComInterface> {
     pub fn from_object<TComObject: ComObject>(obj: TComObject) -> ComRc<TComInterface> {
         let p = Box::new(TComObject::create_ccw(obj));
         let raw = Box::into_raw(p);
+        Self::query_interface_raw(raw as *const c_void)
+    }
 
-        unsafe {
-            (raw as *const IUnknown)
-                .as_ref()
-                .unwrap()
-                .query_interface::<TComInterface>()
-                .expect("Failed to create ComRc: Interface not found")
-        }
+    pub fn uuid(&self) -> Uuid {
+        Uuid::from_bytes(TComInterface::INTERFACE_ID)
+    }
+
+    pub fn from_self<TComObject: ComObject>(obj: &TComObject) -> ComRc<TComInterface> {
+        let raw = TComObject::get_ccw(obj) as *const _ as *const c_void;
+        Self::query_interface_raw(raw as *const c_void)
     }
 
     pub unsafe fn from_raw_pointer(raw: *const *const c_void) -> ComRc<TComInterface> {
@@ -29,6 +33,20 @@ impl<TComInterface: ComInterface> ComRc<TComInterface> {
 
     pub unsafe fn into_raw(self) -> *const *const c_void {
         self.into()
+    }
+
+    pub fn is_null(&self) -> bool {
+        self.this.is_null()
+    }
+
+    fn query_interface_raw(raw: *const c_void) -> ComRc<TComInterface> {
+        unsafe {
+            (raw as *const IUnknown)
+                .as_ref()
+                .unwrap()
+                .query_interface::<TComInterface>()
+                .expect("Failed to create ComRc: Interface not found")
+        }
     }
 }
 
@@ -112,6 +130,7 @@ pub trait ComInterface {
 pub trait ComObject {
     type CcwType;
     fn create_ccw(self) -> Self::CcwType;
+    fn get_ccw(&self) -> &Self::CcwType;
 }
 
 #[repr(C)]

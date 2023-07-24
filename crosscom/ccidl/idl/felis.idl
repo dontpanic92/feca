@@ -5,13 +5,13 @@ import crosscom.idl;
 [uuid(81bb38bb-da96-4eee-9a80-47bae3c060aa)]
 interface IRenderable: IUnknown {
     [internal(), rust()]
-    crate::style::Display display();
+    felis::style::Display display();
 
     [internal(), rust()]
-    crate::common::Rectangle layout(&pango::Context pango_context, &crate::style::Style style_computed, crate::common::Rectangle content_boundary);
+    felis::common::Rectangle layout(&pango::Context pango_context, &felis::style::Style style_computed, felis::common::Rectangle content_boundary);
 
     [internal(), rust()]
-    crosscom::Void paint(&crate::rendering::cairo::CairoRenderer renderer, &crate::style::Style style_computed);
+    crosscom::Void paint(&felis::rendering::cairo::CairoRenderer renderer, &felis::style::Style style_computed);
 }
 
 [uuid(6c636789-fd7e-4411-b2e8-6606538e9c8d)]
@@ -59,10 +59,10 @@ interface IHtmlElement: IElement {
     crosscom::Void on_mouse_move(f64 x, f64 y, &winit::window::Window window);
 
     [internal(), rust()]
-    crate::page::FelisAction on_mouse_click();
+    felis::page::FelisAction on_mouse_click();
 
     [internal(), rust()]
-    crosscom::Void merge_style(&crate::style::Style style);
+    crosscom::Void merge_style(&felis::style::Style style);
     
     [internal(), rust()]
     Option<Option<String>> get_attribute(&str key);

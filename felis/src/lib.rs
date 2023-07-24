@@ -4,10 +4,10 @@ pub use crate::rendering::cairo::CairoRenderer;
 pub use dom::core::string::DomString;
 
 pub mod comdef;
-mod common;
-mod dom;
+pub mod common;
+pub mod dom;
 mod layout;
 pub mod page;
 mod parser;
-mod rendering;
-mod style;
+pub mod rendering;
+pub mod style;

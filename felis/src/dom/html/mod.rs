@@ -59,6 +59,12 @@ lazy_static::lazy_static! {
         tag!(link);
         map
     };
+
+    pub static ref CUSTOM_TAG_CTOR_MAP: DashMap<String, fn(
+        Vec<ComRc<INode>>,
+        ComRc<IDomString>,
+        Attributes,
+    ) -> ComRc<INode>> = DashMap::new();
 }
 
 pub(crate) struct HtmlDom {
@@ -119,7 +125,9 @@ impl HtmlDom {
                     .collect::<HashMap<String, Option<String>>>();
 
                 let tag_name = t.name().as_utf8_str().to_lowercase();
-                if let Some(ctor) = TAG_CTOR_MAP.get(tag_name.as_str()) {
+                if let Some(ctor) = CUSTOM_TAG_CTOR_MAP.get(tag_name.as_str()) {
+                    Some(ctor(children, id, attributes))
+                } else if let Some(ctor) = TAG_CTOR_MAP.get(tag_name.as_str()) {
                     Some(ctor(children, id, attributes))
                 } else {
                     // None

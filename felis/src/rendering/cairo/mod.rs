@@ -1,9 +1,13 @@
+mod r#box;
+
 use cairo::{Context, Win32Surface};
 use image::RgbaImage;
 use raw_window_handle::{HasRawWindowHandle, Win32WindowHandle};
 use winapi::shared::windef::HWND;
 
 use crate::{common::Rectangle, layout::text::TextLayout, style::Style};
+
+use self::r#box::render_box;
 
 pub struct CairoRenderer {
     _surface: Win32Surface,
@@ -91,6 +95,10 @@ impl CairoRenderer {
         }
 
         self.context.restore().unwrap();
+    }
+
+    pub fn render_box(&self, boundary: &Rectangle, style_computed: &Style) {
+        r#box::render_box(&self.context, boundary, style_computed)
     }
 
     pub fn context(&self) -> &Context {

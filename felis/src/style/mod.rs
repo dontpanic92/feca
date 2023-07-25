@@ -24,7 +24,7 @@ pub struct Style {
     pub font_style: Option<FontStyle>,
 
     #[prop]
-    pub font_size: Option<FontSize>,
+    pub font_size: Option<Length>,
 
     #[prop]
     pub font_weight: Option<FontWeight>,
@@ -40,6 +40,30 @@ pub struct Style {
 
     #[prop]
     pub justify_content: Option<JustifyContent>,
+
+    #[prop]
+    pub border_top_width: Option<Length>,
+
+    #[prop]
+    pub border_top_color: Option<Color>,
+
+    #[prop]
+    pub border_left_width: Option<Length>,
+
+    #[prop]
+    pub border_left_color: Option<Color>,
+
+    #[prop]
+    pub border_right_width: Option<Length>,
+
+    #[prop]
+    pub border_right_color: Option<Color>,
+
+    #[prop]
+    pub border_bottom_width: Option<Length>,
+
+    #[prop]
+    pub border_bottom_color: Option<Color>,
 }
 
 impl Style {
@@ -48,7 +72,7 @@ impl Style {
             color: Some(Color::BLACK),
             font_family: Some("Microsoft YaHei".to_string()),
             font_style: Some(FontStyle::Normal),
-            font_size: Some(FontSize::new("12px")),
+            font_size: Some(Length::new("12px")),
 
             ..Default::default()
         }
@@ -166,9 +190,9 @@ impl From<&Property> for JustifyContent {
 }
 
 #[derive(Clone, Debug)]
-pub struct FontSize(String);
+pub struct Length(String);
 
-impl FontSize {
+impl Length {
     pub fn new(desc: &str) -> Self {
         Self(desc.to_string())
     }
@@ -178,13 +202,13 @@ impl FontSize {
     }
 }
 
-impl From<&Property> for FontSize {
+impl From<&Property> for Length {
     fn from(p: &Property) -> Self {
         Self { 0: p.into() }
     }
 }
 
-impl FromStr for FontSize {
+impl FromStr for Length {
     type Err = ();
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
@@ -192,7 +216,7 @@ impl FromStr for FontSize {
     }
 }
 
-impl Default for FontSize {
+impl Default for Length {
     fn default() -> Self {
         Self::new("12px")
     }

@@ -38,10 +38,10 @@ impl Color {
 
     pub fn to_color_f(&self) -> ColorF {
         ColorF {
-            r: self.r as f64 / 1.,
-            g: self.g as f64 / 1.,
-            b: self.b as f64 / 1.,
-            a: self.a as f64 / 1.,
+            r: self.r as f64 / 256.,
+            g: self.g as f64 / 256.,
+            b: self.b as f64 / 256.,
+            a: self.a as f64 / 256.,
         }
     }
 }
@@ -66,7 +66,7 @@ impl From<&Property> for Color {
     }
 }
 
-#[derive(Clone, Copy)]
+#[derive(Clone, Copy, Debug)]
 pub struct ColorF {
     pub r: f64,
     pub g: f64,

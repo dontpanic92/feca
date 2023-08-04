@@ -10,7 +10,8 @@ use nom::{
     combinator::recognize,
     error::ParseError,
     multi::{many0_count, many1_count},
-    sequence::pair, IResult, InputIter, InputLength, InputTake,
+    sequence::pair,
+    IResult, InputIter, InputLength, InputTake,
 };
 use parser_utils::{parse_c_style_comment, parse_string, w};
 
@@ -211,7 +212,7 @@ pub fn tokenize(mut input: &str) -> IResult<&str, Vec<Token>> {
 fn identifier(input: &str) -> IResult<&str, Token> {
     let (input, ident) = w(recognize(alt((
         pair(
-            alt((tag("_"), tag("-"), tag("@"), tag("."), tag("#"), tag("!"))),
+            alt((tag("_"), tag("-"), tag("@"), tag("!"))),
             many1_count(alt((alphanumeric1, tag("-"), tag("."), tag("%"), tag("/")))),
         ),
         pair(

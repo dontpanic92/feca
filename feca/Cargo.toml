@@ -7,15 +7,19 @@ default-run = "feca"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-felis = { path = "../felis" }
+anyhow = "1"
 catus = { path = "../catus" }
+chrono = "0.4"
 crosscom = { path = "../crosscom/runtime/rust" }
-tl = "0.6.0"
-winit = "0.27"
-raw-window-handle = "0.5"
+felis = { path = "../felis" }
 pango = "0.15"
 pangocairo = "0.15"
-chrono = "0.4"
+raw-window-handle = "0.5"
+reqwest = { version = "0.11", features = ["json"] }
+tl = "0.6.0"
+tokio = { version = "1", features = ["full"] }
+url = "2"
+winit = "0.27"
 
 [dependencies.cairo-rs]
 version = "0.15"

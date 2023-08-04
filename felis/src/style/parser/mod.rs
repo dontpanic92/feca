@@ -4,7 +4,7 @@ use std::cell::RefCell;
 
 use nom::{
     branch::alt,
-    bytes::complete::{take},
+    bytes::complete::take,
     combinator::{map, opt},
     error::ParseError,
     multi::{many0, many1, separated_list0, separated_list1},
@@ -361,6 +361,7 @@ fn class_selector(input: Tokens) -> IResult<Tokens, BasicSelector> {
 }
 
 fn type_selector(input: Tokens) -> IResult<Tokens, BasicSelector> {
+    let (input, _) = tag_dot(input)?;
     let (input, identifier) = identifier(input)?;
 
     Ok((input, BasicSelector::Type(TypeSelector { 0: identifier })))

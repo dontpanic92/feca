@@ -11,9 +11,7 @@ use crate::{
     style::Style,
 };
 
-use super::{
-    html_element::{Attributes, CoreHtmlElement, CoreHtmlElementBase, HtmlElementProps},
-};
+use super::html_element::{Attributes, CoreHtmlElement, CoreHtmlElementBase, HtmlElementProps};
 
 xcdt::declare_xcdt!(CoreStyle, StyleProps, CoreHtmlElement, CoreHtmlElementBase);
 

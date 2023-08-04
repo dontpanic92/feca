@@ -39,8 +39,16 @@ impl<'a> Tokens<'a> {
         }
     }
 
+    pub fn take_vec(&self, count: usize) -> Vec<Token> {
+        self.tokens.iter().take(count).cloned().collect()
+    }
+
     pub fn print_debug2(&self, desc: &str, count: usize) {
-        println!("Trying {} for {:?}", desc, &self.tokens[0..count]);
+        println!(
+            "Trying {} for {:?}",
+            desc,
+            &self.tokens.iter().take(count).collect::<Vec<&Token>>()
+        );
     }
 }
 

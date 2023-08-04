@@ -27,7 +27,7 @@ use super::{
 #[derive(Debug)]
 pub enum ParsingError {
     LexerError(String),
-    ParserError(Token),
+    ParserError(Vec<Token>),
     ParserError2,
 }
 
@@ -42,13 +42,10 @@ impl ParsingError {
 }
 
 pub fn parse_style(input: &str) -> Result<Vec<StyleBlock>, ParsingError> {
-    let (input, tokens) = tokenize(input).map_err(|err| {
-        // println!("after tokenize: {:?}", err);
-        match err {
-            nom::Err::Error(e) => ParsingError::LexerError(e.input.to_string()),
-            nom::Err::Failure(e) => ParsingError::LexerError(e.input.to_string()),
-            nom::Err::Incomplete(_) => ParsingError::LexerError("".to_string()),
-        }
+    let (input, tokens) = tokenize(input).map_err(|err| match err {
+        nom::Err::Error(e) => ParsingError::LexerError(e.input.to_string()),
+        nom::Err::Failure(e) => ParsingError::LexerError(e.input.to_string()),
+        nom::Err::Incomplete(_) => ParsingError::LexerError("".to_string()),
     })?;
 
     if input.trim().len() != 0 {
@@ -57,15 +54,13 @@ pub fn parse_style(input: &str) -> Result<Vec<StyleBlock>, ParsingError> {
 
     let (remaining, blocks) =
         parse_style_from_tokens(Tokens::new(&tokens)).map_err(|err| match err {
-            nom::Err::Error(e) => ParsingError::ParserError(e.input.first().unwrap().clone()),
-            nom::Err::Failure(e) => ParsingError::ParserError(e.input.first().unwrap().clone()),
+            nom::Err::Error(e) => ParsingError::ParserError(e.input.take_vec(5)),
+            nom::Err::Failure(e) => ParsingError::ParserError(e.input.take_vec(5)),
             _ => ParsingError::ParserError2,
         })?;
 
     if remaining.count > 0 {
-        return Err(ParsingError::ParserError(
-            remaining.first().unwrap().clone(),
-        ));
+        return Err(ParsingError::ParserError(remaining.take_vec(5)));
     }
 
     Ok(blocks)
@@ -83,15 +78,13 @@ pub fn parse_inline(input: &str) -> Result<Style, ParsingError> {
     }
 
     let (remaining, style) = style_inline(Tokens::new(&tokens)).map_err(|err| match err {
-        nom::Err::Error(e) => ParsingError::ParserError(e.input.first().unwrap().clone()),
-        nom::Err::Failure(e) => ParsingError::ParserError(e.input.first().unwrap().clone()),
+        nom::Err::Error(e) => ParsingError::ParserError(e.input.take_vec(5)),
+        nom::Err::Failure(e) => ParsingError::ParserError(e.input.take_vec(5)),
         _ => ParsingError::ParserError2,
     })?;
 
     if remaining.count > 0 {
-        return Err(ParsingError::ParserError(
-            remaining.first().unwrap().clone(),
-        ));
+        return Err(ParsingError::ParserError(remaining.take_vec(5)));
     }
 
     Ok(style)
@@ -260,17 +253,26 @@ fn function_call(input: Tokens) -> IResult<Tokens, ()> {
     Ok((input, ()))
 }
 
+fn color(input: Tokens) -> IResult<Tokens, String> {
+    let (input, _) = tag_hash(input)?;
+    let (input, identifier) = identifier(input)?;
+
+    Ok((input, identifier))
+}
+
 fn primary_expression(input: Tokens) -> IResult<Tokens, PropertyValue> {
     let _a = InputDebug::print(&input, "expression");
     alt((
         map(function_call, |_value| PropertyValue::FunctionCall),
         map(identifier, |value| PropertyValue::String(value)),
+        map(color, |value| PropertyValue::Color(value)),
         map(string_literal, |value| PropertyValue::String(value)),
     ))(input)
 }
 
 pub enum PropertyValue {
     String(String),
+    Color(String),
     FunctionCall,
 }
 
@@ -294,7 +296,21 @@ fn property(input: Tokens) -> IResult<Tokens, Property> {
     let (input, key) = key(input)?;
     let (input, _) = tag_colon(input)?;
     let (input, value) = opt(property_value_list)(input)?;
-    let (input, _) = tag_semicolon(input)?;
+
+    let peek = input.first();
+    let input = match peek {
+        Some(&Token::SemiColon) => {
+            let (input, _) = take(1usize)(input)?;
+            input
+        }
+        Some(&Token::RightBrace) => input,
+        _ => {
+            return Err(nom::Err::Error(nom::error::Error::from_error_kind(
+                input,
+                nom::error::ErrorKind::Tag,
+            )))
+        }
+    };
 
     let value = value.unwrap_or(vec![]);
 
@@ -361,9 +377,7 @@ fn class_selector(input: Tokens) -> IResult<Tokens, BasicSelector> {
 }
 
 fn type_selector(input: Tokens) -> IResult<Tokens, BasicSelector> {
-    let (input, _) = tag_dot(input)?;
     let (input, identifier) = identifier(input)?;
-
     Ok((input, BasicSelector::Type(TypeSelector { 0: identifier })))
 }
 

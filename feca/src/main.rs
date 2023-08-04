@@ -33,6 +33,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         _ => panic!("unsupported scheme"),
     };
 
+    println!("html {}", html);
+
     let mut view = View::new(ViewOptions {
         enable_css: true,
         enable_javascript: false,

@@ -77,6 +77,12 @@ impl Style {
             ..Default::default()
         }
     }
+
+    pub fn resolve_inherit(&mut self, parent: &Style) {
+        if self.display == Some(Display::Inherit) {
+            self.display = parent.display
+        }
+    }
 }
 
 impl From<&Property> for String {
@@ -87,6 +93,7 @@ impl From<&Property> for String {
                 v.iter()
                     .map(|pv| match pv {
                         PropertyValue::String(s) => s,
+                        PropertyValue::Color(c) => c,
                         PropertyValue::FunctionCall => "",
                     })
                     .collect::<Vec<&str>>()

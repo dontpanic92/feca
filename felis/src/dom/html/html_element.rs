@@ -129,11 +129,13 @@ impl<T: 'static + XcDataType> IRenderableImpl for CoreHtmlElementBase<T> {
         style_computed: &Style,
         content_boundary: crate::common::Rectangle,
     ) -> crate::common::Rectangle {
-        let style_computed = Style::merge(&self.HtmlElementProps().style.borrow(), style_computed);
+        let mut style = Style::merge(&self.HtmlElementProps().style.borrow(), style_computed);
+        style.resolve_inherit(style_computed);
+
         *self.HtmlElementProps().boundary.borrow_mut() = layout_children(
             self.children(),
             pango_context,
-            &style_computed,
+            &style,
             content_boundary,
         );
 
@@ -153,8 +155,10 @@ impl<T: 'static + XcDataType> IRenderableImpl for CoreHtmlElementBase<T> {
         renderer: &crate::rendering::cairo::CairoRenderer,
         style_computed: &Style,
     ) {
-        let style_computed = Style::merge(&self.HtmlElementProps().style.borrow(), style_computed);
-        paint_children(self.children(), renderer, &style_computed)
+        let mut style = Style::merge(&self.HtmlElementProps().style.borrow(), style_computed);
+        style.resolve_inherit(style_computed);
+
+        paint_children(self.children(), renderer, &style)
     }
 }
 

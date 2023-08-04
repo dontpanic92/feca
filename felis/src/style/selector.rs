@@ -20,18 +20,7 @@ pub struct TypeSelector(pub String);
 
 impl IBasicSelector for TypeSelector {
     fn match_element(&self, element: ComRc<IHtmlElement>) -> bool {
-        if let Some(attr) = element.get_attribute("class") {
-            if let Some(value) = attr {
-                let strings = value.split_whitespace();
-                for s in strings {
-                    if s == self.0.as_str() {
-                        return true;
-                    }
-                }
-            }
-        }
-
-        false
+        element.tag().str() == &self.0
     }
 }
 
